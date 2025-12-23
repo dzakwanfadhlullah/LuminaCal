@@ -17,18 +17,63 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.luminacal.ui.components.CameraPreview
 import com.example.luminacal.ui.components.GlassCard
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
 @Composable
 fun CameraScannerScreen(onClose: () -> Unit) {
+    val context = LocalContext.current
+    var detectedText by remember { mutableStateOf("Scanning...") }
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            hasCameraPermission = granted
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            launcher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        // Mock Camera Background
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            Text(
-                "MOCK CAMERA VIEW",
-                color = Color.White.copy(alpha = 0.3f),
-                modifier = Modifier.align(Alignment.Center)
+        if (hasCameraPermission) {
+            CameraPreview(
+                modifier = Modifier.fillMaxSize(),
+                onObjectDetected = { label ->
+                    detectedText = if (label.isNotEmpty()) label else "Scanning..."
+                }
             )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Camera permission required",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         // Camera Overlay UI
@@ -61,13 +106,13 @@ fun CameraScannerScreen(onClose: () -> Unit) {
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "Point camera at food item",
+                        text = detectedText,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
                     Text(
-                        "AI will automatically recognize it",
+                        text = if (detectedText == "Scanning...") "Point camera at food item" else "AI detected this item",
                         color = Color.White.copy(alpha = 0.6f),
                         fontSize = 14.sp
                     )

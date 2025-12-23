@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.example.luminacal.ui.theme.Slate900
 import com.example.luminacal.ui.theme.Peach400
 import com.example.luminacal.ui.theme.Pink500
@@ -54,11 +56,16 @@ fun GlassButton(
         GlassButtonVariant.GHOST -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
     }
 
+    val haptic = LocalHapticFeedback.current
+
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .then(if (backgroundBrush != null) Modifier.background(backgroundBrush) else Modifier.background(backgroundColor))
-            .clickable { onClick() }
+            .clickable { 
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick() 
+            }
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

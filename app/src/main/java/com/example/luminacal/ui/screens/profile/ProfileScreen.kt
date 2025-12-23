@@ -21,13 +21,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.Blue500
 import com.example.luminacal.ui.theme.Peach400
 import com.example.luminacal.ui.theme.Pink500
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    darkMode: Boolean,
+    onToggleDarkMode: () -> Unit,
+    onHealthClick: () -> Unit = {}
+) {
+    val haptic = LocalHapticFeedback.current
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
@@ -59,14 +68,19 @@ fun ProfileScreen() {
                     )
                 }
                 Surface(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { 
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            // Action to edit profile
+                        },
                     shape = CircleShape,
                     color = Color.White,
                     shadowElevation = 4.dp
                 ) {
                     Icon(
                         Icons.Default.Edit, 
-                        contentDescription = null, 
+                        contentDescription = "Edit Profile", 
                         tint = Peach400, 
                         modifier = Modifier.padding(8.dp).size(16.dp)
                     )
@@ -82,9 +96,31 @@ fun ProfileScreen() {
         // Main Groups
         item {
             GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
-                ProfileItemRow(Icons.Default.TrackChanges, "Goals", tint = Color(0xFFFB923C))
+                ProfileItemRow(
+                    icon = Icons.Default.MonitorHeart, 
+                    title = "Health & Goals", 
+                    trailing = "TDEE Calculator",
+                    tint = Color(0xFFEF4444),
+                    onClick = { 
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onHealthClick()
+                    }
+                )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
-                ProfileItemRow(Icons.Default.Devices, "Devices & Apps", "2 Connected", tint = Color(0xFF22C55E))
+                ProfileItemRow(
+                    icon = Icons.Default.TrackChanges, 
+                    title = "Goals", 
+                    tint = Color(0xFFFB923C),
+                    onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                ProfileItemRow(
+                    icon = Icons.Default.Devices, 
+                    title = "Devices & Apps", 
+                    trailing = "2 Connected", 
+                    tint = Color(0xFF22C55E),
+                    onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
+                )
             }
         }
 
@@ -116,7 +152,14 @@ fun ProfileScreen() {
                             Spacer(modifier = Modifier.width(16.dp))
                             Text("Dark Mode", fontWeight = FontWeight.Medium)
                         }
-                        Switch(checked = false, onCheckedChange = {}, colors = SwitchDefaults.colors(checkedThumbColor = Blue500))
+                        Switch(
+                            checked = darkMode, 
+                            onCheckedChange = { 
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onToggleDarkMode() 
+                            }, 
+                            colors = SwitchDefaults.colors(checkedThumbColor = Blue500)
+                        )
                     }
                 }
             }
@@ -128,7 +171,9 @@ fun ProfileScreen() {
                 "Sign Out", 
                 color = Color.Red.copy(alpha = 0.7f), 
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
             )
             Text(
                 "Version 1.0.0 (Build 204)", 
@@ -141,9 +186,17 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun ProfileItemRow(icon: ImageVector, title: String, trailing: String? = null, tint: Color) {
+fun ProfileItemRow(
+    icon: ImageVector, 
+    title: String, 
+    trailing: String? = null, 
+    tint: Color,
+    onClick: () -> Unit = {}
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

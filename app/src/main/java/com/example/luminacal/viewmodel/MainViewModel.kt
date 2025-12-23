@@ -14,7 +14,8 @@ data class LuminaCalState(
     val macros: Macros = Macros(0, 0, 0),
     val history: List<HistoryEntry> = emptyList(),
     val darkMode: Boolean = false,
-    val selectedTab: String = "home"
+    val selectedTab: String = "home",
+    val healthMetrics: HealthMetrics = HealthMetrics()
 )
 
 class MainViewModel(private val repository: MealRepository) : ViewModel() {
@@ -49,6 +50,15 @@ class MainViewModel(private val repository: MealRepository) : ViewModel() {
 
     fun toggleDarkMode() {
         _uiState.update { it.copy(darkMode = !it.darkMode) }
+    }
+
+    fun updateHealthMetrics(metrics: HealthMetrics) {
+        _uiState.update { state ->
+            state.copy(
+                healthMetrics = metrics,
+                calories = state.calories.copy(target = metrics.targetCalories)
+            )
+        }
     }
 
     fun addFood(name: String, calories: Int, macros: Macros, type: MealType) {

@@ -1,28 +1,23 @@
 package com.example.luminacal.ui.screens.dashboard
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,8 +34,12 @@ fun DashboardScreen(
     calorieState: CalorieState,
     macros: Macros,
     history: List<HistoryEntry>,
-    onLogClick: (HistoryEntry) -> Unit
+    onLogClick: (HistoryEntry) -> Unit,
+    onProfileClick: () -> Unit,
+    onViewAllClick: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+    var selectedMacroLabel by remember { mutableStateOf<String?>(null) }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
@@ -68,12 +67,16 @@ fun DashboardScreen(
                 }
                 
                 AsyncImage(
-                    model = "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+                    model = "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
                     contentDescription = "Profile",
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f), CircleShape),
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f), CircleShape)
+                        .clickable { 
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onProfileClick() 
+                        },
                     contentScale = ContentScale.Crop
                 )
             }
@@ -133,26 +136,37 @@ fun DashboardScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        MacroProgressBar(
-                            label = "Protein",
-                            value = macros.protein,
-                            max = 150,
-                            color = Color(0xFF3B82F6),
-                            modifier = Modifier.weight(1f)
-                        )
-                        MacroProgressBar(
-                            label = "Carbs",
-                            value = macros.carbs,
-                            max = 200,
-                            color = Color(0xFF22C55E),
-                            modifier = Modifier.weight(1f)
-                        )
-                        MacroProgressBar(
-                            label = "Fat",
-                            value = macros.fat,
-                            max = 70,
-                            color = Color(0xFFFB923C),
-                            modifier = Modifier.weight(1f)
+                        listOf(
+                            Triple("Protein", macros.protein, Color(0xFF3B82F6)),
+                            Triple("Carbs", macros.carbs, Color(0xFF22C55E)),
+                            Triple("Fat", macros.fat, Color(0xFFFB923C))
+                        ).forEach { (label, value, color) ->
+                            MacroProgressBar(
+                                label = label,
+                                value = value,
+                                max = when(label) { "Protein" -> 150; "Carbs" -> 200; else -> 70 },
+                                color = color,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        selectedMacroLabel = if (selectedMacroLabel == label) null else label
+                                    }
+                            )
+                        }
+                    }
+                    
+                    AnimatedVisibility(visible = selectedMacroLabel != null) {
+                        Text(
+                            text = when(selectedMacroLabel) {
+                                "Protein" -> "You need ${150 - macros.protein}g more protein today."
+                                "Carbs" -> "Energy focus: ${macros.carbs}/200g carbs consumed."
+                                "Fat" -> "Healthy fats: ${macros.fat}/70g goal."
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 16.dp)
                         )
                     }
                 }
@@ -176,7 +190,11 @@ fun DashboardScreen(
                     text = "View All",
                     style = MaterialTheme.typography.labelMedium,
                     color = Blue500,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { 
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onViewAllClick() 
+                    }
                 )
             }
         }

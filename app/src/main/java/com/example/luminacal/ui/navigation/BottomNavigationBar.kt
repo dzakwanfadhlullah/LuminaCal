@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.example.luminacal.ui.theme.Slate900
 
 @Composable
@@ -26,6 +28,8 @@ fun BottomNavigationBar(
     onNavigate: (String) -> Unit,
     onScanClick: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,7 +57,10 @@ fun BottomNavigationBar(
                             .size(64.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .clickable { onScanClick() },
+                            .clickable { 
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onScanClick() 
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -69,7 +76,10 @@ fun BottomNavigationBar(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .clickable { onNavigate(screen.route) },
+                            .clickable { 
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onNavigate(screen.route) 
+                            },
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {

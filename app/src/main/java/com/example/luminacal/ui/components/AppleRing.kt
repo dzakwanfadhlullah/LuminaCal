@@ -1,22 +1,25 @@
 package com.example.luminacal.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,14 @@ fun AppleRing(
     labelProvider: @Composable () -> Unit,
     subLabel: String
 ) {
+    val haptic = LocalHapticFeedback.current
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1.0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "ringScale"
+    )
+
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = tween(durationMillis = 1500),
@@ -39,7 +50,19 @@ fun AppleRing(
     )
 
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .scale(scale)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        tryAwaitRelease()
+                        isPressed = false
+                    }
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(size)) {

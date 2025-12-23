@@ -15,9 +15,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
@@ -58,8 +63,25 @@ fun StatisticsScreen() {
 
         // Calorie Trend Card
         item {
+            var selectedIndex by remember { mutableStateOf(-1) }
+            val haptic = LocalHapticFeedback.current
+
             GlassCard(modifier = Modifier.fillMaxWidth()) {
-                Text("Calorie Intake Trend", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Calorie Intake Trend", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    if (selectedIndex != -1) {
+                        Text(
+                            text = "${statsData[selectedIndex].toInt()} kcal",
+                            color = Blue500,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Box(
@@ -67,7 +89,20 @@ fun StatisticsScreen() {
                         .height(150.dp)
                         .fillMaxWidth()
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures { offset ->
+                                    val stepX = size.width / (statsData.size - 1)
+                                    val index = (offset.x / stepX).roundToInt().coerceIn(0, statsData.size - 1)
+                                    if (selectedIndex != index) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        selectedIndex = index
+                                    }
+                                }
+                            }
+                    ) {
                         val width = size.width
                         val height = size.height
                         val maxVal = statsData.maxOrNull() ?: 1f
@@ -80,6 +115,7 @@ fun StatisticsScreen() {
                             )
                         }
 
+                        // ... (Path drawing logic remains same)
                         val path = Path().apply {
                             moveTo(points[0].x, points[0].y)
                             for (i in 1 until points.size) {
@@ -97,7 +133,6 @@ fun StatisticsScreen() {
                             close()
                         }
 
-                        // Draw Fill Gradient
                         drawPath(
                             path = fillPath,
                             brush = Brush.verticalGradient(
@@ -105,12 +140,26 @@ fun StatisticsScreen() {
                             )
                         )
 
-                        // Draw Line
                         drawPath(
                             path = path,
                             color = Blue500,
                             style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
                         )
+
+                        // Draw selection indicator
+                        if (selectedIndex != -1) {
+                            val p = points[selectedIndex]
+                            drawCircle(
+                                color = Blue500,
+                                radius = 6.dp.toPx(),
+                                center = p
+                            )
+                            drawCircle(
+                                color = Color.White,
+                                radius = 3.dp.toPx(),
+                                center = p
+                            )
+                        }
                     }
                 }
                 
@@ -120,11 +169,12 @@ fun StatisticsScreen() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-                    days.forEach { day ->
+                    days.forEachIndexed { index, day ->
                         Text(
                             text = day,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                            fontSize = 11.sp
+                            color = if (selectedIndex == index) Blue500 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            fontSize = 11.sp,
+                            fontWeight = if (selectedIndex == index) FontWeight.Bold else FontWeight.Normal
                         )
                     }
                 }

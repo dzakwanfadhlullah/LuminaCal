@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +27,8 @@ import com.example.luminacal.ui.navigation.Screen
 import com.example.luminacal.ui.screens.dashboard.DashboardScreen
 import com.example.luminacal.data.local.LuminaDatabase
 import com.example.luminacal.data.repository.MealRepository
+import com.example.luminacal.model.Macros
+import com.example.luminacal.model.MealType
 import com.example.luminacal.ui.theme.LuminaCalTheme
 import com.example.luminacal.viewmodel.MainViewModel
 
@@ -46,6 +52,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MainContent(viewModel: MainViewModel) {
     val state by viewModel.uiState.collectAsState()
@@ -56,59 +64,87 @@ fun MainContent(viewModel: MainViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         MeshBackground(darkMode = state.darkMode)
         
-        Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent,
-            bottomBar = {
-                BottomNavigationBar(
-                    currentRoute = currentRoute,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
+        SharedTransitionLayout {
+            Scaffold(
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                bottomBar = {
+                    BottomNavigationBar(
+                        currentRoute = currentRoute,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        },
+                        onScanClick = {
+                            navController.navigate(Screen.Camera.route)
                         }
-                    },
-                    onScanClick = {
-                        navController.navigate(Screen.Camera.route)
-                    }
-                )
-            }
-        ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                NavHost(
-                    navController = navController,
-                    startDestination = Screen.Dashboard.route
-                ) {
-                    composable(Screen.Dashboard.route) {
-                        DashboardScreen(
-                            calorieState = state.calories,
-                            macros = state.macros,
-                            history = state.history,
-                            onLogClick = { entry ->
-                                navController.navigate(Screen.FoodDetail.route)
-                            }
-                        )
-                    }
-                    composable(Screen.Statistics.route) {
-                        com.example.luminacal.ui.screens.statistics.StatisticsScreen()
-                    }
-                    composable(Screen.Explore.route) {
-                        com.example.luminacal.ui.screens.explore.ExploreScreen()
-                    }
-                    composable(Screen.Profile.route) {
-                        com.example.luminacal.ui.screens.profile.ProfileScreen()
-                    }
-                    composable(Screen.FoodDetail.route) {
-                        com.example.luminacal.ui.screens.detail.FoodDetailScreen(
-                            onBack = { navController.popBackStack() },
-                            onLogMeal = { name, cals, macros, type ->
-                                viewModel.addFood(name, cals, macros, type)
-                            }
-                        )
-                    }
-                    composable(Screen.Camera.route) {
-                        com.example.luminacal.ui.screens.camera.CameraScannerScreen(onClose = {
-                            navController.popBackStack()
-                        })
+                    )
+                }
+            ) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.Dashboard.route
+                    ) {
+                        composable(Screen.Dashboard.route) {
+                            DashboardScreen(
+                                calorieState = state.calories,
+                                macros = state.macros,
+                                history = state.history,
+                                onLogClick = { entry ->
+                                    navController.navigate(Screen.FoodDetail.route)
+                                },
+                                onProfileClick = {
+                                    navController.navigate(Screen.Profile.route)
+                                },
+                                onViewAllClick = {
+                                    navController.navigate(Screen.Statistics.route)
+                                }
+                            )
+                        }
+                        composable(Screen.Statistics.route) {
+                            com.example.luminacal.ui.screens.statistics.StatisticsScreen()
+                        }
+                        composable(Screen.Explore.route) {
+                            com.example.luminacal.ui.screens.explore.ExploreScreen(
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@composable,
+                                onFoodClick = {
+                                    navController.navigate(Screen.FoodDetail.route)
+                                }
+                            )
+                        }
+                        composable(Screen.Profile.route) {
+                            com.example.luminacal.ui.screens.profile.ProfileScreen(
+                                darkMode = state.darkMode,
+                                onToggleDarkMode = { viewModel.toggleDarkMode() },
+                                onHealthClick = { navController.navigate(Screen.HealthMetrics.route) }
+                            )
+                        }
+                        composable(Screen.FoodDetail.route) {
+                            com.example.luminacal.ui.screens.detail.FoodDetailScreen(
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@composable,
+                                onBack = { navController.popBackStack() },
+                                onLogMeal = { name, cals, macros, type ->
+                                    viewModel.addFood(name, cals, macros, type)
+                                }
+                            )
+                        }
+                        composable(Screen.Camera.route) {
+                            com.example.luminacal.ui.screens.camera.CameraScannerScreen(onClose = {
+                                navController.popBackStack()
+                            })
+                        }
+                        composable(Screen.HealthMetrics.route) {
+                            com.example.luminacal.ui.screens.health.HealthMetricsScreen(
+                                onBack = { navController.popBackStack() },
+                                onApplyGoals = { metrics ->
+                                    viewModel.updateHealthMetrics(metrics)
+                                }
+                            )
+                        }
                     }
                 }
             }
