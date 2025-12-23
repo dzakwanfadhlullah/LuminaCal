@@ -1,37 +1,15 @@
-# Dependencies
-node_modules/
-
-# Expo
-.expo/
-dist/
-web-build/
-
-# Native
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-
-# Metro
-.metro-health-check*
-
-# Debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-*.pem
-
-# Local env files
-.env*.local
-
-# TypeScript
-*.tsbuildinfo
-
-# Android/iOS build outputs (optional - can include if you want clean builds)
-# android/
-# ios/
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
