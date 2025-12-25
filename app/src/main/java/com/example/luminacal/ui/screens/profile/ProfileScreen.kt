@@ -34,7 +34,9 @@ import com.example.luminacal.ui.theme.Pink500
 fun ProfileScreen(
     darkMode: Boolean,
     onToggleDarkMode: () -> Unit,
-    onHealthClick: () -> Unit = {}
+    onHealthClick: () -> Unit = {},
+    onExportCSV: () -> Unit = {},
+    onExportJSON: () -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
     LazyColumn(
@@ -121,6 +123,40 @@ fun ProfileScreen(
                     tint = Color(0xFF22C55E),
                     onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
                 )
+            }
+        }
+
+        // Data Management
+        item {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "DATA MANAGEMENT", 
+                    fontSize = 12.sp, 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                )
+                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
+                    ProfileItemRow(
+                        icon = Icons.Default.FileDownload, 
+                        title = "Export Meals (CSV)", 
+                        tint = Color(0xFF3B82F6),
+                        onClick = { 
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onExportCSV()
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                    ProfileItemRow(
+                        icon = Icons.Default.Backup, 
+                        title = "Full Backup (JSON)", 
+                        tint = Color(0xFF8B5CF6),
+                        onClick = { 
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onExportJSON()
+                        }
+                    )
+                }
             }
         }
 

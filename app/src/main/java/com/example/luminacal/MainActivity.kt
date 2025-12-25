@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -122,10 +123,46 @@ fun MainContent(viewModel: MainViewModel) {
                             )
                         }
                         composable(Screen.Profile.route) {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val dataExporter = remember { com.example.luminacal.util.DataExporter(context) }
                             com.example.luminacal.ui.screens.profile.ProfileScreen(
                                 darkMode = state.darkMode,
                                 onToggleDarkMode = { viewModel.toggleDarkMode() },
-                                onHealthClick = { navController.navigate(Screen.HealthMetrics.route) }
+                                onHealthClick = { navController.navigate(Screen.HealthMetrics.route) },
+                                onExportCSV = {
+                                    val mealsToExport = state.history.map { entry ->
+                                        com.example.luminacal.data.local.MealEntity(
+                                            id = entry.id,
+                                            name = entry.name,
+                                            time = entry.time,
+                                            calories = entry.calories,
+                                            protein = entry.macros.protein,
+                                            carbs = entry.macros.carbs,
+                                            fat = entry.macros.fat,
+                                            type = entry.type,
+                                            date = System.currentTimeMillis()
+                                        )
+                                    }
+                                    val file = dataExporter.exportMealsToCSV(mealsToExport)
+                                    dataExporter.shareFile(file, "text/csv")
+                                },
+                                onExportJSON = {
+                                    val mealsToExport = state.history.map { entry ->
+                                        com.example.luminacal.data.local.MealEntity(
+                                            id = entry.id,
+                                            name = entry.name,
+                                            time = entry.time,
+                                            calories = entry.calories,
+                                            protein = entry.macros.protein,
+                                            carbs = entry.macros.carbs,
+                                            fat = entry.macros.fat,
+                                            type = entry.type,
+                                            date = System.currentTimeMillis()
+                                        )
+                                    }
+                                    val file = dataExporter.exportToJSON(mealsToExport, state.healthMetrics, state.weightHistory)
+                                    dataExporter.shareFile(file, "application/json")
+                                }
                             )
                         }
                         composable(Screen.FoodDetail.route) {
