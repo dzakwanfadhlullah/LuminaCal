@@ -44,6 +44,9 @@ class MainActivity : ComponentActivity() {
         val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
         val weightRepository = com.example.luminacal.data.repository.WeightRepository(database.weightDao())
         val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository)
+        
+        // Check onboarding status
+        val showOnboarding = !com.example.luminacal.util.OnboardingPrefs.isOnboardingComplete(this)
 
         enableEdgeToEdge()
         setContent {
@@ -51,7 +54,14 @@ class MainActivity : ComponentActivity() {
             val state by viewModel.uiState.collectAsState()
             
             LuminaCalTheme(darkTheme = state.darkMode) {
-                MainContent(viewModel)
+                MainContent(
+                    viewModel = viewModel,
+                    showOnboarding = showOnboarding,
+                    onOnboardingComplete = { metrics ->
+                        viewModel.updateHealthMetrics(metrics)
+                        com.example.luminacal.util.OnboardingPrefs.setOnboardingComplete(this@MainActivity)
+                    }
+                )
             }
         }
     }
@@ -60,11 +70,18 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MainContent(viewModel: MainViewModel) {
+fun MainContent(
+    viewModel: MainViewModel,
+    showOnboarding: Boolean = false,
+    onOnboardingComplete: (com.example.luminacal.model.HealthMetrics) -> Unit = {}
+) {
     val state by viewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Determine start destination based on onboarding status
+    val startDestination = if (showOnboarding) Screen.Onboarding.route else Screen.Dashboard.route
 
     Box(modifier = Modifier.fillMaxSize()) {
         MeshBackground(darkMode = state.darkMode)
@@ -73,25 +90,45 @@ fun MainContent(viewModel: MainViewModel) {
             Scaffold(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 bottomBar = {
-                    BottomNavigationBar(
-                        currentRoute = currentRoute,
-                        onNavigate = { route ->
-                            navController.navigate(route) {
-                                popUpTo(navController.graph.startDestinationId)
-                                launchSingleTop = true
+                    // Hide bottom bar during onboarding
+                    if (currentRoute != Screen.Onboarding.route) {
+                        BottomNavigationBar(
+                            currentRoute = currentRoute,
+                            onNavigate = { route ->
+                                navController.navigate(route) {
+                                    popUpTo(navController.graph.startDestinationId)
+                                    launchSingleTop = true
+                                }
+                            },
+                            onScanClick = {
+                                navController.navigate(Screen.Camera.route)
                             }
-                        },
-                        onScanClick = {
-                            navController.navigate(Screen.Camera.route)
-                        }
-                    )
+                        )
+                    }
                 }
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.Dashboard.route
+                        startDestination = startDestination
                     ) {
+                        // Onboarding Screen
+                        composable(Screen.Onboarding.route) {
+                            com.example.luminacal.ui.screens.onboarding.OnboardingScreen(
+                                onComplete = { metrics ->
+                                    onOnboardingComplete(metrics)
+                                    navController.navigate(Screen.Dashboard.route) {
+                                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                                    }
+                                },
+                                onSkip = {
+                                    navController.navigate(Screen.Dashboard.route) {
+                                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+                        
                         composable(Screen.Dashboard.route) {
                             DashboardScreen(
                                 calorieState = state.calories,

@@ -25,6 +25,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Camera : Screen("camera", "Scan", Icons.Default.QrCodeScanner)
     object FoodDetail : Screen("food_detail", "Detail", Icons.Default.PieChart)
     object HealthMetrics : Screen("health_metrics", "Health", Icons.Default.ShowChart)
+    object Onboarding : Screen("onboarding", "Onboarding", Icons.Default.CompassCalibration)
 }
 
 val bottomNavItems = listOf(
