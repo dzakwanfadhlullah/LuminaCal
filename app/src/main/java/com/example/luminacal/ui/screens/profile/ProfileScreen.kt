@@ -197,6 +197,32 @@ fun ProfileScreen(
                             colors = SwitchDefaults.colors(checkedThumbColor = Blue500)
                         )
                     }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                    // Notification Setting Placeholder
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Surface(
+                                modifier = Modifier.size(32.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFF3B82F6).copy(alpha = 0.1f)
+                            ) {
+                                Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color(0xFF3B82F6), modifier = Modifier.padding(6.dp))
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text("Meal Reminders", fontWeight = FontWeight.Medium)
+                        }
+                        Switch(
+                            checked = true, 
+                            onCheckedChange = { 
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }, 
+                            colors = SwitchDefaults.colors(checkedThumbColor = Blue500)
+                        )
+                    }
                 }
             }
         }

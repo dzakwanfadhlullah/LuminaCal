@@ -38,6 +38,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Initialize Notifications
+        com.example.luminacal.util.NotificationHelper.createNotificationChannels(this)
+        com.example.luminacal.util.ReminderScheduler.scheduleMealReminders(this)
+        
+        // Request notification permission for Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            androidx.core.app.ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                101
+            )
+        }
+
         val database = LuminaDatabase.getDatabase(this)
         val mealRepository = MealRepository(database.mealDao())
         val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
@@ -148,7 +161,12 @@ fun MainContent(
                             )
                         }
                         composable(Screen.Statistics.route) {
-                            com.example.luminacal.ui.screens.statistics.StatisticsScreen()
+                            com.example.luminacal.ui.screens.statistics.StatisticsScreen(
+                                weeklyCalories = state.weeklyCalories,
+                                weightPoints = state.weightPoints,
+                                macros = state.macros,
+                                weightGoal = state.healthMetrics.weight - 5f // Example target
+                            )
                         }
                         composable(Screen.Explore.route) {
                             com.example.luminacal.ui.screens.explore.ExploreScreen(

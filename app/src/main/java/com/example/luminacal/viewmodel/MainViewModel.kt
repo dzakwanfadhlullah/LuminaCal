@@ -23,7 +23,9 @@ data class LuminaCalState(
     val healthMetrics: HealthMetrics = HealthMetrics(),
     val water: WaterState = WaterState(),
     val weightHistory: List<WeightEntry> = emptyList(),
-    val weightTrend: WeightTrend = WeightTrend(null, null, null)
+    val weightTrend: WeightTrend = WeightTrend(null, null, null),
+    val weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories> = emptyList(),
+    val weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint> = emptyList()
 )
 
 class MainViewModel(
@@ -36,22 +38,54 @@ class MainViewModel(
     val uiState: StateFlow<LuminaCalState> = _uiState.asStateFlow()
 
     init {
-        // Load meals
+        // Load meals and calculate daily/weekly stats
         viewModelScope.launch {
             mealRepository.allMeals.collect { meals ->
                 val history = meals.map { it.toHistoryEntry() }
-                val totalCalories = history.sumOf { it.calories }
+                
+                // Get today's start/end for consumed/macros
+                val calendar = java.util.Calendar.getInstance()
+                calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                calendar.set(java.util.Calendar.MINUTE, 0)
+                calendar.set(java.util.Calendar.SECOND, 0)
+                val startOfToday = calendar.timeInMillis
+                
+                val todayMeals = meals.filter { it.date >= startOfToday }
+                val totalCalories = todayMeals.sumOf { it.calories }
                 val totalMacros = Macros(
-                    protein = history.sumOf { it.macros.protein },
-                    carbs = history.sumOf { it.macros.carbs },
-                    fat = history.sumOf { it.macros.fat }
+                    protein = todayMeals.sumOf { it.protein },
+                    carbs = todayMeals.sumOf { it.carbs },
+                    fat = todayMeals.sumOf { it.fat }
                 )
+
+                // Calculate weekly calories
+                val weekly = mutableListOf<com.example.luminacal.ui.components.charts.DailyCalories>()
+                val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
+                
+                for (i in 6 downTo 0) {
+                    val cal = java.util.Calendar.getInstance()
+                    cal.add(java.util.Calendar.DAY_OF_YEAR, -i)
+                    cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                    val start = cal.timeInMillis
+                    cal.set(java.util.Calendar.HOUR_OF_DAY, 23)
+                    val end = cal.timeInMillis
+                    
+                    val dayCalories = meals.filter { it.date in start..end }.sumOf { it.calories }
+                    weekly.add(
+                        com.example.luminacal.ui.components.charts.DailyCalories(
+                            day = sdf.format(cal.time),
+                            calories = dayCalories.toFloat(),
+                            target = _uiState.value.healthMetrics.targetCalories.toFloat()
+                        )
+                    )
+                }
 
                 _uiState.update { state ->
                     state.copy(
                         history = history,
                         calories = state.calories.copy(consumed = totalCalories),
-                        macros = totalMacros
+                        macros = totalMacros,
+                        weeklyCalories = weekly
                     )
                 }
             }
@@ -80,11 +114,20 @@ class MainViewModel(
             }
         }
 
-        // Load weight history
+        // Load weight history and calculate points
         viewModelScope.launch {
             weightRepository.allWeights.collect { weights ->
+                val points = weights.take(30).reversed().map {
+                    com.example.luminacal.ui.components.charts.WeightPoint(
+                        date = "", // We'll just use index for now in chart
+                        weight = it.weightKg
+                    )
+                }
                 _uiState.update { state ->
-                    state.copy(weightHistory = weights)
+                    state.copy(
+                        weightHistory = weights,
+                        weightPoints = points
+                    )
                 }
             }
         }
