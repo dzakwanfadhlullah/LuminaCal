@@ -7,6 +7,9 @@ import com.example.luminacal.data.local.MealEntity
 import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.data.repository.WaterRepository
+import com.example.luminacal.data.repository.WeightRepository
+import com.example.luminacal.data.repository.WeightEntry
+import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,13 +21,16 @@ data class LuminaCalState(
     val darkMode: Boolean = false,
     val selectedTab: String = "home",
     val healthMetrics: HealthMetrics = HealthMetrics(),
-    val water: WaterState = WaterState()
+    val water: WaterState = WaterState(),
+    val weightHistory: List<WeightEntry> = emptyList(),
+    val weightTrend: WeightTrend = WeightTrend(null, null, null)
 )
 
 class MainViewModel(
     private val mealRepository: MealRepository,
     private val healthMetricsRepository: HealthMetricsRepository,
-    private val waterRepository: WaterRepository
+    private val waterRepository: WaterRepository,
+    private val weightRepository: WeightRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LuminaCalState())
     val uiState: StateFlow<LuminaCalState> = _uiState.asStateFlow()
@@ -73,6 +79,24 @@ class MainViewModel(
                 }
             }
         }
+
+        // Load weight history
+        viewModelScope.launch {
+            weightRepository.allWeights.collect { weights ->
+                _uiState.update { state ->
+                    state.copy(weightHistory = weights)
+                }
+            }
+        }
+
+        // Load weight trend
+        viewModelScope.launch {
+            weightRepository.weeklyTrend.collect { trend ->
+                _uiState.update { state ->
+                    state.copy(weightTrend = trend)
+                }
+            }
+        }
     }
 
     fun setTab(tab: String) {
@@ -99,6 +123,18 @@ class MainViewModel(
     fun addWater(amountMl: Int) {
         viewModelScope.launch {
             waterRepository.addWater(amountMl)
+        }
+    }
+
+    fun addWeight(weightKg: Float, note: String? = null) {
+        viewModelScope.launch {
+            weightRepository.addWeight(weightKg, note)
+        }
+    }
+
+    fun deleteWeight(entry: WeightEntry) {
+        viewModelScope.launch {
+            weightRepository.deleteWeight(entry)
         }
     }
 
@@ -130,15 +166,17 @@ class MainViewModel(
     class Factory(
         private val mealRepository: MealRepository,
         private val healthMetricsRepository: HealthMetricsRepository,
-        private val waterRepository: WaterRepository
+        private val waterRepository: WaterRepository,
+        private val weightRepository: WeightRepository
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository) as T
+                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
+
 

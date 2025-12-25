@@ -23,15 +23,24 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.luminacal.data.repository.WeightEntry
+import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
+import com.example.luminacal.ui.components.AddWeightDialog
 import com.example.luminacal.ui.components.GlassCard
+import com.example.luminacal.ui.components.WeightEntryCard
+import com.example.luminacal.ui.components.WeightTrendBadge
 import com.example.luminacal.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthMetricsScreen(
     onBack: () -> Unit,
-    onApplyGoals: (HealthMetrics) -> Unit
+    onApplyGoals: (HealthMetrics) -> Unit,
+    weightHistory: List<WeightEntry> = emptyList(),
+    weightTrend: WeightTrend = WeightTrend(null, null, null),
+    onAddWeight: (Float, String?) -> Unit = { _, _ -> },
+    onDeleteWeight: (WeightEntry) -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
     
@@ -42,6 +51,9 @@ fun HealthMetricsScreen(
     var gender by remember { mutableStateOf(Gender.MALE) }
     var activityLevel by remember { mutableStateOf(ActivityLevel.MODERATE) }
     var fitnessGoal by remember { mutableStateOf(FitnessGoal.MAINTAIN) }
+    
+    // Dialog state
+    var showAddWeightDialog by remember { mutableStateOf(false) }
     
     // Create health metrics object
     val healthMetrics = remember(weight, height, age, gender, activityLevel, fitnessGoal) {
@@ -54,6 +66,18 @@ fun HealthMetricsScreen(
         animationSpec = tween(500),
         label = "tdee"
     )
+    
+    // Show add weight dialog
+    if (showAddWeightDialog) {
+        AddWeightDialog(
+            currentWeight = weight,
+            onDismiss = { showAddWeightDialog = false },
+            onConfirm = { newWeight, note ->
+                onAddWeight(newWeight, note)
+                showAddWeightDialog = false
+            }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -96,6 +120,60 @@ fun HealthMetricsScreen(
                 carbs = healthMetrics.recommendedCarbs,
                 fat = healthMetrics.recommendedFat
             )
+        }
+
+        // Weight History Section
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp, top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Weight History",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    WeightTrendBadge(trend = weightTrend)
+                    FilledTonalButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            showAddWeightDialog = true
+                        },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Log", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
+
+        // Weight Entries
+        if (weightHistory.isNotEmpty()) {
+            items(weightHistory.take(5)) { entry ->
+                WeightEntryCard(
+                    entry = entry,
+                    onDelete = { onDeleteWeight(entry) }
+                )
+            }
+        } else {
+            item {
+                GlassCard(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "No weight entries yet. Tap 'Log' to add your first entry.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
         }
 
         // Body Metrics Section

@@ -41,7 +41,8 @@ class MainActivity : ComponentActivity() {
         val mealRepository = MealRepository(database.mealDao())
         val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
         val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
-        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository)
+        val weightRepository = com.example.luminacal.data.repository.WeightRepository(database.weightDao())
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository)
 
         enableEdgeToEdge()
         setContent {
@@ -147,7 +148,11 @@ fun MainContent(viewModel: MainViewModel) {
                                 onBack = { navController.popBackStack() },
                                 onApplyGoals = { metrics ->
                                     viewModel.updateHealthMetrics(metrics)
-                                }
+                                },
+                                weightHistory = state.weightHistory,
+                                weightTrend = state.weightTrend,
+                                onAddWeight = { weight, note -> viewModel.addWeight(weight, note) },
+                                onDeleteWeight = { entry -> viewModel.deleteWeight(entry) }
                             )
                         }
                     }
