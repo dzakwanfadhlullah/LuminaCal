@@ -6,10 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [MealEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [MealEntity::class, HealthMetricsEntity::class],
+    version = 2,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class LuminaDatabase : RoomDatabase() {
     abstract fun mealDao(): MealDao
+    abstract fun healthMetricsDao(): HealthMetricsDao
 
     companion object {
         @Volatile
@@ -21,7 +26,9 @@ abstract class LuminaDatabase : RoomDatabase() {
                     context.applicationContext,
                     LuminaDatabase::class.java,
                     "lumina_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Dev phase - destroy and recreate
+                    .build()
                 INSTANCE = instance
                 instance
             }

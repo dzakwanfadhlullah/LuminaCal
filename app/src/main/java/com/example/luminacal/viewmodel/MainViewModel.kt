@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.luminacal.data.local.MealEntity
+import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.model.*
 import kotlinx.coroutines.flow.*
@@ -18,13 +19,17 @@ data class LuminaCalState(
     val healthMetrics: HealthMetrics = HealthMetrics()
 )
 
-class MainViewModel(private val repository: MealRepository) : ViewModel() {
+class MainViewModel(
+    private val mealRepository: MealRepository,
+    private val healthMetricsRepository: HealthMetricsRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LuminaCalState())
     val uiState: StateFlow<LuminaCalState> = _uiState.asStateFlow()
 
     init {
+        // Load meals
         viewModelScope.launch {
-            repository.allMeals.collect { meals ->
+            mealRepository.allMeals.collect { meals ->
                 val history = meals.map { it.toHistoryEntry() }
                 val totalCalories = history.sumOf { it.calories }
                 val totalMacros = Macros(
@@ -32,13 +37,27 @@ class MainViewModel(private val repository: MealRepository) : ViewModel() {
                     carbs = history.sumOf { it.macros.carbs },
                     fat = history.sumOf { it.macros.fat }
                 )
-                
+
                 _uiState.update { state ->
                     state.copy(
                         history = history,
                         calories = state.calories.copy(consumed = totalCalories),
                         macros = totalMacros
                     )
+                }
+            }
+        }
+
+        // Load health metrics from database
+        viewModelScope.launch {
+            healthMetricsRepository.healthMetrics.collect { savedMetrics ->
+                if (savedMetrics != null) {
+                    _uiState.update { state ->
+                        state.copy(
+                            healthMetrics = savedMetrics,
+                            calories = state.calories.copy(target = savedMetrics.targetCalories)
+                        )
+                    }
                 }
             }
         }
@@ -59,6 +78,10 @@ class MainViewModel(private val repository: MealRepository) : ViewModel() {
                 calories = state.calories.copy(target = metrics.targetCalories)
             )
         }
+        // Persist to database
+        viewModelScope.launch {
+            healthMetricsRepository.saveHealthMetrics(metrics)
+        }
     }
 
     fun addFood(name: String, calories: Int, macros: Macros, type: MealType) {
@@ -73,7 +96,7 @@ class MainViewModel(private val repository: MealRepository) : ViewModel() {
                 type = type,
                 date = System.currentTimeMillis()
             )
-            repository.insertMeal(meal)
+            mealRepository.insertMeal(meal)
         }
     }
 
@@ -86,11 +109,14 @@ class MainViewModel(private val repository: MealRepository) : ViewModel() {
         type = type
     )
 
-    class Factory(private val repository: MealRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val mealRepository: MealRepository,
+        private val healthMetricsRepository: HealthMetricsRepository
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(repository) as T
+                return MainViewModel(mealRepository, healthMetricsRepository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

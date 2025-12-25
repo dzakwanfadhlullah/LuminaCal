@@ -26,6 +26,7 @@ import com.example.luminacal.ui.navigation.BottomNavigationBar
 import com.example.luminacal.ui.navigation.Screen
 import com.example.luminacal.ui.screens.dashboard.DashboardScreen
 import com.example.luminacal.data.local.LuminaDatabase
+import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
@@ -37,8 +38,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         val database = LuminaDatabase.getDatabase(this)
-        val repository = MealRepository(database.mealDao())
-        val factory = MainViewModel.Factory(repository)
+        val mealRepository = MealRepository(database.mealDao())
+        val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository)
 
         enableEdgeToEdge()
         setContent {
