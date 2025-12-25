@@ -40,7 +40,8 @@ class MainActivity : ComponentActivity() {
         val database = LuminaDatabase.getDatabase(this)
         val mealRepository = MealRepository(database.mealDao())
         val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
-        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository)
+        val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository)
 
         enableEdgeToEdge()
         setContent {
@@ -94,6 +95,8 @@ fun MainContent(viewModel: MainViewModel) {
                                 calorieState = state.calories,
                                 macros = state.macros,
                                 history = state.history,
+                                waterState = state.water,
+                                onAddWater = { amount -> viewModel.addWater(amount) },
                                 onLogClick = { entry ->
                                     navController.navigate(Screen.FoodDetail.route)
                                 },

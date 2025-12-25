@@ -26,6 +26,7 @@ import com.example.luminacal.model.CalorieState
 import com.example.luminacal.model.HistoryEntry
 import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
+import com.example.luminacal.model.WaterState
 import com.example.luminacal.ui.components.*
 import com.example.luminacal.ui.theme.*
 
@@ -34,6 +35,8 @@ fun DashboardScreen(
     calorieState: CalorieState,
     macros: Macros,
     history: List<HistoryEntry>,
+    waterState: WaterState,
+    onAddWater: (Int) -> Unit,
     onLogClick: (HistoryEntry) -> Unit,
     onProfileClick: () -> Unit,
     onViewAllClick: () -> Unit
@@ -172,6 +175,14 @@ fun DashboardScreen(
                 }
                 }
             }
+        }
+
+        // Water Tracking Widget
+        item {
+            WaterTrackingWidget(
+                waterState = waterState,
+                onAddWater = onAddWater
+            )
         }
 
         // Timeline Header

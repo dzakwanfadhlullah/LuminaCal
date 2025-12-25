@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.luminacal.data.local.MealEntity
 import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
+import com.example.luminacal.data.repository.WaterRepository
 import com.example.luminacal.model.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -16,12 +17,14 @@ data class LuminaCalState(
     val history: List<HistoryEntry> = emptyList(),
     val darkMode: Boolean = false,
     val selectedTab: String = "home",
-    val healthMetrics: HealthMetrics = HealthMetrics()
+    val healthMetrics: HealthMetrics = HealthMetrics(),
+    val water: WaterState = WaterState()
 )
 
 class MainViewModel(
     private val mealRepository: MealRepository,
-    private val healthMetricsRepository: HealthMetricsRepository
+    private val healthMetricsRepository: HealthMetricsRepository,
+    private val waterRepository: WaterRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LuminaCalState())
     val uiState: StateFlow<LuminaCalState> = _uiState.asStateFlow()
@@ -61,6 +64,15 @@ class MainViewModel(
                 }
             }
         }
+
+        // Load water state for today
+        viewModelScope.launch {
+            waterRepository.getWaterStateForToday().collect { waterState ->
+                _uiState.update { state ->
+                    state.copy(water = waterState)
+                }
+            }
+        }
     }
 
     fun setTab(tab: String) {
@@ -81,6 +93,12 @@ class MainViewModel(
         // Persist to database
         viewModelScope.launch {
             healthMetricsRepository.saveHealthMetrics(metrics)
+        }
+    }
+
+    fun addWater(amountMl: Int) {
+        viewModelScope.launch {
+            waterRepository.addWater(amountMl)
         }
     }
 
@@ -111,14 +129,16 @@ class MainViewModel(
 
     class Factory(
         private val mealRepository: MealRepository,
-        private val healthMetricsRepository: HealthMetricsRepository
+        private val healthMetricsRepository: HealthMetricsRepository,
+        private val waterRepository: WaterRepository
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(mealRepository, healthMetricsRepository) as T
+                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
+
