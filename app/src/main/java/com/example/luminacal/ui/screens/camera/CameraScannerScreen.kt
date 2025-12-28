@@ -2,10 +2,14 @@ package com.example.luminacal.ui.screens.camera
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material3.*
@@ -14,12 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.luminacal.ui.components.CameraPreview
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.data.ml.FoodDetection
+import com.example.luminacal.data.ml.FoodNutritionDatabase
+import com.example.luminacal.data.ml.NutritionInfo
 import com.example.luminacal.ui.theme.Blue500
 import com.example.luminacal.ui.theme.Green500
 import android.Manifest
@@ -31,9 +39,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
 @Composable
-fun CameraScannerScreen(onClose: () -> Unit) {
+fun CameraScannerScreen(
+    onClose: () -> Unit,
+    onFoodConfirmed: (NutritionInfo) -> Unit = {}
+) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     var currentDetection by remember { mutableStateOf<FoodDetection?>(null) }
+    var selectedFood by remember { mutableStateOf<NutritionInfo?>(null) }
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -236,7 +249,71 @@ fun CameraScannerScreen(onClose: () -> Unit) {
                 }
             }
             
-            Spacer(modifier = Modifier.height(40.dp))
+            // Suggestion Chips
+            if (currentDetection != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
+                    items(currentDetection!!.suggestedFoods) { foodName ->
+                        val nutrition = FoodNutritionDatabase.lookup(foodName)
+                        val isSelected = selectedFood?.name == foodName
+                        
+                        Surface(
+                            color = if (isSelected) Green500 else Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(20.dp),
+                            modifier = Modifier.clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                selectedFood = nutrition
+                            }
+                        ) {
+                            Text(
+                                text = if (nutrition != null) "$foodName (${nutrition.calories})" else foodName,
+                                color = if (isSelected) Color.White else Color.White.copy(alpha = 0.9f),
+                                fontSize = 13.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Confirm Button
+            val foodToLog = selectedFood ?: currentDetection?.nutritionInfo
+            if (foodToLog != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onFoodConfirmed(foodToLog)
+                        onClose()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Green500
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Log ${foodToLog.name} (${foodToLog.calories} kcal)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

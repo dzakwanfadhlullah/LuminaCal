@@ -282,9 +282,24 @@ fun MainContent(
                             )
                         }
                         composable(Screen.Camera.route) {
-                            com.example.luminacal.ui.screens.camera.CameraScannerScreen(onClose = {
-                                navController.popBackStack()
-                            })
+                            com.example.luminacal.ui.screens.camera.CameraScannerScreen(
+                                onClose = {
+                                    navController.popBackStack()
+                                },
+                                onFoodConfirmed = { nutritionInfo ->
+                                    val macros = com.example.luminacal.model.Macros(
+                                        protein = nutritionInfo.protein,
+                                        carbs = nutritionInfo.carbs,
+                                        fat = nutritionInfo.fat
+                                    )
+                                    viewModel.addFood(
+                                        name = nutritionInfo.name,
+                                        calories = nutritionInfo.calories,
+                                        macros = macros,
+                                        type = com.example.luminacal.model.MealType.LUNCH
+                                    )
+                                }
+                            )
                         }
                         composable(Screen.HealthMetrics.route) {
                             com.example.luminacal.ui.screens.health.HealthMetricsScreen(
