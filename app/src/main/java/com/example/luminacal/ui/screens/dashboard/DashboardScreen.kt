@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.luminacal.model.CalorieState
+import com.example.luminacal.model.HealthMetrics
 import com.example.luminacal.model.HistoryEntry
 import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
@@ -32,8 +34,10 @@ import com.example.luminacal.ui.theme.*
 
 @Composable
 fun DashboardScreen(
+    isLoading: Boolean = false,
     calorieState: CalorieState,
     macros: Macros,
+    healthMetrics: HealthMetrics = HealthMetrics(),
     history: List<HistoryEntry>,
     waterState: WaterState,
     onAddWater: (Int) -> Unit,
@@ -43,6 +47,29 @@ fun DashboardScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedMacroLabel by remember { mutableStateOf<String?>(null) }
+    
+    // Show loading indicator
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator(
+                    color = Blue500,
+                    strokeWidth = 3.dp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Loading your data...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+        }
+        return
+    }
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
@@ -70,7 +97,7 @@ fun DashboardScreen(
                 }
                 
                 AsyncImage(
-                    model = "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+                    model = "https://api.dicebear.com/7.x/avataaars/svg?seed=${healthMetrics.avatarSeed}",
                     contentDescription = "Profile",
                     modifier = Modifier
                         .size(40.dp)
@@ -147,7 +174,11 @@ fun DashboardScreen(
                             MacroProgressBar(
                                 label = label,
                                 value = value,
-                                max = when(label) { "Protein" -> 150; "Carbs" -> 200; else -> 70 },
+                                max = when(label) { 
+                                    "Protein" -> healthMetrics.recommendedProtein
+                                    "Carbs" -> healthMetrics.recommendedCarbs
+                                    else -> healthMetrics.recommendedFat 
+                                },
                                 color = color,
                                 modifier = Modifier
                                     .weight(1f)
@@ -162,9 +193,9 @@ fun DashboardScreen(
                     AnimatedVisibility(visible = selectedMacroLabel != null) {
                         Text(
                             text = when(selectedMacroLabel) {
-                                "Protein" -> "You need ${150 - macros.protein}g more protein today."
-                                "Carbs" -> "Energy focus: ${macros.carbs}/200g carbs consumed."
-                                "Fat" -> "Healthy fats: ${macros.fat}/70g goal."
+                                "Protein" -> "You need ${healthMetrics.recommendedProtein - macros.protein}g more protein today."
+                                "Carbs" -> "Energy focus: ${macros.carbs}/${healthMetrics.recommendedCarbs}g carbs consumed."
+                                "Fat" -> "Healthy fats: ${macros.fat}/${healthMetrics.recommendedFat}g goal."
                                 else -> ""
                             },
                             style = MaterialTheme.typography.labelSmall,
@@ -210,8 +241,20 @@ fun DashboardScreen(
             }
         }
 
-        // Timeline Logs
-        itemsIndexed(history) { index, entry ->
+        // Empty State or Timeline Logs
+        if (history.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    icon = Icons.Default.Restaurant,
+                    title = "No meals logged yet",
+                    subtitle = "Tap the scan button to log your first meal and start tracking!"
+                )
+            }
+        }
+        
+        // Timeline Logs (only if we have history)
+        if (history.isNotEmpty()) {
+            itemsIndexed(history) { index, entry ->
             Box(modifier = Modifier.fillMaxWidth()) {
                 // Vertical Connector Line
                 if (index < history.size - 1) {
@@ -290,6 +333,7 @@ fun DashboardScreen(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                             )
+                        }
                         }
                     }
                 }

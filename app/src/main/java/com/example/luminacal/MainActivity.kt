@@ -93,6 +93,20 @@ fun MainContent(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
+    // Snackbar for error messages
+    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+    
+    // Show error as snackbar
+    androidx.compose.runtime.LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = androidx.compose.material3.SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
+    }
+    
     // Determine start destination based on onboarding status
     val startDestination = if (showOnboarding) Screen.Onboarding.route else Screen.Dashboard.route
 
@@ -102,6 +116,9 @@ fun MainContent(
         SharedTransitionLayout {
             Scaffold(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                snackbarHost = { 
+                    androidx.compose.material3.SnackbarHost(snackbarHostState) 
+                },
                 bottomBar = {
                     // Hide bottom bar during onboarding
                     if (currentRoute != Screen.Onboarding.route) {
@@ -144,8 +161,10 @@ fun MainContent(
                         
                         composable(Screen.Dashboard.route) {
                             DashboardScreen(
+                                isLoading = state.isLoading,
                                 calorieState = state.calories,
                                 macros = state.macros,
+                                healthMetrics = state.healthMetrics,
                                 history = state.history,
                                 waterState = state.water,
                                 onAddWater = { amount -> viewModel.addWater(amount) },
@@ -192,6 +211,7 @@ fun MainContent(
                             val context = androidx.compose.ui.platform.LocalContext.current
                             val dataExporter = remember { com.example.luminacal.util.DataExporter(context) }
                             com.example.luminacal.ui.screens.profile.ProfileScreen(
+                                healthMetrics = state.healthMetrics,
                                 darkMode = state.darkMode,
                                 onToggleDarkMode = { viewModel.toggleDarkMode() },
                                 onHealthClick = { navController.navigate(Screen.HealthMetrics.route) },

@@ -47,7 +47,14 @@ fun OnboardingScreen(
     var fitnessGoal by remember { mutableStateOf(FitnessGoal.MAINTAIN) }
 
     val healthMetrics = remember(weight, height, age, gender, activityLevel, fitnessGoal) {
-        HealthMetrics(weight, height, age, gender, activityLevel, fitnessGoal)
+        HealthMetrics(
+            weight = weight,
+            height = height,
+            age = age,
+            gender = gender,
+            activityLevel = activityLevel,
+            fitnessGoal = fitnessGoal
+        )
     }
 
     Box(

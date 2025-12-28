@@ -19,13 +19,19 @@ enum class FitnessGoal(val calorieAdjustment: Int, val label: String) {
 }
 
 data class HealthMetrics(
+    val userName: String = "User",
     val weight: Float = 70f,       // kg
     val height: Float = 170f,      // cm
     val age: Int = 25,
     val gender: Gender = Gender.MALE,
     val activityLevel: ActivityLevel = ActivityLevel.MODERATE,
-    val fitnessGoal: FitnessGoal = FitnessGoal.MAINTAIN
+    val fitnessGoal: FitnessGoal = FitnessGoal.MAINTAIN,
+    val waterTargetMl: Int = 2000
 ) {
+    // Avatar seed based on user name for consistent avatar
+    val avatarSeed: String
+        get() = userName.replace(" ", "").take(10)
+    
     // BMR using Mifflin-St Jeor equation
     val bmr: Int
         get() = when (gender) {

@@ -25,6 +25,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.clickable
+import com.example.luminacal.model.HealthMetrics
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.Blue500
 import com.example.luminacal.ui.theme.Peach400
@@ -32,6 +33,7 @@ import com.example.luminacal.ui.theme.Pink500
 
 @Composable
 fun ProfileScreen(
+    healthMetrics: HealthMetrics = HealthMetrics(),
     darkMode: Boolean,
     onToggleDarkMode: () -> Unit,
     onHealthClick: () -> Unit = {},
@@ -63,7 +65,7 @@ fun ProfileScreen(
                     color = Color.Transparent
                 ) {
                     AsyncImage(
-                        model = "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+                        model = "https://api.dicebear.com/7.x/avataaars/svg?seed=${healthMetrics.avatarSeed}",
                         contentDescription = null,
                         modifier = Modifier.padding(4.dp).clip(CircleShape),
                         contentScale = ContentScale.Crop
@@ -90,7 +92,7 @@ fun ProfileScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Alex Morgan", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(healthMetrics.userName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("Premium Member", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 14.sp)
             }
         }

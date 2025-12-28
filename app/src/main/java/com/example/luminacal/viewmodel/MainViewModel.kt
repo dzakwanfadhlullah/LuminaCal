@@ -1,5 +1,6 @@
 package com.example.luminacal.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,10 +12,13 @@ import com.example.luminacal.data.repository.WeightRepository
 import com.example.luminacal.data.repository.WeightEntry
 import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class LuminaCalState(
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
     val calories: CalorieState = CalorieState(0, 2000),
     val macros: Macros = Macros(0, 0, 0),
     val history: List<HistoryEntry> = emptyList(),
@@ -34,12 +38,25 @@ class MainViewModel(
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository
 ) : ViewModel() {
+    
+    companion object {
+        private const val TAG = "MainViewModel"
+    }
+    
     private val _uiState = MutableStateFlow(LuminaCalState())
     val uiState: StateFlow<LuminaCalState> = _uiState.asStateFlow()
+    
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Coroutine exception", throwable)
+        _uiState.update { it.copy(
+            isLoading = false,
+            errorMessage = "Something went wrong. Please try again."
+        ) }
+    }
 
     init {
         // Load meals and calculate daily/weekly stats
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             mealRepository.allMeals.collect { meals ->
                 val history = meals.map { it.toHistoryEntry() }
                 
@@ -82,6 +99,7 @@ class MainViewModel(
 
                 _uiState.update { state ->
                     state.copy(
+                        isLoading = false,
                         history = history,
                         calories = state.calories.copy(consumed = totalCalories),
                         macros = totalMacros,
@@ -92,7 +110,7 @@ class MainViewModel(
         }
 
         // Load health metrics from database
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             healthMetricsRepository.healthMetrics.collect { savedMetrics ->
                 if (savedMetrics != null) {
                     _uiState.update { state ->
@@ -106,7 +124,7 @@ class MainViewModel(
         }
 
         // Load water state for today
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             waterRepository.getWaterStateForToday().collect { waterState ->
                 _uiState.update { state ->
                     state.copy(water = waterState)
@@ -115,7 +133,7 @@ class MainViewModel(
         }
 
         // Load weight history and calculate points
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             weightRepository.allWeights.collect { weights ->
                 val points = weights.take(30).reversed().map {
                     com.example.luminacal.ui.components.charts.WeightPoint(
@@ -133,13 +151,17 @@ class MainViewModel(
         }
 
         // Load weight trend
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             weightRepository.weeklyTrend.collect { trend ->
                 _uiState.update { state ->
                     state.copy(weightTrend = trend)
                 }
             }
         }
+    }
+    
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     fun setTab(tab: String) {
@@ -183,17 +205,36 @@ class MainViewModel(
 
     fun addFood(name: String, calories: Int, macros: Macros, type: MealType) {
         viewModelScope.launch {
+            val currentTime = System.currentTimeMillis()
             val meal = MealEntity(
                 name = name,
-                time = "Just now",
+                time = formatMealTime(currentTime),
                 calories = calories,
                 protein = macros.protein,
                 carbs = macros.carbs,
                 fat = macros.fat,
                 type = type,
-                date = System.currentTimeMillis()
+                date = currentTime
             )
             mealRepository.insertMeal(meal)
+        }
+    }
+    
+    private fun formatMealTime(timestamp: Long): String {
+        val now = System.currentTimeMillis()
+        val diff = now - timestamp
+        
+        return when {
+            diff < 60_000 -> "Just now"  // Less than 1 minute
+            diff < 3600_000 -> "${diff / 60_000} min ago"  // Less than 1 hour
+            diff < 86400_000 -> {
+                val sdf = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
+                sdf.format(java.util.Date(timestamp))
+            }
+            else -> {
+                val sdf = java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.getDefault())
+                sdf.format(java.util.Date(timestamp))
+            }
         }
     }
 

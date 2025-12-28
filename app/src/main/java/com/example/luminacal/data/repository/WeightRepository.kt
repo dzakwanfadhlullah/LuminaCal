@@ -1,8 +1,10 @@
 package com.example.luminacal.data.repository
 
+import android.util.Log
 import com.example.luminacal.data.local.WeightDao
 import com.example.luminacal.data.local.WeightEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 data class WeightEntry(
@@ -20,27 +22,44 @@ data class WeightTrend(
 
 class WeightRepository(private val dao: WeightDao) {
 
-    val allWeights: Flow<List<WeightEntry>> = dao.getAllWeights().map { list ->
-        list.map { it.toWeightEntry() }
+    companion object {
+        private const val TAG = "WeightRepository"
     }
 
-    val latestWeight: Flow<WeightEntry?> = dao.getLatestWeight().map { it?.toWeightEntry() }
-
-    val weeklyTrend: Flow<WeightTrend> = dao.getRecentWeights().map { weights ->
-        if (weights.isEmpty()) {
-            WeightTrend(null, null, null)
-        } else {
-            val current = weights.firstOrNull()?.weightKg
-            val weekAgo = weights.lastOrNull()?.weightKg
-            WeightTrend(
-                currentWeight = current,
-                previousWeight = weekAgo,
-                weeklyChange = if (current != null && weekAgo != null) current - weekAgo else null
-            )
+    val allWeights: Flow<List<WeightEntry>> = dao.getAllWeights()
+        .map { list -> list.map { it.toWeightEntry() } }
+        .catch { e ->
+            Log.e(TAG, "Error fetching all weights", e)
+            emit(emptyList())
         }
-    }
 
-    suspend fun addWeight(weightKg: Float, note: String? = null) {
+    val latestWeight: Flow<WeightEntry?> = dao.getLatestWeight()
+        .map { it?.toWeightEntry() }
+        .catch { e ->
+            Log.e(TAG, "Error fetching latest weight", e)
+            emit(null)
+        }
+
+    val weeklyTrend: Flow<WeightTrend> = dao.getRecentWeights()
+        .map { weights ->
+            if (weights.isEmpty()) {
+                WeightTrend(null, null, null)
+            } else {
+                val current = weights.firstOrNull()?.weightKg
+                val weekAgo = weights.lastOrNull()?.weightKg
+                WeightTrend(
+                    currentWeight = current,
+                    previousWeight = weekAgo,
+                    weeklyChange = if (current != null && weekAgo != null) current - weekAgo else null
+                )
+            }
+        }
+        .catch { e ->
+            Log.e(TAG, "Error calculating weekly trend", e)
+            emit(WeightTrend(null, null, null))
+        }
+
+    suspend fun addWeight(weightKg: Float, note: String? = null): Result<Unit> = runCatching {
         dao.insertWeight(
             WeightEntity(
                 weightKg = weightKg,
@@ -48,9 +67,11 @@ class WeightRepository(private val dao: WeightDao) {
                 note = note
             )
         )
+    }.onFailure { e ->
+        Log.e(TAG, "Error adding weight: $weightKg kg", e)
     }
 
-    suspend fun deleteWeight(entry: WeightEntry) {
+    suspend fun deleteWeight(entry: WeightEntry): Result<Unit> = runCatching {
         dao.deleteWeight(
             WeightEntity(
                 id = entry.id,
@@ -59,6 +80,8 @@ class WeightRepository(private val dao: WeightDao) {
                 note = entry.note
             )
         )
+    }.onFailure { e ->
+        Log.e(TAG, "Error deleting weight entry: ${entry.id}", e)
     }
 
     private fun WeightEntity.toWeightEntry() = WeightEntry(

@@ -57,7 +57,14 @@ fun HealthMetricsScreen(
     
     // Create health metrics object
     val healthMetrics = remember(weight, height, age, gender, activityLevel, fitnessGoal) {
-        HealthMetrics(weight, height, age, gender, activityLevel, fitnessGoal)
+        HealthMetrics(
+            weight = weight,
+            height = height,
+            age = age,
+            gender = gender,
+            activityLevel = activityLevel,
+            fitnessGoal = fitnessGoal
+        )
     }
     
     // Animated TDEE value
