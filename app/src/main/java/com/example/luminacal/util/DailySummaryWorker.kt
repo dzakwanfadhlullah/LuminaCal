@@ -14,7 +14,7 @@ class DailySummaryWorker(
 
     override suspend fun doWork(): Result {
         val database = LuminaDatabase.getDatabase(applicationContext)
-        val metrics = database.healthMetricsDao().getHealthMetrics().firstOrNull() ?: return Result.success()
+        val metrics = database.healthMetricsDao().getHealthMetrics().firstOrNull()?.toHealthMetrics() ?: return Result.success()
         
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)

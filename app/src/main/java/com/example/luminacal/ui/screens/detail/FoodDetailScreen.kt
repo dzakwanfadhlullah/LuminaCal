@@ -35,14 +35,38 @@ import com.example.luminacal.ui.theme.*
 fun FoodDetailScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    foodName: String,
+    calories: String,
+    time: String,
+    category: String,
+    imageUrl: String,
     onBack: () -> Unit,
     onLogMeal: (String, Int, Macros, MealType) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     var portionSize by remember { mutableStateOf(100f) }
     
-    val baseCalories = 250
+    // Parse base calories from string like "450 kcal"
+    val baseCalories = calories.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 250
     val currentCalories = (baseCalories * (portionSize / 100)).toInt()
+    
+    // Estimate macros based on category
+    val estimatedMacros = when (category.lowercase()) {
+        "vegan" -> Macros(protein = 12, carbs = 45, fat = 8)
+        "dinner" -> Macros(protein = 35, carbs = 20, fat = 22)
+        "breakfast" -> Macros(protein = 15, carbs = 50, fat = 12)
+        "indonesian" -> Macros(protein = 20, carbs = 55, fat = 18)
+        "snacks" -> Macros(protein = 5, carbs = 30, fat = 10)
+        else -> Macros(protein = 20, carbs = 40, fat = 15)
+    }
+    
+    // Determine meal type
+    val mealType = when (category.lowercase()) {
+        "breakfast" -> MealType.BREAKFAST
+        "dinner" -> MealType.DINNER
+        "snacks" -> MealType.SNACK
+        else -> MealType.LUNCH
+    }
 
     with(sharedTransitionScope) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -54,12 +78,12 @@ fun FoodDetailScreen(
                 item {
                     Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
                         AsyncImage(
-                            model = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=1000",
-                            contentDescription = null,
+                            model = imageUrl,
+                            contentDescription = foodName,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .sharedElement(
-                                    rememberSharedContentState(key = "food_image"),
+                                    rememberSharedContentState(key = "food_image_$foodName"),
                                     animatedVisibilityScope = animatedVisibilityScope
                                 ),
                             contentScale = ContentScale.Crop
@@ -75,21 +99,47 @@ fun FoodDetailScreen(
                         ) {
                             Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = Color.White)
                         }
+                        
+                        // Time Badge
+                        Surface(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+                        ) {
+                            Text(
+                                text = time,
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
                     }
                 }
 
                 item {
                     Column(modifier = Modifier.padding(24.dp)) {
+                        // Category Badge
+                        Surface(
+                            color = Blue500.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = category.uppercase(),
+                                color = Blue500,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
                         Text(
-                            text = "Healthy Salmon Bowl",
+                            text = foodName,
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "High Protein • Low Carb",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -121,9 +171,9 @@ fun FoodDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            MacroBadge("Protein", "24g", Blue500, Modifier.weight(1f))
-                            MacroBadge("Carbs", "12g", Green500, Modifier.weight(1f))
-                            MacroBadge("Fat", "18g", Peach400, Modifier.weight(1f))
+                            MacroBadge("Protein", "${estimatedMacros.protein}g", Blue500, Modifier.weight(1f))
+                            MacroBadge("Carbs", "${estimatedMacros.carbs}g", Green500, Modifier.weight(1f))
+                            MacroBadge("Fat", "${estimatedMacros.fat}g", Peach400, Modifier.weight(1f))
                         }
 
                         Spacer(modifier = Modifier.height(40.dp))
@@ -167,7 +217,7 @@ fun FoodDetailScreen(
                     text = "Log this meal",
                     onClick = { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onLogMeal("Healthy Salmon Bowl", currentCalories, Macros(24, 12, 18), MealType.LUNCH)
+                        onLogMeal(foodName, currentCalories, estimatedMacros, mealType)
                         onBack()
                     },
                     modifier = Modifier.fillMaxWidth()

@@ -23,7 +23,13 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Explore : Screen("explore", "Explore", Icons.Default.Search)
     object Profile : Screen("profile", "Profile", Icons.Default.Settings)
     object Camera : Screen("camera", "Scan", Icons.Default.QrCodeScanner)
-    object FoodDetail : Screen("food_detail", "Detail", Icons.Default.PieChart)
+    object FoodDetail : Screen("food_detail/{foodName}/{calories}/{time}/{category}/{imageUrl}", "Detail", Icons.Default.PieChart) {
+        fun createRoute(foodName: String, calories: String, time: String, category: String, imageUrl: String): String {
+            val encodedUrl = java.net.URLEncoder.encode(imageUrl, "UTF-8")
+            val encodedName = java.net.URLEncoder.encode(foodName, "UTF-8")
+            return "food_detail/$encodedName/$calories/$time/$category/$encodedUrl"
+        }
+    }
     object HealthMetrics : Screen("health_metrics", "Health", Icons.Default.ShowChart)
     object Onboarding : Screen("onboarding", "Onboarding", Icons.Default.CompassCalibration)
 }

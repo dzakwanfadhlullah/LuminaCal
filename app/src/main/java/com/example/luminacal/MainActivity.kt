@@ -172,8 +172,19 @@ fun MainContent(
                             com.example.luminacal.ui.screens.explore.ExploreScreen(
                                 sharedTransitionScope = this@SharedTransitionLayout,
                                 animatedVisibilityScope = this@composable,
-                                onFoodClick = {
-                                    navController.navigate(Screen.FoodDetail.route)
+                                onFoodClick = { recipe ->
+                                    navController.navigate(
+                                        Screen.FoodDetail.createRoute(
+                                            foodName = recipe.name,
+                                            calories = recipe.calories,
+                                            time = recipe.time,
+                                            category = recipe.category,
+                                            imageUrl = recipe.imageUrl
+                                        )
+                                    )
+                                },
+                                onManualAdd = { name, calories, macros, type ->
+                                    viewModel.addFood(name, calories, macros, type)
                                 }
                             )
                         }
@@ -220,10 +231,30 @@ fun MainContent(
                                 }
                             )
                         }
-                        composable(Screen.FoodDetail.route) {
+                        composable(
+                            route = Screen.FoodDetail.route,
+                            arguments = listOf(
+                                androidx.navigation.navArgument("foodName") { type = androidx.navigation.NavType.StringType },
+                                androidx.navigation.navArgument("calories") { type = androidx.navigation.NavType.StringType },
+                                androidx.navigation.navArgument("time") { type = androidx.navigation.NavType.StringType },
+                                androidx.navigation.navArgument("category") { type = androidx.navigation.NavType.StringType },
+                                androidx.navigation.navArgument("imageUrl") { type = androidx.navigation.NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val foodName = java.net.URLDecoder.decode(backStackEntry.arguments?.getString("foodName") ?: "", "UTF-8")
+                            val calories = backStackEntry.arguments?.getString("calories") ?: "0 kcal"
+                            val time = backStackEntry.arguments?.getString("time") ?: ""
+                            val category = backStackEntry.arguments?.getString("category") ?: ""
+                            val imageUrl = java.net.URLDecoder.decode(backStackEntry.arguments?.getString("imageUrl") ?: "", "UTF-8")
+                            
                             com.example.luminacal.ui.screens.detail.FoodDetailScreen(
                                 sharedTransitionScope = this@SharedTransitionLayout,
                                 animatedVisibilityScope = this@composable,
+                                foodName = foodName,
+                                calories = calories,
+                                time = time,
+                                category = category,
+                                imageUrl = imageUrl,
                                 onBack = { navController.popBackStack() },
                                 onLogMeal = { name, cals, macros, type ->
                                     viewModel.addFood(name, cals, macros, type)
