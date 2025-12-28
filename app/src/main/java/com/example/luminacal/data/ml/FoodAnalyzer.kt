@@ -8,13 +8,14 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 
 /**
- * Food detection result with confidence and suggestions
+ * Food detection result with confidence, suggestions, and nutrition info
  */
 data class FoodDetection(
     val label: String,
     val confidence: Float,
     val category: String,
-    val suggestedFoods: List<String>
+    val suggestedFoods: List<String>,
+    val nutritionInfo: NutritionInfo? = null
 )
 
 class FoodAnalyzer(
@@ -79,11 +80,15 @@ class FoodAnalyzer(
                         // Pick a suggested food based on some variation
                         val suggestedLabel = suggestions.firstOrNull() ?: category
                         
+                        // Lookup nutrition info from database
+                        val nutritionInfo = FoodNutritionDatabase.lookup(suggestedLabel)
+                        
                         val detection = FoodDetection(
                             label = suggestedLabel,
                             confidence = bestDetection.confidence,
                             category = category,
-                            suggestedFoods = suggestions
+                            suggestedFoods = suggestions,
+                            nutritionInfo = nutritionInfo
                         )
                         onFoodDetected(detection)
                     } else {
