@@ -13,8 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,6 +48,7 @@ fun ExploreScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedCategory by remember { mutableStateOf("All") }
+    var searchQuery by remember { mutableStateOf("") }
     val categories = listOf("All", "Breakfast", "Indonesian", "Vegan", "Dinner", "Snacks")
     var showManualEntry by remember { mutableStateOf(false) }
     
@@ -120,7 +123,14 @@ fun ExploreScreen(
         )
     }
 
-    val recipes = allRecipes.filter { it.category == selectedCategory || selectedCategory == "All" }
+    val recipes = remember(selectedCategory, searchQuery, allRecipes) {
+        allRecipes.filter { recipe ->
+            val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
+            val matchesSearch = searchQuery.isEmpty() || 
+                recipe.name.contains(searchQuery, ignoreCase = true)
+            matchesCategory && matchesSearch
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -136,24 +146,43 @@ fun ExploreScreen(
                     Column {
                         Text("Explore", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clickable {
-                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { 
+                                Text(
+                                    "Search recipes, ingredients...",
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                ) 
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Search, 
+                                    contentDescription = null, 
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                )
+                            },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = "" }) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Clear search",
+                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
                                 }
-                                .padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Search recipes, ingredients...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
-                            }
-                        }
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Blue500,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                            )
+                        )
                     }
                 }
             }
@@ -186,6 +215,21 @@ fun ExploreScreen(
                             )
                         }
                     }
+                }
+            }
+
+            // Empty Search Results
+            if (recipes.isEmpty()) {
+                item {
+                    com.example.luminacal.ui.components.EmptyStateCard(
+                        icon = Icons.Default.SearchOff,
+                        title = "No recipes found",
+                        subtitle = if (searchQuery.isNotEmpty()) 
+                            "No recipes match \"$searchQuery\". Try a different search."
+                        else 
+                            "No recipes in this category.",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
+                    )
                 }
             }
 
