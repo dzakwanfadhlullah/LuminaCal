@@ -22,4 +22,7 @@ interface WeightDao {
 
     @Delete
     suspend fun deleteWeight(weight: WeightEntity)
+
+    @Query("DELETE FROM weight_entries")
+    suspend fun deleteAllWeights()
 }

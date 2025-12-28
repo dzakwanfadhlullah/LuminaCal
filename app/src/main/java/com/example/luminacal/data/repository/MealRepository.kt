@@ -37,4 +37,10 @@ class MealRepository(private val mealDao: MealDao) {
     }.onFailure { e ->
         Log.e(TAG, "Error deleting meal: ${meal.name}", e)
     }
+
+    suspend fun deleteAllMeals(): Result<Unit> = runCatching {
+        mealDao.deleteAllMeals()
+    }.onFailure { e ->
+        Log.e(TAG, "Error clearing all meal data", e)
+    }
 }

@@ -49,4 +49,10 @@ class WaterRepository(private val dao: WaterDao) {
     }.onFailure { e ->
         Log.e(TAG, "Error adding water: $amountMl ml", e)
     }
+
+    suspend fun clearAllWater(): Result<Unit> = runCatching {
+        dao.deleteAllWater()
+    }.onFailure { e ->
+        Log.e(TAG, "Error clearing all water data", e)
+    }
 }

@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,34 +52,36 @@ fun DashboardScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedMacroLabel by remember { mutableStateOf<String?>(null) }
+    var showCelebration by remember { mutableStateOf(false) }
+    
+    // Check for goal completion
+    val isCalorieGoalMet = calorieState.consumed >= calorieState.target && calorieState.target > 0
+    val isWaterGoalMet = waterState.consumed >= waterState.target && waterState.target > 0
+    
+    var lastCalorieMet by remember { mutableStateOf(false) }
+    var lastWaterMet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isCalorieGoalMet, isWaterGoalMet) {
+        if ((isCalorieGoalMet && !lastCalorieMet) || (isWaterGoalMet && !lastWaterMet)) {
+            showCelebration = true
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+        lastCalorieMet = isCalorieGoalMet
+        lastWaterMet = isWaterGoalMet
+    }
     
     // Show loading indicator
     if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(
-                    color = Blue500,
-                    strokeWidth = 3.dp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Loading your data...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
-        }
+        DashboardSkeleton()
         return
     }
-    
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
         // Header
         item {
             Row(
@@ -193,18 +197,32 @@ fun DashboardScreen(
                         }
                     }
                     
-                    AnimatedVisibility(visible = selectedMacroLabel != null) {
-                        Text(
-                            text = when(selectedMacroLabel) {
-                                "Protein" -> "You need ${healthMetrics.recommendedProtein - macros.protein}g more protein today."
-                                "Carbs" -> "Energy focus: ${macros.carbs}/${healthMetrics.recommendedCarbs}g carbs consumed."
-                                "Fat" -> "Healthy fats: ${macros.fat}/${healthMetrics.recommendedFat}g goal."
-                                else -> ""
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
+                    AnimatedContent(
+                        targetState = selectedMacroLabel,
+                        transitionSpec = {
+                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                slideOutVertically { height -> -height } + fadeOut()
+                            ).using(
+                                SizeTransform(clip = false)
+                            )
+                        },
+                        label = "macro_detail"
+                    ) { label ->
+                        if (label != null) {
+                            Text(
+                                text = when(label) {
+                                    "Protein" -> "You need ${healthMetrics.recommendedProtein - macros.protein}g more protein today."
+                                    "Carbs" -> "Energy focus: ${macros.carbs}/${healthMetrics.recommendedCarbs}g carbs consumed."
+                                    "Fat" -> "Healthy fats: ${macros.fat}/${healthMetrics.recommendedFat}g goal."
+                                    else -> ""
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 16.dp)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(0.dp))
+                        }
                     }
                 }
                 }
@@ -373,4 +391,11 @@ fun DashboardScreen(
             }
         }
     }
+    
+    // Celebration Layer
+    CelebrationOverlay(
+        isVisible = showCelebration,
+        onFinished = { showCelebration = false }
+    )
+}
 }

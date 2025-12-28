@@ -251,6 +251,9 @@ fun MainContent(
                                     }
                                     val file = dataExporter.exportToJSON(mealsToExport, state.healthMetrics, state.weightHistory)
                                     dataExporter.shareFile(file, "application/json")
+                                },
+                                onClearData = {
+                                    viewModel.clearAllData()
                                 }
                             )
                         }

@@ -41,8 +41,8 @@
 > Task :app:dexBuilderDebug
 > Task :app:mergeProjectDexDebug
 > Task :app:packageDebug
-> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 10s
-38 actionable tasks: 5 executed, 33 up-to-date
+BUILD SUCCESSFUL in 6s
+38 actionable tasks: 6 executed, 32 up-to-date

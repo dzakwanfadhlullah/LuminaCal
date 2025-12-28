@@ -84,6 +84,12 @@ class WeightRepository(private val dao: WeightDao) {
         Log.e(TAG, "Error deleting weight entry: ${entry.id}", e)
     }
 
+    suspend fun deleteAllWeights(): Result<Unit> = runCatching {
+        dao.deleteAllWeights()
+    }.onFailure { e ->
+        Log.e(TAG, "Error clearing all weight data", e)
+    }
+
     private fun WeightEntity.toWeightEntry() = WeightEntry(
         id = id,
         weightKg = weightKg,

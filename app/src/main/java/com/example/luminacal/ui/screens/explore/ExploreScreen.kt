@@ -1,6 +1,8 @@
 package com.example.luminacal.ui.screens.explore
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +22,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -269,9 +274,21 @@ fun ExploreScreen(
             }
 
             // Grid Content
-            items(recipes.chunked(2)) { rowRecipes ->
+            itemsIndexed(recipes.chunked(2)) { rowIndex, rowRecipes ->
+                val animatedAlpha by animateFloatAsState(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = 600,
+                        delayMillis = rowIndex * 100
+                    ),
+                    label = "fadeIn"
+                )
+                
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .graphicsLayer(alpha = animatedAlpha, translationY = (1f - animatedAlpha) * 50f),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     rowRecipes.forEach { recipe ->

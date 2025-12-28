@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +38,36 @@ fun ProfileScreen(
     onToggleDarkMode: () -> Unit,
     onHealthClick: () -> Unit = {},
     onExportCSV: () -> Unit = {},
-    onExportJSON: () -> Unit = {}
+    onExportJSON: () -> Unit = {},
+    onClearData: () -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
+    var showClearConfirm by remember { mutableStateOf(false) }
+
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = { Text("Clear All Data?") },
+            text = { Text("This will permanently delete all your meal logs, water intake, and weight history. This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onClearData()
+                        showClearConfirm = false
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text("Clear Everything")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
@@ -244,6 +271,17 @@ fun ProfileScreen(
                 fontSize = 10.sp, 
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { showClearConfirm = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.1f), contentColor = Color.Red),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Clear All Data", fontWeight = FontWeight.Bold)
+            }
             Spacer(modifier = Modifier.height(40.dp))
         }
     }

@@ -1,6 +1,7 @@
 package com.example.luminacal.ui.components
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,12 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.luminacal.model.WaterState
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun WaterTrackingWidget(
@@ -77,29 +81,57 @@ fun WaterTrackingWidget(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Progress Bar
+            // Progress Bar with Wave Animation
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(24.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                    .height(32.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             ) {
-                // Water fill with gradient
-                Box(
+                val infiniteTransition = rememberInfiniteTransition(label = "wave")
+                val waveOffset by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 2 * Math.PI.toFloat(),
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(2000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "waveOffset"
+                )
+
+                val density = LocalDensity.current
+                val waveHeight = with(density) { 4.dp.toPx() }
+
+                Canvas(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(animatedProgress)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color(0xFF60A5FA),
-                                    Color(0xFF3B82F6)
-                                )
-                            )
+                        .clip(RoundedCornerShape(16.dp))
+                ) {
+                    val waveFrequency = 0.05f
+                    
+                    val path = Path().apply {
+                        moveTo(0f, size.height)
+                        for (x in 0..size.width.toInt()) {
+                            val y = (Math.sin((x * waveFrequency + waveOffset).toDouble()).toFloat() * waveHeight) + (size.height / 2f)
+                            lineTo(x.toFloat(), y)
+                        }
+                        lineTo(size.width, size.height)
+                        close()
+                    }
+
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color(0xFF60A5FA), Color(0xFF3B82F6))
                         )
-                )
+                    )
+                    
+                    drawPath(
+                        path = path,
+                        color = Color.White.copy(alpha = 0.2f)
+                    )
+                }
                 
                 // Text overlay
                 Row(

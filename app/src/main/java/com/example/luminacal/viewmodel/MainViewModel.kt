@@ -237,6 +237,14 @@ class MainViewModel(
         }
     }
     
+    fun clearAllData() {
+        viewModelScope.launch {
+            mealRepository.deleteAllMeals()
+            waterRepository.clearAllWater()
+            weightRepository.deleteAllWeights()
+        }
+    }
+
     private fun formatMealTime(timestamp: Long): String {
         val now = System.currentTimeMillis()
         val diff = now - timestamp

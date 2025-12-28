@@ -19,4 +19,7 @@ interface WaterDao {
 
     @Query("DELETE FROM water_entries WHERE date = :date")
     suspend fun deleteEntriesForDate(date: String)
+
+    @Query("DELETE FROM water_entries")
+    suspend fun deleteAllWater()
 }
