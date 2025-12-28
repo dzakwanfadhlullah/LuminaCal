@@ -15,13 +15,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.camera.core.ImageAnalysis
 import com.example.luminacal.data.ml.FoodAnalyzer
+import com.example.luminacal.data.ml.FoodDetection
 import java.util.concurrent.Executors
 
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
     scaleType: PreviewView.ScaleType = PreviewView.ScaleType.FILL_CENTER,
-    onObjectDetected: (String) -> Unit = {}
+    onFoodDetected: (FoodDetection?) -> Unit = {}
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -52,8 +53,8 @@ fun CameraPreview(
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also {
-                        it.setAnalyzer(analysisExecutor, FoodAnalyzer { label ->
-                            onObjectDetected(label)
+                        it.setAnalyzer(analysisExecutor, FoodAnalyzer { detection ->
+                            onFoodDetected(detection)
                         })
                     }
 

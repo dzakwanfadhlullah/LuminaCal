@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.luminacal.ui.components.CameraPreview
 import com.example.luminacal.ui.components.GlassCard
+import com.example.luminacal.data.ml.FoodDetection
+import com.example.luminacal.ui.theme.Blue500
+import com.example.luminacal.ui.theme.Green500
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,7 +33,7 @@ import androidx.core.content.ContextCompat
 @Composable
 fun CameraScannerScreen(onClose: () -> Unit) {
     val context = LocalContext.current
-    var detectedText by remember { mutableStateOf("Scanning...") }
+    var currentDetection by remember { mutableStateOf<FoodDetection?>(null) }
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -57,8 +60,8 @@ fun CameraScannerScreen(onClose: () -> Unit) {
         if (hasCameraPermission) {
             CameraPreview(
                 modifier = Modifier.fillMaxSize(),
-                onObjectDetected = { label ->
-                    detectedText = if (label.isNotEmpty()) label else "Scanning..."
+                onFoodDetected = { detection ->
+                    currentDetection = detection
                 }
             )
         } else {
@@ -97,25 +100,69 @@ fun CameraScannerScreen(onClose: () -> Unit) {
                 modifier = Modifier
                     .size(280.dp)
                     .align(Alignment.CenterHorizontally)
-                    .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(32.dp))
+                    .border(
+                        2.dp, 
+                        if (currentDetection != null) Green500 else Color.White.copy(alpha = 0.5f), 
+                        RoundedCornerShape(32.dp)
+                    )
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Info Card
+            // Info Card with detection info
             GlassCard(modifier = Modifier.fillMaxWidth()) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = detectedText,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        text = if (detectedText == "Scanning...") "Point camera at food item" else "AI detected this item",
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 14.sp
-                    )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    if (currentDetection != null) {
+                        // Show detected food
+                        Text(
+                            text = currentDetection!!.label,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${(currentDetection!!.confidence * 100).toInt()}% confidence",
+                                color = Green500,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = " • ",
+                                color = Color.White.copy(alpha = 0.5f),
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = currentDetection!!.category,
+                                color = Blue500,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Suggestions: ${currentDetection!!.suggestedFoods.take(3).joinToString(", ")}",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 12.sp
+                        )
+                    } else {
+                        // Scanning state
+                        Text(
+                            text = "Scanning...",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = "Point camera at food item",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
             
