@@ -220,6 +220,23 @@ class MainViewModel(
         }
     }
     
+    fun deleteMeal(entry: HistoryEntry) {
+        viewModelScope.launch {
+            val meal = MealEntity(
+                id = entry.id,
+                name = entry.name,
+                time = entry.time,
+                calories = entry.calories,
+                protein = entry.macros.protein,
+                carbs = entry.macros.carbs,
+                fat = entry.macros.fat,
+                type = entry.type,
+                date = 0L // Not used for deletion
+            )
+            mealRepository.deleteMeal(meal)
+        }
+    }
+    
     private fun formatMealTime(timestamp: Long): String {
         val now = System.currentTimeMillis()
         val diff = now - timestamp

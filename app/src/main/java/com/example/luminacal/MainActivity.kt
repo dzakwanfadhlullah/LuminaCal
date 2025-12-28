@@ -171,6 +171,9 @@ fun MainContent(
                                 onLogClick = { entry ->
                                     navController.navigate(Screen.FoodDetail.route)
                                 },
+                                onDeleteMeal = { entry ->
+                                    viewModel.deleteMeal(entry)
+                                },
                                 onProfileClick = {
                                     navController.navigate(Screen.Profile.route)
                                 },

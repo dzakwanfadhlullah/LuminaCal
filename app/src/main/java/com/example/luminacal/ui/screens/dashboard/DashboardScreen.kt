@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -32,6 +33,7 @@ import com.example.luminacal.model.WaterState
 import com.example.luminacal.ui.components.*
 import com.example.luminacal.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     isLoading: Boolean = false,
@@ -42,6 +44,7 @@ fun DashboardScreen(
     waterState: WaterState,
     onAddWater: (Int) -> Unit,
     onLogClick: (HistoryEntry) -> Unit,
+    onDeleteMeal: (HistoryEntry) -> Unit = {},
     onProfileClick: () -> Unit,
     onViewAllClick: () -> Unit
 ) {
@@ -254,8 +257,37 @@ fun DashboardScreen(
         
         // Timeline Logs (only if we have history)
         if (history.isNotEmpty()) {
-            itemsIndexed(history) { index, entry ->
-            Box(modifier = Modifier.fillMaxWidth()) {
+            itemsIndexed(history, key = { _, entry -> entry.id }) { index, entry ->
+                val dismissState = rememberSwipeToDismissBoxState(
+                    confirmValueChange = { dismissValue ->
+                        if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                            onDeleteMeal(entry)
+                            true
+                        } else false
+                    }
+                )
+                
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color(0xFFEF4444))
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    enableDismissFromStartToEnd = false,
+                    enableDismissFromEndToStart = true
+                ) {
+            Box(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
                 // Vertical Connector Line
                 if (index < history.size - 1) {
                     Box(
@@ -337,6 +369,7 @@ fun DashboardScreen(
                         }
                     }
                 }
+                } // SwipeToDismissBox
             }
         }
     }
