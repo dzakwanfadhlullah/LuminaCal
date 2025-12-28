@@ -49,7 +49,9 @@ fun ExploreScreen(
     val haptic = LocalHapticFeedback.current
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
+    var maxCaloriesFilter by remember { mutableStateOf<Int?>(null) }  // null = all, 300, 500
     val categories = listOf("All", "Breakfast", "Indonesian", "Vegan", "Dinner", "Snacks")
+    val calorieFilters = listOf("All" to null, "< 300" to 300, "< 500" to 500)
     var showManualEntry by remember { mutableStateOf(false) }
     
     val allRecipes = remember {
@@ -123,13 +125,16 @@ fun ExploreScreen(
         )
     }
 
-    val recipes = remember(selectedCategory, searchQuery, allRecipes) {
+    val recipes = remember(selectedCategory, searchQuery, maxCaloriesFilter, allRecipes) {
+        val maxCal = maxCaloriesFilter
         allRecipes.filter { recipe ->
             val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
             val matchesSearch = searchQuery.isEmpty() || 
                 recipe.name.contains(searchQuery, ignoreCase = true)
-            matchesCategory && matchesSearch
-        }
+            val recipeCalories = recipe.calories.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+            val matchesCalories = maxCal == null || recipeCalories < maxCal
+            matchesCategory && matchesSearch && matchesCalories
+        }.sortedBy { it.name }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -218,6 +223,36 @@ fun ExploreScreen(
                 }
             }
 
+            // Calorie Filter Chips
+            item {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(calorieFilters) { (label, maxCal) ->
+                        val isSelected = maxCaloriesFilter == maxCal
+                        Surface(
+                            color = if (isSelected) Green500 else Color.White,
+                            shape = RoundedCornerShape(12.dp),
+                            border = if (!isSelected) BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)) else null,
+                            modifier = Modifier
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    maxCaloriesFilter = maxCal
+                                }
+                        ) {
+                            Text(
+                                text = label,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                color = if (isSelected) Color.White else Slate900,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+
             // Empty Search Results
             if (recipes.isEmpty()) {
                 item {
@@ -240,6 +275,7 @@ fun ExploreScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     rowRecipes.forEach { recipe ->
+                        val recipeCalories = recipe.calories.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
                         RecipeCard(
                             recipe = recipe, 
                             modifier = Modifier
@@ -249,7 +285,21 @@ fun ExploreScreen(
                                     onFoodClick(recipe) 
                                 },
                             sharedTransitionScope = sharedTransitionScope,
-                            animatedVisibilityScope = animatedVisibilityScope
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            onQuickAdd = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                // Estimate macros: 30% protein, 40% carbs, 30% fat
+                                val protein = (recipeCalories * 0.30 / 4).toInt()
+                                val carbs = (recipeCalories * 0.40 / 4).toInt()
+                                val fat = (recipeCalories * 0.30 / 9).toInt()
+                                val mealType = when (recipe.category) {
+                                    "Breakfast" -> MealType.BREAKFAST
+                                    "Snacks" -> MealType.SNACK
+                                    "Dinner" -> MealType.DINNER
+                                    else -> MealType.LUNCH
+                                }
+                                onManualAdd(recipe.name, recipeCalories, Macros(protein, carbs, fat), mealType)
+                            }
                         )
                     }
                     if (rowRecipes.size == 1) {
@@ -403,7 +453,8 @@ fun RecipeCard(
     recipe: Recipe, 
     modifier: Modifier = Modifier,
     sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onQuickAdd: () -> Unit = {}
 ) {
     with(sharedTransitionScope) {
         GlassCard(
@@ -452,7 +503,17 @@ fun RecipeCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(recipe.calories, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                        Icon(Icons.Default.Add, contentDescription = null, tint = Blue500.copy(alpha = 0.3f), modifier = Modifier.size(16.dp))
+                        IconButton(
+                            onClick = onQuickAdd,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Add, 
+                                contentDescription = "Quick add", 
+                                tint = Blue500, 
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             }

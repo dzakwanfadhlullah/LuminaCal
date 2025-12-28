@@ -36,7 +36,7 @@
 > Task :app:kspDebugKotlin
 
 > Task :app:compileDebugKotlin
-w: file:///D:/Code/LuminaCal/app/src/main/java/com/example/luminacal/ui/screens/explore/ExploreScreen.kt:360:62 'fun String.capitalize(): String' is deprecated. Use replaceFirstChar instead.
+w: file:///D:/Code/LuminaCal/app/src/main/java/com/example/luminacal/ui/screens/explore/ExploreScreen.kt:410:62 'fun String.capitalize(): String' is deprecated. Use replaceFirstChar instead.
 
 > Task :app:compileDebugJavaWithJavac UP-TO-DATE
 > Task :app:processDebugJavaRes UP-TO-DATE
