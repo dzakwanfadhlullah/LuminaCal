@@ -39,15 +39,24 @@ class WaterRepository(private val dao: WaterDao) {
         }
     }
     
-    suspend fun addWater(amountMl: Int): Result<Unit> = runCatching {
-        val entry = WaterEntity(
-            amountMl = amountMl,
-            timestamp = System.currentTimeMillis(),
-            date = getTodayDate()
-        )
-        dao.insertWaterEntry(entry)
-    }.onFailure { e ->
-        Log.e(TAG, "Error adding water: $amountMl ml", e)
+    suspend fun addWater(amountMl: Int): Result<Unit> {
+        // Pre-insert validation
+        val validation = com.example.luminacal.util.ValidationUtils.validateWaterIntake(amountMl)
+        if (!validation.isValid) {
+            Log.w(TAG, "Water validation failed: ${validation.errorMessage}")
+            return Result.failure(IllegalArgumentException(validation.errorMessage))
+        }
+        
+        return runCatching {
+            val entry = WaterEntity(
+                amountMl = amountMl,
+                timestamp = System.currentTimeMillis(),
+                date = getTodayDate()
+            )
+            dao.insertWaterEntry(entry)
+        }.onFailure { e ->
+            Log.e(TAG, "Error adding water: $amountMl ml", e)
+        }
     }
 
     suspend fun clearAllWater(): Result<Unit> = runCatching {

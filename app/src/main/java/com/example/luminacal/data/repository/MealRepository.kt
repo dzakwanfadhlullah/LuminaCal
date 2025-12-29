@@ -26,10 +26,25 @@ class MealRepository(private val mealDao: MealDao) {
             }
     }
 
-    suspend fun insertMeal(meal: MealEntity): Result<Unit> = runCatching {
-        mealDao.insertMeal(meal)
-    }.onFailure { e ->
-        Log.e(TAG, "Error inserting meal: ${meal.name}", e)
+    suspend fun insertMeal(meal: MealEntity): Result<Unit> {
+        // Pre-insert validation
+        val nameValidation = com.example.luminacal.util.ValidationUtils.validateFoodName(meal.name)
+        if (!nameValidation.isValid) {
+            Log.w(TAG, "Meal validation failed: ${nameValidation.errorMessage}")
+            return Result.failure(IllegalArgumentException(nameValidation.errorMessage))
+        }
+        
+        val caloriesValidation = com.example.luminacal.util.ValidationUtils.validateCalories(meal.calories)
+        if (!caloriesValidation.isValid) {
+            Log.w(TAG, "Calories validation failed: ${caloriesValidation.errorMessage}")
+            return Result.failure(IllegalArgumentException(caloriesValidation.errorMessage))
+        }
+        
+        return runCatching {
+            mealDao.insertMeal(meal)
+        }.onFailure { e ->
+            Log.e(TAG, "Error inserting meal: ${meal.name}", e)
+        }
     }
 
     suspend fun deleteMeal(meal: MealEntity): Result<Unit> = runCatching {

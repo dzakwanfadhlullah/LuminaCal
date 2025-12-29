@@ -362,6 +362,17 @@ fun BodyMetricsPage(
     onHeightChange: (Float) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    
+    // BMI Validation
+    val bmiValidation = remember(weight, height) {
+        com.example.luminacal.util.ValidationUtils.validateBMI(weight, height)
+    }
+    val bmiValue = remember(weight, height) {
+        if (height > 0) {
+            val heightM = height / 100
+            weight / (heightM * heightM)
+        } else 0f
+    }
 
     Column(
         modifier = Modifier
@@ -442,6 +453,47 @@ fun BodyMetricsPage(
                     },
                     valueRange = 120f..220f,
                     colors = SliderDefaults.colors(thumbColor = Green500, activeTrackColor = Green500)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // BMI Feedback Card
+        val bmiColor = when {
+            bmiValue < 18.5 -> Color(0xFFF59E0B) // Orange for underweight
+            bmiValue < 25 -> Color(0xFF22C55E) // Green for normal
+            bmiValue < 30 -> Color(0xFFF59E0B) // Orange for overweight
+            else -> Color(0xFFEF4444) // Red for obese
+        }
+        val bmiStatus = when {
+            bmiValue < 18.5 -> "Underweight"
+            bmiValue < 25 -> "Normal"
+            bmiValue < 30 -> "Overweight"
+            else -> "Obese"
+        }
+        
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            color = bmiColor.copy(alpha = 0.1f)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "BMI: ${String.format("%.1f", bmiValue)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = bmiColor
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "• $bmiStatus",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = bmiColor
                 )
             }
         }

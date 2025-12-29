@@ -59,16 +59,25 @@ class WeightRepository(private val dao: WeightDao) {
             emit(WeightTrend(null, null, null))
         }
 
-    suspend fun addWeight(weightKg: Float, note: String? = null): Result<Unit> = runCatching {
-        dao.insertWeight(
-            WeightEntity(
-                weightKg = weightKg,
-                date = System.currentTimeMillis(),
-                note = note
+    suspend fun addWeight(weightKg: Float, note: String? = null): Result<Unit> {
+        // Pre-insert validation
+        val validation = com.example.luminacal.util.ValidationUtils.validateWeight(weightKg)
+        if (!validation.isValid) {
+            Log.w(TAG, "Weight validation failed: ${validation.errorMessage}")
+            return Result.failure(IllegalArgumentException(validation.errorMessage))
+        }
+        
+        return runCatching {
+            dao.insertWeight(
+                WeightEntity(
+                    weightKg = weightKg,
+                    date = System.currentTimeMillis(),
+                    note = note?.trim()?.ifBlank { null }
+                )
             )
-        )
-    }.onFailure { e ->
-        Log.e(TAG, "Error adding weight: $weightKg kg", e)
+        }.onFailure { e ->
+            Log.e(TAG, "Error adding weight: $weightKg kg", e)
+        }
     }
 
     suspend fun deleteWeight(entry: WeightEntry): Result<Unit> = runCatching {

@@ -146,6 +146,15 @@ fun AddWeightDialog(
     var weightText by remember { mutableStateOf(String.format("%.1f", currentWeight)) }
     var noteText by remember { mutableStateOf("") }
     val haptic = LocalHapticFeedback.current
+    
+    // Validation state
+    val weightValue = weightText.toFloatOrNull()
+    val validationResult = remember(weightText) {
+        weightValue?.let { com.example.luminacal.util.ValidationUtils.validateWeight(it) }
+    }
+    val isValid = weightValue != null && (validationResult?.isValid == true)
+    val hasError = validationResult?.errorMessage != null
+    val hasWarning = validationResult?.warningMessage != null
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -174,6 +183,17 @@ fun AddWeightDialog(
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
                         Icon(Icons.Default.MonitorWeight, contentDescription = null)
+                    },
+                    isError = hasError || weightValue == null,
+                    supportingText = {
+                        when {
+                            weightValue == null && weightText.isNotEmpty() -> 
+                                Text("Masukkan angka yang valid", color = MaterialTheme.colorScheme.error)
+                            hasError -> 
+                                Text(validationResult?.errorMessage ?: "", color = MaterialTheme.colorScheme.error)
+                            hasWarning -> 
+                                Text(validationResult?.warningMessage ?: "", color = Color(0xFFFB923C))
+                        }
                     }
                 )
 
@@ -205,10 +225,11 @@ fun AddWeightDialog(
                     Button(
                         onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            val weight = weightText.toFloatOrNull() ?: currentWeight
+                            val weight = weightValue ?: currentWeight
                             onConfirm(weight, noteText.ifBlank { null })
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        enabled = isValid
                     ) {
                         Text("Save")
                     }

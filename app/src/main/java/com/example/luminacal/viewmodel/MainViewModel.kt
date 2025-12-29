@@ -12,6 +12,7 @@ import com.example.luminacal.data.repository.WeightRepository
 import com.example.luminacal.data.repository.WeightEntry
 import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
+import com.example.luminacal.util.ValidationUtils
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -186,12 +187,33 @@ class MainViewModel(
     }
 
     fun addWater(amountMl: Int) {
+        // Validate water intake
+        val validation = ValidationUtils.validateWaterIntake(amountMl)
+        if (!validation.isValid) {
+            _uiState.update { it.copy(errorMessage = validation.errorMessage) }
+            return
+        }
+        
+        // Check daily total warning
+        val currentTotal = _uiState.value.water.consumed
+        val dailyValidation = ValidationUtils.validateDailyWaterTotal(currentTotal + amountMl)
+        if (dailyValidation.warningMessage != null) {
+            Log.w(TAG, dailyValidation.warningMessage)
+        }
+        
         viewModelScope.launch {
             waterRepository.addWater(amountMl)
         }
     }
 
     fun addWeight(weightKg: Float, note: String? = null) {
+        // Validate weight
+        val validation = ValidationUtils.validateWeight(weightKg)
+        if (!validation.isValid) {
+            _uiState.update { it.copy(errorMessage = validation.errorMessage) }
+            return
+        }
+        
         viewModelScope.launch {
             weightRepository.addWeight(weightKg, note)
         }
@@ -204,10 +226,43 @@ class MainViewModel(
     }
 
     fun addFood(name: String, calories: Int, macros: Macros, type: MealType) {
+        // Validate food name
+        val nameValidation = ValidationUtils.validateFoodName(name)
+        if (!nameValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = nameValidation.errorMessage) }
+            return
+        }
+        
+        // Validate calories
+        val caloriesValidation = ValidationUtils.validateCalories(calories)
+        if (!caloriesValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = caloriesValidation.errorMessage) }
+            return
+        }
+        
+        // Validate macros
+        val proteinValidation = ValidationUtils.validateMacro(macros.protein, "Protein")
+        if (!proteinValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = proteinValidation.errorMessage) }
+            return
+        }
+        
+        val carbsValidation = ValidationUtils.validateMacro(macros.carbs, "Carbs")
+        if (!carbsValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = carbsValidation.errorMessage) }
+            return
+        }
+        
+        val fatValidation = ValidationUtils.validateMacro(macros.fat, "Fat")
+        if (!fatValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = fatValidation.errorMessage) }
+            return
+        }
+        
         viewModelScope.launch {
             val currentTime = System.currentTimeMillis()
             val meal = MealEntity(
-                name = name,
+                name = name.trim(),
                 time = formatMealTime(currentTime),
                 calories = calories,
                 protein = macros.protein,

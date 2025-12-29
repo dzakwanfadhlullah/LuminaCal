@@ -67,6 +67,11 @@ fun HealthMetricsScreen(
         )
     }
     
+    // BMI Validation
+    val bmiValidation = remember(weight, height) {
+        com.example.luminacal.util.ValidationUtils.validateBMI(weight, height)
+    }
+    
     // Animated TDEE value
     val animatedTdee by animateIntAsState(
         targetValue = healthMetrics.targetCalories,
@@ -127,6 +132,35 @@ fun HealthMetricsScreen(
                 carbs = healthMetrics.recommendedCarbs,
                 fat = healthMetrics.recommendedFat
             )
+        }
+        
+        // BMI Warning Banner (if applicable)
+        bmiValidation.warningMessage?.let { warning ->
+            item {
+                androidx.compose.material3.Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFFEF3C7)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color(0xFFF59E0B),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = warning,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF92400E)
+                        )
+                    }
+                }
+            }
         }
 
         // Weight History Section
