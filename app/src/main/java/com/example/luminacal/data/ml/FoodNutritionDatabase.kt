@@ -110,14 +110,22 @@ object FoodNutritionDatabase {
         "Fried Rice" to NutritionInfo("Fried Rice", 510, 12, 68, 20, "1 plate"),
         "Fried Chicken" to NutritionInfo("Fried Chicken", 320, 28, 12, 18, "1 piece")
     )
+    // Cached lowercase lookup map for O(1) access
+    private val lookupCache: Map<String, NutritionInfo> by lazy {
+        database.entries.associate { it.key.lowercase() to it.value }
+    }
+    
+    // Cached sorted list for getAllFoodNames
+    private val sortedFoodNames: List<String> by lazy {
+        database.keys.toList().sorted()
+    }
     
     /**
      * Lookup nutrition info by exact food name (case-insensitive)
+     * Uses cached O(1) lookup instead of O(n) linear search
      */
     fun lookup(foodName: String): NutritionInfo? {
-        return database.entries.find { 
-            it.key.equals(foodName, ignoreCase = true) 
-        }?.value
+        return lookupCache[foodName.lowercase()]
     }
     
     /**
@@ -146,7 +154,7 @@ object FoodNutritionDatabase {
     }
     
     /**
-     * Get all food names
+     * Get all food names (cached sorted list)
      */
-    fun getAllFoodNames(): List<String> = database.keys.toList().sorted()
+    fun getAllFoodNames(): List<String> = sortedFoodNames
 }

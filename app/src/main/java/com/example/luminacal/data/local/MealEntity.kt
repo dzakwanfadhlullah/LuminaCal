@@ -1,10 +1,14 @@
 package com.example.luminacal.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.luminacal.model.MealType
 
-@Entity(tableName = "meal_entries")
+@Entity(
+    tableName = "meal_entries",
+    indices = [Index(value = ["date"])]
+)
 data class MealEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

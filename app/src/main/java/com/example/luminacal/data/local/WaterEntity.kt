@@ -1,10 +1,14 @@
 package com.example.luminacal.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.luminacal.model.WaterEntry
 
-@Entity(tableName = "water_entries")
+@Entity(
+    tableName = "water_entries",
+    indices = [Index(value = ["date"])]
+)
 data class WaterEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val amountMl: Int,
