@@ -36,6 +36,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import androidx.core.content.ContextCompat
 
 @Composable
@@ -85,7 +87,7 @@ fun CameraScannerScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Camera permission required",
+                    stringResource(R.string.camera_permission_required),
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -145,7 +147,7 @@ fun CameraScannerScreen(
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = " • ",
+                                text = stringResource(R.string.ai_detected),
                                 color = Color.White.copy(alpha = 0.5f),
                                 fontSize = 14.sp
                             )
@@ -173,7 +175,7 @@ fun CameraScannerScreen(
                                         fontSize = 18.sp
                                     )
                                     Text(
-                                        text = "kcal",
+                                        text = stringResource(R.string.dashboard_kcal),
                                         color = Color.White.copy(alpha = 0.6f),
                                         fontSize = 12.sp
                                     )
@@ -186,7 +188,7 @@ fun CameraScannerScreen(
                                         fontSize = 16.sp
                                     )
                                     Text(
-                                        text = "protein",
+                                        text = stringResource(R.string.macro_protein).lowercase(),
                                         color = Color.White.copy(alpha = 0.6f),
                                         fontSize = 12.sp
                                     )
@@ -199,7 +201,7 @@ fun CameraScannerScreen(
                                         fontSize = 16.sp
                                     )
                                     Text(
-                                        text = "carbs",
+                                        text = stringResource(R.string.macro_carbs).lowercase(),
                                         color = Color.White.copy(alpha = 0.6f),
                                         fontSize = 12.sp
                                     )
@@ -212,7 +214,7 @@ fun CameraScannerScreen(
                                         fontSize = 16.sp
                                     )
                                     Text(
-                                        text = "fat",
+                                        text = stringResource(R.string.macro_fat).lowercase(),
                                         color = Color.White.copy(alpha = 0.6f),
                                         fontSize = 12.sp
                                     )
@@ -227,7 +229,7 @@ fun CameraScannerScreen(
                         } else {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Tap a suggestion below for nutrition info",
+                                text = stringResource(R.string.ai_suggestion_hint),
                                 color = Color.White.copy(alpha = 0.6f),
                                 fontSize = 12.sp
                             )
@@ -235,13 +237,13 @@ fun CameraScannerScreen(
                     } else {
                         // Scanning state
                         Text(
-                            text = "Scanning...",
+                            text = stringResource(R.string.scanning),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                         Text(
-                            text = "Point camera at food item",
+                            text = stringResource(R.string.scanning_hint),
                             color = Color.White.copy(alpha = 0.6f),
                             fontSize = 14.sp
                         )
@@ -306,7 +308,7 @@ fun CameraScannerScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Log ${foodToLog.name} (${foodToLog.calories} kcal)",
+                        text = stringResource(R.string.log_food_action, foodToLog.name, foodToLog.calories),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )

@@ -25,6 +25,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.model.HealthMetrics
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.Blue500
@@ -47,8 +49,8 @@ fun ProfileScreen(
     if (showClearConfirm) {
         AlertDialog(
             onDismissRequest = { showClearConfirm = false },
-            title = { Text("Clear All Data?") },
-            text = { Text("This will permanently delete all your meal logs, water intake, and weight history. This action cannot be undone.") },
+            title = { Text(stringResource(R.string.clear_data_confirm_title)) },
+            text = { Text(stringResource(R.string.clear_data_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -58,12 +60,12 @@ fun ProfileScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                 ) {
-                    Text("Clear Everything")
+                    Text(stringResource(R.string.clear_everything))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearConfirm = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -77,7 +79,7 @@ fun ProfileScreen(
         // Top Tools
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Profile", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
@@ -147,8 +149,8 @@ fun ProfileScreen(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
                 ProfileItemRow(
                     icon = Icons.Default.Devices, 
-                    title = "Devices & Apps", 
-                    trailing = "2 Connected", 
+                    title = stringResource(R.string.profile_devices_apps), 
+                    trailing = stringResource(R.string.profile_connected_count, 2), 
                     tint = Color(0xFF22C55E),
                     onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
                 )
@@ -159,7 +161,7 @@ fun ProfileScreen(
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "DATA MANAGEMENT", 
+                    stringResource(R.string.profile_data_management), 
                     fontSize = 12.sp, 
                     fontWeight = FontWeight.Bold, 
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
@@ -168,7 +170,7 @@ fun ProfileScreen(
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
                     ProfileItemRow(
                         icon = Icons.Default.FileDownload, 
-                        title = "Export Meals (CSV)", 
+                        title = stringResource(R.string.profile_export_csv), 
                         tint = Color(0xFF3B82F6),
                         onClick = { 
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -178,7 +180,7 @@ fun ProfileScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
                     ProfileItemRow(
                         icon = Icons.Default.Backup, 
-                        title = "Full Backup (JSON)", 
+                        title = stringResource(R.string.profile_export_json), 
                         tint = Color(0xFF8B5CF6),
                         onClick = { 
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -192,14 +194,14 @@ fun ProfileScreen(
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "PREFERENCES", 
+                    stringResource(R.string.profile_preferences), 
                     fontSize = 12.sp, 
                     fontWeight = FontWeight.Bold, 
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
                 )
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
-                    ProfileItemRow(Icons.Default.Person, "Dietary Needs", tint = Color(0xFFA855F7))
+                    ProfileItemRow(Icons.Default.Person, stringResource(R.string.profile_dietary_needs), tint = Color(0xFFA855F7))
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -215,7 +217,7 @@ fun ProfileScreen(
                                 Icon(Icons.Default.FlashOn, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text("Dark Mode", fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.profile_dark_mode), fontWeight = FontWeight.Medium)
                         }
                         Switch(
                             checked = darkMode, 
@@ -242,7 +244,7 @@ fun ProfileScreen(
                                 Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color(0xFF3B82F6), modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text("Meal Reminders", fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.profile_meal_reminders), fontWeight = FontWeight.Medium)
                         }
                         Switch(
                             checked = true, 
@@ -259,7 +261,7 @@ fun ProfileScreen(
         // Sign Out
         item {
             Text(
-                "Sign Out", 
+                stringResource(R.string.profile_sign_out), 
                 color = Color.Red.copy(alpha = 0.7f), 
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -267,7 +269,7 @@ fun ProfileScreen(
                     .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
             )
             Text(
-                "Version 1.0.0 (Build 204)", 
+                stringResource(R.string.version, "1.0.0 (Build 204)"), 
                 fontSize = 10.sp, 
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
             )
@@ -280,7 +282,7 @@ fun ProfileScreen(
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Clear All Data", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.clear_data), fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(40.dp))
         }

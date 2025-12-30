@@ -23,6 +23,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.model.WaterState
 import androidx.compose.ui.platform.LocalDensity
 
@@ -64,7 +66,7 @@ fun WaterTrackingWidget(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Water Intake",
+                        text = stringResource(R.string.water_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -73,7 +75,7 @@ fun WaterTrackingWidget(
                 
                 // Glass count
                 Text(
-                    text = "${waterState.glassCount} glasses",
+                    text = stringResource(R.string.water_glasses, waterState.glassCount),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -183,7 +185,7 @@ fun WaterTrackingWidget(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "1 Glass",
+                        text = stringResource(R.string.water_add_glass),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -210,7 +212,7 @@ fun WaterTrackingWidget(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "500ml",
+                        text = stringResource(R.string.water_add_500ml),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )

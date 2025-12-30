@@ -28,6 +28,8 @@ import com.example.luminacal.ui.components.GlassButton
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.ui.theme.*
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -158,7 +160,7 @@ fun FoodDetailScreen(
                                     fontWeight = FontWeight.Black
                                 )
                                 Text(
-                                    text = "Total Calories (kcal)",
+                                    text = stringResource(R.string.total_calories),
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                 )
                             }
@@ -171,16 +173,16 @@ fun FoodDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            MacroBadge("Protein", "${estimatedMacros.protein}g", Blue500, Modifier.weight(1f))
-                            MacroBadge("Carbs", "${estimatedMacros.carbs}g", Green500, Modifier.weight(1f))
-                            MacroBadge("Fat", "${estimatedMacros.fat}g", Peach400, Modifier.weight(1f))
+                            MacroBadge(stringResource(R.string.macro_protein), "${estimatedMacros.protein}g", Blue500, Modifier.weight(1f))
+                            MacroBadge(stringResource(R.string.macro_carbs), "${estimatedMacros.carbs}g", Green500, Modifier.weight(1f))
+                            MacroBadge(stringResource(R.string.macro_fat), "${estimatedMacros.fat}g", Peach400, Modifier.weight(1f))
                         }
 
                         Spacer(modifier = Modifier.height(40.dp))
 
                         // Portion Slider
                         Text(
-                            text = "Portion Size",
+                            text = stringResource(R.string.portion_size),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -214,7 +216,7 @@ fun FoodDetailScreen(
                     .align(Alignment.BottomCenter)
             ) {
                 GlassButton(
-                    text = "Log this meal",
+                    text = stringResource(R.string.log_this_meal),
                     onClick = { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onLogMeal(foodName, currentCalories, estimatedMacros, mealType)

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.data.repository.WeightEntry
 import com.example.luminacal.data.repository.WeightTrend
 import java.text.SimpleDateFormat
@@ -91,7 +94,7 @@ fun WeightEntryCard(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                 )
             }
@@ -108,11 +111,15 @@ fun WeightTrendBadge(
     
     if (change == null) return
 
-    val (icon, color, text) = when {
-        change > 0.1f -> Triple(Icons.Default.TrendingUp, Color(0xFFEF4444), "+${String.format("%.1f", change)} kg")
-        change < -0.1f -> Triple(Icons.Default.TrendingDown, Color(0xFF22C55E), "${String.format("%.1f", change)} kg")
-        else -> Triple(Icons.Default.TrendingFlat, Color(0xFF6B7280), "No change")
+    data class TrendInfo(val icon: ImageVector, val color: Color, val labelResId: Int?, val textSuffix: String?)
+    
+    val (icon, color, labelResId, textSuffix) = when {
+        change > 0.1f -> TrendInfo(Icons.Default.TrendingUp, Color(0xFFEF4444), null, "+${String.format("%.1f", change)} kg")
+        change < -0.1f -> TrendInfo(Icons.Default.TrendingDown, Color(0xFF22C55E), null, "${String.format("%.1f", change)} kg")
+        else -> TrendInfo(Icons.Default.TrendingFlat, Color(0xFF6B7280), R.string.no_change, null)
     }
+
+    val displayText = if (labelResId != null) stringResource(labelResId) else textSuffix ?: ""
 
     Row(
         modifier = modifier
@@ -129,7 +136,7 @@ fun WeightTrendBadge(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = text,
+            text = displayText,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = color
@@ -167,7 +174,7 @@ fun AddWeightDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Log Weight",
+                    text = stringResource(R.string.add_weight),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -177,7 +184,7 @@ fun AddWeightDialog(
                 OutlinedTextField(
                     value = weightText,
                     onValueChange = { weightText = it },
-                    label = { Text("Weight (kg)") },
+                    label = { Text(stringResource(R.string.health_weight) + " (kg)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -188,7 +195,7 @@ fun AddWeightDialog(
                     supportingText = {
                         when {
                             weightValue == null && weightText.isNotEmpty() -> 
-                                Text("Masukkan angka yang valid", color = MaterialTheme.colorScheme.error)
+                                Text(stringResource(R.string.invalid_number), color = MaterialTheme.colorScheme.error)
                             hasError -> 
                                 Text(validationResult?.errorMessage ?: "", color = MaterialTheme.colorScheme.error)
                             hasWarning -> 
@@ -202,7 +209,7 @@ fun AddWeightDialog(
                 OutlinedTextField(
                     value = noteText,
                     onValueChange = { noteText = it },
-                    label = { Text("Note (optional)") },
+                    label = { Text(stringResource(R.string.weight_note_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
@@ -220,7 +227,7 @@ fun AddWeightDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                     Button(
                         onClick = {
@@ -231,7 +238,7 @@ fun AddWeightDialog(
                         modifier = Modifier.weight(1f),
                         enabled = isValid
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.save))
                     }
                 }
             }

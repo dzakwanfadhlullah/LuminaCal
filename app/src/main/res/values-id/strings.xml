@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">LuminaCal</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_stats">Statistik</string>
+    <string name="nav_scan">Pindai</string>
+    <string name="nav_explore">Jelajah</string>
+    <string name="nav_profile">Profil</string>
+    <string name="nav_health">Kesehatan</string>
+    <string name="nav_detail">Detail</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_today">HARI INI</string>
+    <string name="dashboard_remaining">Sisa</string>
+    <string name="dashboard_consumed">Dikonsumsi</string>
+    <string name="dashboard_target">Target</string>
+    <string name="dashboard_kcal">kkal</string>
+    <string name="dashboard_recent_logs">Log Terbaru</string>
+    <string name="dashboard_view_all">Lihat Semua</string>
+    <string name="dashboard_no_meals">Belum ada makanan yang dicatat</string>
+    <string name="dashboard_no_meals_subtitle">Tap tombol scan untuk mencatat makanan pertamamu dan mulai tracking!</string>
+    
+    <!-- Macros -->
+    <string name="macro_protein_hint">Anda butuh %d g protein lagi hari ini.</string>
+    <string name="macro_carbs_hint">Fokus energi: %1$d/%2$d g karbohidrat dikonsumsi.</string>
+    <string name="macro_fat_hint">Lemak sehat: target %1$d/%2$d g.</string>
+    <string name="macro_protein">Protein</string>
+    <string name="macro_carbs">Karbo</string>
+    <string name="macro_fat">Lemak</string>
+    <string name="macro_grams">g</string>
+    
+    <!-- Water Tracking -->
+    <string name="water_title">Konsumsi Air</string>
+    <string name="water_glasses">%d gelas</string>
+    <string name="water_ml">ml</string>
+    <string name="water_add_glass">1 Gelas</string>
+    <string name="water_add_500ml">500ml</string>
+    <string name="water_goal_reached">Target air tercapai!</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_welcome">Selamat datang di</string>
+    <string name="onboarding_description">Pelacak kalori berbasis AI. Cerdas, simpel, dan dirancang untuk membantu Anda mencapai tujuan kesehatan.</string>
+    <string name="onboarding_skip">Lewati</string>
+    <string name="onboarding_next">Lanjut</string>
+    <string name="onboarding_back">Kembali</string>
+    <string name="onboarding_start_tracking">Mulai Tracking!</string>
+    
+    <!-- About You Page -->
+    <string name="about_you_title">Ceritakan tentang dirimu</string>
+    <string name="about_you_subtitle">Bantu kami personalisasi pengalamanmu</string>
+    <string name="gender_title">Jenis Kelamin</string>
+    <string name="gender_male">Laki-laki</string>
+    <string name="gender_female">Perempuan</string>
+    <string name="gender_other">Lainnya</string>
+    <string name="age_title">Umur</string>
+    <string name="age_years">%d tahun</string>
+    
+    <!-- Body Metrics Page -->
+    <string name="body_metrics_title">Metrik Tubuh</string>
+    <string name="body_metrics_subtitle">Digunakan untuk menghitung kebutuhan harianmu</string>
+    <string name="weight_title">Berat Badan</string>
+    <string name="health_weight">Berat</string>
+    <string name="weight_kg">%d kg</string>
+    <string name="height_title">Tinggi Badan</string>
+    <string name="height_cm">%d cm</string>
+    <string name="bmi_label">BMI: %.1f</string>
+    <string name="bmi_underweight">Kurus</string>
+    <string name="bmi_normal">Normal</string>
+    <string name="bmi_overweight">Kelebihan Berat</string>
+    <string name="bmi_obese">Obesitas</string>
+    
+    <!-- Goals Page -->
+    <string name="goals_title">Tujuanmu</string>
+    <string name="goals_subtitle">Atur tingkat aktivitas dan tujuan fitnessmu</string>
+    <string name="activity_level_title">Tingkat Aktivitas</string>
+    <string name="activity_sedentary">Tidak Aktif</string>
+    <string name="activity_light">Aktivitas Ringan</string>
+    <string name="activity_moderate">Aktivitas Sedang</string>
+    <string name="activity_active">Sangat Aktif</string>
+    <string name="activity_extra">Ekstra Aktif</string>
+    <string name="fitness_goal_title">Tujuan Fitness</string>
+    <string name="goal_lose_weight">Turunkan Berat</string>
+    <string name="goal_maintain">Pertahankan</string>
+    <string name="goal_gain_muscle">Bangun Otot</string>
+    <string name="daily_target_title">Target Harianmu</string>
+    <string name="calories_per_day">kalori per hari</string>
+    
+    <!-- Health Metrics Screen -->
+    <string name="health_title">Metrik Kesehatan</string>
+    <string name="tdee_title">Energi Harianmu</string>
+    <string name="tdee_label">TDEE</string>
+    <string name="bmr_label">BMR</string>
+    <string name="recommended_macros">Makro yang Direkomendasikan</string>
+    <string name="update_goals">Perbarui Tujuan</string>
+    <string name="save">Simpan</string>
+    <string name="cancel">Batal</string>
+    
+    <!-- Weight Tracking -->
+    <string name="weight_history">Riwayat Berat</string>
+    <string name="log_weight">Catat Berat</string>
+    <string name="weight_trend">Tren Mingguan</string>
+    <string name="weight_kg_format">%.1f kg</string>
+    <string name="weight_change">%+.1f kg</string>
+    <string name="no_weight_data">Belum ada data berat</string>
+    <string name="add_weight">Tambah Berat</string>
+    <string name="weight_note_hint">Tambahkan catatan (opsional)</string>
+    
+    <!-- Camera/Scanner -->
+    <string name="camera_title">Pemindai AI</string>
+    <string name="camera_permission_required">Izin kamera diperlukan</string>
+    <string name="scanning">Memindai…</string>
+    <string name="scanning_hint">Arahkan kamera ke makanan</string>
+    <string name="ai_detected">AI Terdeteksi</string>
+    <string name="ai_suggestion_hint">Ketuk saran di bawah untuk info nutrisi</string>
+    <string name="add_to_diary">Simpan ke Diary</string>
+    <string name="log_food_action">Catat %1$s (%2$d kkal)</string>
+    <string name="camera_analyzing">Menganalisis...</string>
+    <string name="camera_point_at_food">Arahkan kamera ke makanan</string>
+    <string name="camera_grant_permission">Berikan Izin</string>
+    
+    <!-- Food Detail -->
+    <string name="food_detail_title">Detail Makanan</string>
+    <string name="total_calories">Total Kalori (kkal)</string>
+    <string name="portion_size">Ukuran Porsi</string>
+    <string name="log_this_meal">Catat makanan ini</string>
+    <string name="nutrition_info">Informasi Nutrisi</string>
+    <string name="serving_size">Ukuran Porsi</string>
+    <string name="add_to_log">Tambah ke Log</string>
+    <string name="meal_type">Jenis Makanan</string>
+    <string name="meal_breakfast">Sarapan</string>
+    <string name="meal_lunch">Makan Siang</string>
+    <string name="meal_dinner">Makan Malam</string>
+    <string name="meal_snack">Camilan</string>
+    
+    <!-- Explore -->
+    <string name="explore_title">Jelajahi</string>
+    <string name="explore_search_hint">Cari resep, bahan...</string>
+    <string name="explore_categories">Kategori</string>
+    <string name="explore_popular">Makanan Populer</string>
+    <string name="category_all">Semua</string>
+    <string name="category_breakfast">Sarapan</string>
+    <string name="category_indonesian">Indonesian</string>
+    <string name="category_vegan">Vegan</string>
+    <string name="category_dinner">Makan Malam</string>
+    <string name="category_snacks">Camilan</string>
+    <string name="category_food">Makanan</string>
+    <string name="category_drink">Minuman</string>
+    <string name="category_fruit">Buah</string>
+    <string name="category_vegetable">Sayuran</string>
+    <string name="no_recipes_found">Resep tidak ditemukan</string>
+    <string name="no_recipes_match">Tidak ada resep yang cocok dengan \"%s\". Coba cari yang lain.</string>
+    <string name="no_recipes_category">Tidak ada resep di kategori ini.</string>
+    <string name="manual_entry_title">Input Makanan Manual</string>
+    <string name="food_name_label">Nama Makanan</string>
+    <string name="meal_timing">Waktu Makan</string>
+    
+    <!-- Statistics -->
+    <string name="statistics_title">Statistik</string>
+    <string name="stats_analytics">Analitik</string>
+    <string name="stats_weekly_intake">Asupan Mingguan</string>
+    <string name="stats_avg_kcal">Rata-rata: %d kkal</string>
+    <string name="stats_weight_progress">Kemajuan Berat Badan</string>
+    <string name="stats_today_macros">Makro Hari Ini</string>
+    <string name="stats_goal_progress">Kemajuan Target</string>
+    <string name="stats_target_weight">Target Berat Badan</string>
+    <string name="stats_active_streak">Streak Aktif</string>
+    <string name="stats_days_count">%d Hari</string>
+    <string name="tab_calories">Kalori</string>
+    <string name="tab_weight">Berat</string>
+    <string name="tab_macros">Makro</string>
+    <string name="weekly_overview">Ringkasan Mingguan</string>
+    <string name="calories_chart">Kalori</string>
+    <string name="weight_chart">Progres Berat</string>
+    <string name="avg_daily_calories">Rata-rata Kalori Harian</string>
+    <string name="goal_achievement">Pencapaian Target</string>
+    
+    <!-- Profile -->
+    <string name="profile_title">Profil</string>
+    <string name="profile_edit">Edit Profil</string>
+    <string name="profile_name">Nama</string>
+    <string name="profile_settings">Pengaturan</string>
+    <string name="profile_devices_apps">Perangkat &amp; Aplikasi</string>
+    <string name="profile_data_management">MANAJEMEN DATA</string>
+    <string name="profile_export_csv">Ekspor Data Makan (CSV)</string>
+    <string name="profile_export_json">Cadangan Penuh (JSON)</string>
+    <string name="profile_preferences">PREFERENSI</string>
+    <string name="profile_dietary_needs">Kebutuhan Diet</string>
+    <string name="profile_dark_mode">Mode Gelap</string>
+    <string name="profile_meal_reminders">Pengingat Makan</string>
+    <string name="profile_sign_out">Keluar</string>
+    <string name="version">Versi %1$s</string>
+    <string name="profile_connected_count">%d Terhubung</string>
+    <string name="dark_mode">Mode Gelap</string>
+    <string name="notifications">Notifikasi</string>
+    <string name="clear_data">Hapus Semua Data</string>
+    <string name="clear_data_confirm_title">Hapus Semua Data?</string>
+    <string name="clear_data_confirm">Ini akan menghapus semua log makanan, konsumsi air, dan riwayat berat badan Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="clear_everything">Hapus Semuanya</string>
+    <string name="health_metrics_title">Kesehatan &amp; Target</string>
+    <string name="no_change">Tidak ada perubahan</string>
+    <string name="delete">Hapus</string>
+    <string name="back">Kembali</string>
+    <string name="invalid_number">Masukkan angka yang valid</string>
+    
+    <!-- Common Actions -->
+    <string name="edit">Edit</string>
+    <string name="confirm">Konfirmasi</string>
+    <string name="ok">OK</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="close">Tutup</string>
+    <string name="retry">Coba Lagi</string>
+    <string name="loading">Memuat...</string>
+    
+    <!-- Error Messages -->
+    <string name="error_generic">Terjadi kesalahan. Silakan coba lagi.</string>
+    <string name="error_network">Kesalahan jaringan. Periksa koneksi Anda.</string>
+    <string name="error_camera">Kesalahan kamera. Silakan coba lagi.</string>
+    
+    <!-- Content Descriptions (Accessibility) -->
+    <string name="cd_profile_image">Foto profil</string>
+    <string name="cd_food_image">Gambar makanan</string>
+    <string name="cd_scan_button">Tombol scan makanan</string>
+    <string name="cd_add_water">Tombol tambah air</string>
+    <string name="cd_back_button">Kembali</string>
+    <string name="cd_close_button">Tutup</string>
+    <string name="cd_delete_item">Hapus item</string>
+</resources>

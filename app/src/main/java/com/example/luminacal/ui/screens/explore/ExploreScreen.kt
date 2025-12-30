@@ -41,6 +41,8 @@ import com.example.luminacal.model.MealType
 import com.example.luminacal.ui.components.GlassButton
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.viewmodel.MainViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -154,7 +156,7 @@ fun ExploreScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 24.dp)
                 ) {
                     Column {
-                        Text("Explore", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.explore_title), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(16.dp))
                         OutlinedTextField(
                             value = searchQuery,
@@ -162,7 +164,7 @@ fun ExploreScreen(
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = { 
                                 Text(
-                                    "Search recipes, ingredients...",
+                                    stringResource(R.string.explore_search_hint),
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                                 ) 
                             },
@@ -217,7 +219,15 @@ fun ExploreScreen(
                                 }
                         ) {
                             Text(
-                                text = cat,
+                                text = when (cat) {
+                                    "All" -> stringResource(R.string.category_all)
+                                    "Breakfast" -> stringResource(R.string.category_breakfast)
+                                    "Indonesian" -> stringResource(R.string.category_indonesian)
+                                    "Vegan" -> stringResource(R.string.category_vegan)
+                                    "Dinner" -> stringResource(R.string.category_dinner)
+                                    "Snacks" -> stringResource(R.string.category_snacks)
+                                    else -> cat
+                                },
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 color = if (isSelected) Color.White else Slate900,
                                 fontSize = 14.sp,
@@ -263,11 +273,11 @@ fun ExploreScreen(
                 item {
                     com.example.luminacal.ui.components.EmptyStateCard(
                         icon = Icons.Default.SearchOff,
-                        title = "No recipes found",
+                        title = stringResource(R.string.no_recipes_found),
                         subtitle = if (searchQuery.isNotEmpty()) 
-                            "No recipes match \"$searchQuery\". Try a different search."
+                            stringResource(R.string.no_recipes_match, searchQuery)
                         else 
-                            "No recipes in this category.",
+                            stringResource(R.string.no_recipes_category),
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
                     )
                 }
@@ -365,13 +375,13 @@ fun ManualEntryDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Custom Food Entry", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.manual_entry_title), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Food Name") },
+                    label = { Text(stringResource(R.string.food_name_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -380,7 +390,7 @@ fun ManualEntryDialog(
                     OutlinedTextField(
                         value = calories,
                         onValueChange = { if (it.all { char -> char.isDigit() }) calories = it },
-                        label = { Text("Kcal") },
+                        label = { Text(stringResource(R.string.dashboard_kcal)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp)
@@ -388,7 +398,7 @@ fun ManualEntryDialog(
                     OutlinedTextField(
                         value = protein,
                         onValueChange = { if (it.all { char -> char.isDigit() }) protein = it },
-                        label = { Text("Protein") },
+                        label = { Text(stringResource(R.string.macro_protein)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp)
@@ -399,7 +409,7 @@ fun ManualEntryDialog(
                     OutlinedTextField(
                         value = carbs,
                         onValueChange = { if (it.all { char -> char.isDigit() }) carbs = it },
-                        label = { Text("Carbs") },
+                        label = { Text(stringResource(R.string.macro_carbs)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp)
@@ -407,14 +417,14 @@ fun ManualEntryDialog(
                     OutlinedTextField(
                         value = fat,
                         onValueChange = { if (it.all { char -> char.isDigit() }) fat = it },
-                        label = { Text("Fat") },
+                        label = { Text(stringResource(R.string.macro_fat)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
 
-                Text("Meal Timing", style = MaterialTheme.typography.labelMedium, color = Blue500)
+                Text(stringResource(R.string.meal_timing), style = MaterialTheme.typography.labelMedium, color = Blue500)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MealType.values().forEach { type ->
                         val isSelected = mealType == type
@@ -424,7 +434,12 @@ fun ManualEntryDialog(
                             modifier = Modifier.weight(1f).clickable { mealType = type }
                         ) {
                             Text(
-                                text = type.name.lowercase().capitalize(),
+                                text = when (type) {
+                                    MealType.BREAKFAST -> stringResource(R.string.meal_breakfast)
+                                    MealType.LUNCH -> stringResource(R.string.meal_lunch)
+                                    MealType.DINNER -> stringResource(R.string.meal_dinner)
+                                    MealType.SNACK -> stringResource(R.string.meal_snack)
+                                },
                                 modifier = Modifier.padding(vertical = 8.dp),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
@@ -452,11 +467,11 @@ fun ManualEntryDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = Blue500),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Add to Log")
+                Text(stringResource(R.string.add_to_log))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
         shape = RoundedCornerShape(24.dp)
     )

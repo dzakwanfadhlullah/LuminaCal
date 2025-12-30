@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.*
 
@@ -43,7 +45,11 @@ fun StatisticsScreen(
     weightGoal: Float = 65f // Mock for now
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Calories", "Weight", "Macros")
+    val tabs = listOf(
+        stringResource(R.string.tab_calories),
+        stringResource(R.string.tab_weight),
+        stringResource(R.string.tab_macros)
+    )
     
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -53,7 +59,7 @@ fun StatisticsScreen(
         item {
             Column {
                 Text(
-                    text = "Analytics",
+                    text = stringResource(R.string.stats_analytics),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
@@ -101,8 +107,8 @@ fun StatisticsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Weekly Intake", fontWeight = FontWeight.Bold)
-                                Text("Avg: ${(weeklyCalories.map { it.calories }.average().toInt())} kcal", fontSize = 12.sp, color = Blue500)
+                                Text(stringResource(R.string.stats_weekly_intake), fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.stats_avg_kcal, (weeklyCalories.map { it.calories }.average().toInt())), fontSize = 12.sp, color = Blue500)
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             com.example.luminacal.ui.components.charts.WeeklyCalorieChart(
@@ -127,7 +133,7 @@ fun StatisticsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Weight Progress", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.stats_weight_progress), fontWeight = FontWeight.Bold)
                                 if (weightPoints.isNotEmpty()) {
                                     val change = weightPoints.last().weight - weightPoints.first().weight
                                     Text(
@@ -147,7 +153,7 @@ fun StatisticsScreen(
                     }
                     2 -> { // Macros
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Today's Macros", fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
+                            Text(stringResource(R.string.stats_today_macros), fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
                             Spacer(modifier = Modifier.height(24.dp))
                             com.example.luminacal.ui.components.charts.MacroDistributionChart(
                                 protein = macros.protein,
@@ -160,9 +166,9 @@ fun StatisticsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                MacroIndicator("Protein", "${macros.protein}g", Blue500)
-                                MacroIndicator("Carbs", "${macros.carbs}g", Green500)
-                                MacroIndicator("Fat", "${macros.fat}g", Peach400)
+                                MacroIndicator(stringResource(R.string.macro_protein), "${macros.protein}g", Blue500)
+                                MacroIndicator(stringResource(R.string.macro_carbs), "${macros.carbs}g", Green500)
+                                MacroIndicator(stringResource(R.string.macro_fat), "${macros.fat}g", Peach400)
                             }
                         }
                     }
@@ -172,14 +178,14 @@ fun StatisticsScreen(
 
         // Summary Section
         item {
-            Text("Goal Progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.stats_goal_progress), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
 
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 // Goal Card 1: Weight Goal
                 GlassCard(modifier = Modifier.weight(1f)) {
-                    Text("Target Weight", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(stringResource(R.string.stats_target_weight), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("$weightGoal kg", fontSize = 20.sp, fontWeight = FontWeight.Black)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -193,9 +199,9 @@ fun StatisticsScreen(
 
                 // Goal Card 2: Streak
                 GlassCard(modifier = Modifier.weight(1f)) {
-                    Text("Active Streak", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(stringResource(R.string.stats_active_streak), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("12 Days", fontSize = 20.sp, fontWeight = FontWeight.Black, color = Peach400)
+                    Text(stringResource(R.string.stats_days_count, 12), fontSize = 20.sp, fontWeight = FontWeight.Black, color = Peach400)
                     Spacer(modifier = Modifier.height(12.dp))
                     Icon(Icons.Default.MilitaryTech, contentDescription = null, tint = Peach400, modifier = Modifier.size(24.dp))
                 }

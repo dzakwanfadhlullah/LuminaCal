@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.model.*
 import com.example.luminacal.ui.theme.*
 import kotlinx.coroutines.launch
@@ -73,7 +75,7 @@ fun OnboardingScreen(
                     .align(Alignment.TopEnd)
                     .padding(16.dp)
             ) {
-                Text("Skip", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(stringResource(R.string.onboarding_skip), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
 
@@ -149,7 +151,7 @@ fun OnboardingScreen(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Back")
+                        Text(stringResource(R.string.onboarding_back))
                     }
                 }
 
@@ -170,7 +172,7 @@ fun OnboardingScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Blue500)
                 ) {
                     Text(
-                        if (pagerState.currentPage < 3) "Next" else "Start Tracking!",
+                        if (pagerState.currentPage < 3) stringResource(R.string.onboarding_next) else stringResource(R.string.onboarding_start_tracking),
                         fontWeight = FontWeight.Bold
                     )
                     if (pagerState.currentPage < 3) {
@@ -225,12 +227,12 @@ fun WelcomePage() {
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Welcome to",
+            text = stringResource(R.string.onboarding_welcome),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
         Text(
-            text = "LuminaCal",
+            text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Black,
             color = Blue500

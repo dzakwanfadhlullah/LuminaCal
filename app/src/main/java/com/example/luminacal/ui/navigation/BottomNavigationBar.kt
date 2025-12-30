@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import com.example.luminacal.R
 import com.example.luminacal.ui.theme.Slate900
 
 @Composable
@@ -65,7 +67,7 @@ fun BottomNavigationBar(
                     ) {
                         Icon(
                             imageVector = Icons.Default.QrCodeScanner,
-                            contentDescription = "Scan",
+                            contentDescription = stringResource(screen.labelRes),
                             tint = Slate900,
                             modifier = Modifier.size(28.dp)
                         )
@@ -97,7 +99,7 @@ fun BottomNavigationBar(
                             }
                             Icon(
                                 imageVector = screen.icon,
-                                contentDescription = screen.label,
+                                contentDescription = stringResource(screen.labelRes),
                                 tint = contentColor,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -105,7 +107,7 @@ fun BottomNavigationBar(
                         
                         AnimatedVisibility(visible = isSelected) {
                             Text(
-                                text = screen.label,
+                                text = stringResource(screen.labelRes),
                                 color = MaterialTheme.colorScheme.primary,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,

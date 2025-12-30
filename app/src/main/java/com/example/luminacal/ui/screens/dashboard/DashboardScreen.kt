@@ -25,7 +25,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
+import com.example.luminacal.R
 import com.example.luminacal.model.CalorieState
 import com.example.luminacal.model.HealthMetrics
 import com.example.luminacal.model.HistoryEntry
@@ -91,13 +93,13 @@ fun DashboardScreen(
             ) {
                 Column {
                     Text(
-                        text = "TODAY",
+                        text = stringResource(R.string.dashboard_today),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         letterSpacing = 2.sp
                     )
                     Text(
-                        text = "Dashboard",
+                        text = stringResource(R.string.dashboard_title),
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -105,7 +107,7 @@ fun DashboardScreen(
                 
                 AsyncImage(
                     model = "https://api.dicebear.com/7.x/avataaars/svg?seed=${healthMetrics.avatarSeed}",
-                    contentDescription = "Profile",
+                    contentDescription = stringResource(R.string.cd_profile_image),
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
@@ -161,7 +163,7 @@ fun DashboardScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         },
-                        subLabel = "Remaining",
+                        subLabel = stringResource(R.string.dashboard_remaining),
                         icon = Icons.Default.Whatshot,
                         color = Color(0xFFFFB88C)
                     )
@@ -174,16 +176,16 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         listOf(
-                            Triple("Protein", macros.protein, Color(0xFF3B82F6)),
-                            Triple("Carbs", macros.carbs, Color(0xFF22C55E)),
-                            Triple("Fat", macros.fat, Color(0xFFFB923C))
+                            Triple(stringResource(R.string.macro_protein), macros.protein, Color(0xFF3B82F6)),
+                            Triple(stringResource(R.string.macro_carbs), macros.carbs, Color(0xFF22C55E)),
+                            Triple(stringResource(R.string.macro_fat), macros.fat, Color(0xFFFB923C))
                         ).forEach { (label, value, color) ->
                             MacroProgressBar(
                                 label = label,
                                 value = value,
                                 max = when(label) { 
-                                    "Protein" -> healthMetrics.recommendedProtein
-                                    "Carbs" -> healthMetrics.recommendedCarbs
+                                    stringResource(R.string.macro_protein) -> healthMetrics.recommendedProtein
+                                    stringResource(R.string.macro_carbs) -> healthMetrics.recommendedCarbs
                                     else -> healthMetrics.recommendedFat 
                                 },
                                 color = color,
@@ -211,9 +213,9 @@ fun DashboardScreen(
                         if (label != null) {
                             Text(
                                 text = when(label) {
-                                    "Protein" -> "You need ${healthMetrics.recommendedProtein - macros.protein}g more protein today."
-                                    "Carbs" -> "Energy focus: ${macros.carbs}/${healthMetrics.recommendedCarbs}g carbs consumed."
-                                    "Fat" -> "Healthy fats: ${macros.fat}/${healthMetrics.recommendedFat}g goal."
+                                    stringResource(R.string.macro_protein) -> stringResource(R.string.macro_protein_hint, (healthMetrics.recommendedProtein - macros.protein).coerceAtLeast(0))
+                                    stringResource(R.string.macro_carbs) -> stringResource(R.string.macro_carbs_hint, macros.carbs, healthMetrics.recommendedCarbs)
+                                    stringResource(R.string.macro_fat) -> stringResource(R.string.macro_fat_hint, macros.fat, healthMetrics.recommendedFat)
                                     else -> ""
                                 },
                                 style = MaterialTheme.typography.labelSmall,
@@ -245,12 +247,12 @@ fun DashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Recent Logs",
+                    text = stringResource(R.string.dashboard_recent_logs),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "View All",
+                    text = stringResource(R.string.dashboard_view_all),
                     style = MaterialTheme.typography.labelMedium,
                     color = Blue500,
                     fontWeight = FontWeight.Bold,
@@ -267,8 +269,8 @@ fun DashboardScreen(
             item {
                 EmptyStateCard(
                     icon = Icons.Default.Restaurant,
-                    title = "No meals logged yet",
-                    subtitle = "Tap the scan button to log your first meal and start tracking!"
+                    title = stringResource(R.string.dashboard_no_meals),
+                    subtitle = stringResource(R.string.dashboard_no_meals_subtitle)
                 )
             }
         }

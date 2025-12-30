@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.luminacal.R
 import com.example.luminacal.data.repository.WeightEntry
 import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
@@ -110,12 +112,12 @@ fun HealthMetricsScreen(
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Text(
-                    text = "Health & Goals",
+                    text = stringResource(R.string.health_metrics_title),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
@@ -171,7 +173,7 @@ fun HealthMetricsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Weight History",
+                    text = stringResource(R.string.weight_history),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
@@ -190,7 +192,7 @@ fun HealthMetricsScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Log", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.log_weight), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -208,7 +210,7 @@ fun HealthMetricsScreen(
             item {
                 GlassCard(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "No weight entries yet. Tap 'Log' to add your first entry.",
+                        text = stringResource(R.string.no_weight_data),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.padding(8.dp)
@@ -220,7 +222,7 @@ fun HealthMetricsScreen(
         // Body Metrics Section
         item {
             Text(
-                text = "Body Metrics",
+                text = stringResource(R.string.body_metrics_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -231,7 +233,7 @@ fun HealthMetricsScreen(
         // Weight Slider
         item {
             MetricSliderCard(
-                label = "Weight",
+                label = stringResource(R.string.weight_title),
                 value = weight,
                 unit = "kg",
                 range = 40f..200f,
@@ -246,7 +248,7 @@ fun HealthMetricsScreen(
         // Height Slider
         item {
             MetricSliderCard(
-                label = "Height",
+                label = stringResource(R.string.height_title),
                 value = height,
                 unit = "cm",
                 range = 120f..220f,
@@ -261,9 +263,9 @@ fun HealthMetricsScreen(
         // Age Slider
         item {
             MetricSliderCard(
-                label = "Age",
+                label = stringResource(R.string.age_title),
                 value = age.toFloat(),
-                unit = "years",
+                unit = stringResource(R.string.age_years, 0).replace("0 ", ""), // Just get "years" or similar
                 range = 15f..80f,
                 icon = Icons.Default.Cake,
                 onValueChange = {
@@ -297,7 +299,7 @@ fun HealthMetricsScreen(
         // Activity Level
         item {
             Text(
-                text = "Activity Level",
+                text = stringResource(R.string.activity_level_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -318,7 +320,7 @@ fun HealthMetricsScreen(
         // Fitness Goal
         item {
             Text(
-                text = "Fitness Goal",
+                text = stringResource(R.string.fitness_goal_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -355,7 +357,7 @@ fun HealthMetricsScreen(
             ) {
                 Icon(Icons.Default.Check, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Apply Goals", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.update_goals), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
     }
@@ -377,7 +379,7 @@ fun TdeeDisplayCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Daily Calorie Target",
+                text = stringResource(R.string.tdee_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -392,7 +394,7 @@ fun TdeeDisplayCard(
             )
             
             Text(
-                text = "kcal / day",
+                text = stringResource(R.string.calories_per_day),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
@@ -407,10 +409,10 @@ fun TdeeDisplayCard(
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                MacroInfo("BMR", "$bmr", Color.Gray)
-                MacroInfo("Protein", "${protein}g", Blue500)
-                MacroInfo("Carbs", "${carbs}g", Green500)
-                MacroInfo("Fat", "${fat}g", Peach400)
+                MacroInfo(stringResource(R.string.bmr_label), "$bmr", Color.Gray)
+                MacroInfo(stringResource(R.string.macro_protein), "${protein}g", Blue500)
+                MacroInfo(stringResource(R.string.macro_carbs), "${carbs}g", Green500)
+                MacroInfo(stringResource(R.string.macro_fat), "${fat}g", Peach400)
             }
         }
     }
@@ -536,7 +538,11 @@ fun GenderSelector(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = gender.name.lowercase().replaceFirstChar { it.uppercase() },
+                        text = when (gender) {
+                            Gender.MALE -> stringResource(R.string.gender_male)
+                            Gender.FEMALE -> stringResource(R.string.gender_female)
+                            Gender.OTHER -> stringResource(R.string.gender_other)
+                        },
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) Blue500 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -590,7 +596,13 @@ fun ActivityLevelSelector(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = level.label,
+                        text = when (level) {
+                            ActivityLevel.SEDENTARY -> stringResource(R.string.activity_sedentary)
+                            ActivityLevel.LIGHT -> stringResource(R.string.activity_light)
+                            ActivityLevel.MODERATE -> stringResource(R.string.activity_moderate)
+                            ActivityLevel.ACTIVE -> stringResource(R.string.activity_active)
+                            ActivityLevel.EXTRA_ACTIVE -> stringResource(R.string.activity_extra)
+                        },
                         fontSize = 10.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) Green500 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
@@ -659,7 +671,11 @@ fun FitnessGoalSelector(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = goal.label,
+                        text = when (goal) {
+                            FitnessGoal.LOSE_WEIGHT -> stringResource(R.string.goal_lose_weight)
+                            FitnessGoal.MAINTAIN -> stringResource(R.string.goal_maintain)
+                            FitnessGoal.GAIN_MUSCLE -> stringResource(R.string.goal_gain_muscle)
+                        },
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
