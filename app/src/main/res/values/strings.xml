@@ -191,6 +191,8 @@
     <string name="profile_dark_mode">Dark Mode</string>
     <string name="profile_meal_reminders">Meal Reminders</string>
     <string name="profile_sign_out">Sign Out</string>
+    <string name="premium_member">Premium Member</string>
+    <string name="tdee_calculator">TDEE Calculator</string>
     <string name="version">Version %1$s</string>
     <string name="profile_connected_count">%d Connected</string>
     <string name="dark_mode">Dark Mode</string>
@@ -228,4 +230,10 @@
     <string name="cd_back_button">Go back</string>
     <string name="cd_close_button">Close</string>
     <string name="cd_delete_item">Delete item</string>
+    <string name="cd_flash">Flash</string>
+    <string name="camera_confidence">%d%% confidence</string>
+    
+    <!-- Time Formatting -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_min_ago">%d min ago</string>
 </resources>

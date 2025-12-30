@@ -101,10 +101,10 @@ fun CameraScannerScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close_button), tint = Color.White)
                 }
                 IconButton(onClick = {}) {
-                    Icon(Icons.Default.FlashOn, contentDescription = "Flash", tint = Color.White)
+                    Icon(Icons.Default.FlashOn, contentDescription = stringResource(R.string.cd_flash), tint = Color.White)
                 }
             }
 
@@ -141,7 +141,7 @@ fun CameraScannerScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "${(currentDetection!!.confidence * 100).toInt()}% confidence",
+                                text = stringResource(R.string.camera_confidence, (currentDetection!!.confidence * 100).toInt()),
                                 color = Green500,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium

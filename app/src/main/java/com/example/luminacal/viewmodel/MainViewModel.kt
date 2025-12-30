@@ -181,7 +181,7 @@ class MainViewModel(
             )
         }
         // Persist to database
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             healthMetricsRepository.saveHealthMetrics(metrics)
         }
     }
@@ -263,7 +263,7 @@ class MainViewModel(
             val currentTime = System.currentTimeMillis()
             val meal = MealEntity(
                 name = name.trim(),
-                time = formatMealTime(currentTime),
+                time = "", // Deprecated, using date instead
                 calories = calories,
                 protein = macros.protein,
                 carbs = macros.carbs,
@@ -276,7 +276,7 @@ class MainViewModel(
     }
     
     fun deleteMeal(entry: HistoryEntry) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val meal = MealEntity(
                 id = entry.id,
                 name = entry.name,
@@ -293,35 +293,19 @@ class MainViewModel(
     }
     
     fun clearAllData() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             mealRepository.deleteAllMeals()
             waterRepository.clearAllWater()
             weightRepository.deleteAllWeights()
         }
     }
 
-    private fun formatMealTime(timestamp: Long): String {
-        val now = System.currentTimeMillis()
-        val diff = now - timestamp
-        
-        return when {
-            diff < 60_000 -> "Just now"  // Less than 1 minute
-            diff < 3600_000 -> "${diff / 60_000} min ago"  // Less than 1 hour
-            diff < 86400_000 -> {
-                val sdf = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
-                sdf.format(java.util.Date(timestamp))
-            }
-            else -> {
-                val sdf = java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.getDefault())
-                sdf.format(java.util.Date(timestamp))
-            }
-        }
-    }
+    // formatMealTime removed - localization moved to UI
 
     private fun MealEntity.toHistoryEntry() = HistoryEntry(
         id = id,
         name = name,
-        time = time,
+        timestamp = date,
         calories = calories,
         macros = Macros(protein, carbs, fat),
         type = type

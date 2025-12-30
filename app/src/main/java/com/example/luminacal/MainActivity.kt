@@ -187,7 +187,11 @@ fun MainContent(
                                 weeklyCalories = state.weeklyCalories,
                                 weightPoints = state.weightPoints,
                                 macros = state.macros,
-                                weightGoal = state.healthMetrics.weight - 5f // Example target
+                                weightGoal = when (state.healthMetrics.fitnessGoal) {
+                                    com.example.luminacal.model.FitnessGoal.LOSE_WEIGHT -> state.healthMetrics.weight - 5f
+                                    com.example.luminacal.model.FitnessGoal.GAIN_MUSCLE -> state.healthMetrics.weight + 5f
+                                    else -> state.healthMetrics.weight
+                                }
                             )
                         }
                         composable(Screen.Explore.route) {

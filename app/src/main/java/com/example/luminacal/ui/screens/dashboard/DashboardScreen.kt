@@ -366,8 +366,25 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Medium
                             )
+                            val timeDiff = System.currentTimeMillis() - entry.timestamp
+                            val timeText = when {
+                                timeDiff < 60_000 -> stringResource(R.string.time_just_now)
+                                timeDiff < 3600_000 -> stringResource(R.string.time_min_ago, timeDiff / 60_000)
+                                else -> {
+                                    val sdf = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
+                                    sdf.format(java.util.Date(entry.timestamp))
+                                }
+                            }
+                            
+                            val mealTypeParams = when(entry.type) {
+                                MealType.BREAKFAST -> stringResource(R.string.meal_breakfast)
+                                MealType.LUNCH -> stringResource(R.string.meal_lunch)
+                                MealType.DINNER -> stringResource(R.string.meal_dinner)
+                                MealType.SNACK -> stringResource(R.string.meal_snack)
+                            }
+                            
                             Text(
-                                text = "${entry.time} • ${entry.type.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                                text = "$timeText • $mealTypeParams",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                             )

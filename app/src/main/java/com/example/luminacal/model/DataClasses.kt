@@ -18,7 +18,7 @@ data class CalorieState(
 data class HistoryEntry(
     val id: Long,
     val name: String,
-    val time: String,
+    val timestamp: Long,
     val calories: Int,
     val macros: Macros,
     val type: MealType

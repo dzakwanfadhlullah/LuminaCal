@@ -596,13 +596,7 @@ fun ActivityLevelSelector(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when (level) {
-                            ActivityLevel.SEDENTARY -> stringResource(R.string.activity_sedentary)
-                            ActivityLevel.LIGHT -> stringResource(R.string.activity_light)
-                            ActivityLevel.MODERATE -> stringResource(R.string.activity_moderate)
-                            ActivityLevel.ACTIVE -> stringResource(R.string.activity_active)
-                            ActivityLevel.EXTRA_ACTIVE -> stringResource(R.string.activity_extra)
-                        },
+                        text = stringResource(level.labelResId),
                         fontSize = 10.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) Green500 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
@@ -671,11 +665,7 @@ fun FitnessGoalSelector(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when (goal) {
-                            FitnessGoal.LOSE_WEIGHT -> stringResource(R.string.goal_lose_weight)
-                            FitnessGoal.MAINTAIN -> stringResource(R.string.goal_maintain)
-                            FitnessGoal.GAIN_MUSCLE -> stringResource(R.string.goal_gain_muscle)
-                        },
+                        text = stringResource(goal.labelResId),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

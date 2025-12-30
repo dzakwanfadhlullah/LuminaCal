@@ -192,6 +192,8 @@
     <string name="profile_dark_mode">Mode Gelap</string>
     <string name="profile_meal_reminders">Pengingat Makan</string>
     <string name="profile_sign_out">Keluar</string>
+    <string name="premium_member">Anggota Premium</string>
+    <string name="tdee_calculator">Kalkulator TDEE</string>
     <string name="version">Versi %1$s</string>
     <string name="profile_connected_count">%d Terhubung</string>
     <string name="dark_mode">Mode Gelap</string>
@@ -229,4 +231,10 @@
     <string name="cd_back_button">Kembali</string>
     <string name="cd_close_button">Tutup</string>
     <string name="cd_delete_item">Hapus item</string>
+    <string name="cd_flash">Flash</string>
+    <string name="camera_confidence">Keyakinan %d%%</string>
+    
+    <!-- Time Formatting -->
+    <string name="time_just_now">Baru saja</string>
+    <string name="time_min_ago">%d mnt lalu</string>
 </resources>

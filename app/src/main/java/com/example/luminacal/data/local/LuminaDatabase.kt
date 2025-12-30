@@ -29,7 +29,7 @@ abstract class LuminaDatabase : RoomDatabase() {
                     LuminaDatabase::class.java,
                     "lumina_database"
                 )
-                    .fallbackToDestructiveMigration() // Dev phase - destroy and recreate
+                    .fallbackToDestructiveMigration() // TODO: Remove for production. WARNING: Wipes data on schema change.
                     .build()
                 INSTANCE = instance
                 instance

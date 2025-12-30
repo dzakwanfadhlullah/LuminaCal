@@ -122,7 +122,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(healthMetrics.userName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text("Premium Member", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 14.sp)
+                Text(stringResource(R.string.premium_member), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 14.sp)
             }
         }
 
@@ -131,8 +131,8 @@ fun ProfileScreen(
             GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
                 ProfileItemRow(
                     icon = Icons.Default.MonitorHeart, 
-                    title = "Health & Goals", 
-                    trailing = "TDEE Calculator",
+                    title = stringResource(R.string.health_metrics_title), 
+                    trailing = stringResource(R.string.tdee_calculator),
                     tint = Color(0xFFEF4444),
                     onClick = { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -142,7 +142,7 @@ fun ProfileScreen(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
                 ProfileItemRow(
                     icon = Icons.Default.TrackChanges, 
-                    title = "Goals", 
+                    title = stringResource(R.string.goals_title), 
                     tint = Color(0xFFFB923C),
                     onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
                 )

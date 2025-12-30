@@ -1,21 +1,23 @@
 package com.example.luminacal.model
 
+import com.example.luminacal.R
+
 enum class Gender {
     MALE, FEMALE, OTHER
 }
 
-enum class ActivityLevel(val multiplier: Float, val label: String) {
-    SEDENTARY(1.2f, "Sedentary"),
-    LIGHT(1.375f, "Light Active"),
-    MODERATE(1.55f, "Moderately Active"),
-    ACTIVE(1.725f, "Very Active"),
-    EXTRA_ACTIVE(1.9f, "Extra Active")
+enum class ActivityLevel(val multiplier: Float, val labelResId: Int) {
+    SEDENTARY(1.2f, R.string.activity_sedentary),
+    LIGHT(1.375f, R.string.activity_light),
+    MODERATE(1.55f, R.string.activity_moderate),
+    ACTIVE(1.725f, R.string.activity_active),
+    EXTRA_ACTIVE(1.9f, R.string.activity_extra)
 }
 
-enum class FitnessGoal(val calorieAdjustment: Int, val label: String) {
-    LOSE_WEIGHT(-500, "Lose Weight"),
-    MAINTAIN(0, "Maintain"),
-    GAIN_MUSCLE(300, "Build Muscle")
+enum class FitnessGoal(val calorieAdjustment: Int, val labelResId: Int) {
+    LOSE_WEIGHT(-500, R.string.goal_lose_weight),
+    MAINTAIN(0, R.string.goal_maintain),
+    GAIN_MUSCLE(300, R.string.goal_gain_muscle)
 }
 
 data class HealthMetrics(

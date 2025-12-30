@@ -99,7 +99,7 @@ fun FoodDetailScreen(
                                 .align(Alignment.TopStart)
                                 .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                         ) {
-                            Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = Color.White)
+                            Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.cd_back_button), tint = Color.White)
                         }
                         
                         // Time Badge

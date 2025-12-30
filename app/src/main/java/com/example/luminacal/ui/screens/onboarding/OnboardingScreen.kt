@@ -241,7 +241,7 @@ fun WelcomePage() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Your AI-powered calorie tracker.\nSmarter eating starts here.",
+            text = stringResource(R.string.onboarding_description),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -267,12 +267,12 @@ fun AboutYouPage(
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = "Tell us about you",
+            text = stringResource(R.string.about_you_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "This helps us personalize your experience",
+            text = stringResource(R.string.about_you_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -281,7 +281,7 @@ fun AboutYouPage(
 
         // Gender Selection
         Text(
-            text = "Gender",
+            text = stringResource(R.string.gender_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.Start)
@@ -334,7 +334,7 @@ fun AboutYouPage(
 
         // Age Slider
         Text(
-            text = "Age: $age years",
+            text = stringResource(R.string.age_years, age),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.Start)
@@ -385,12 +385,12 @@ fun BodyMetricsPage(
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = "Body Metrics",
+            text = stringResource(R.string.body_metrics_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Used to calculate your daily needs",
+            text = stringResource(R.string.body_metrics_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -411,9 +411,9 @@ fun BodyMetricsPage(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.FitnessCenter, contentDescription = null, tint = Blue500)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Weight", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.weight_title), fontWeight = FontWeight.SemiBold)
                     }
-                    Text("${weight.toInt()} kg", fontWeight = FontWeight.Bold, color = Blue500)
+                    Text(stringResource(R.string.weight_kg, weight.toInt()), fontWeight = FontWeight.Bold, color = Blue500)
                 }
                 Slider(
                     value = weight,
@@ -443,9 +443,9 @@ fun BodyMetricsPage(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Height, contentDescription = null, tint = Green500)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Height", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.height_title), fontWeight = FontWeight.SemiBold)
                     }
-                    Text("${height.toInt()} cm", fontWeight = FontWeight.Bold, color = Green500)
+                    Text(stringResource(R.string.height_cm, height.toInt()), fontWeight = FontWeight.Bold, color = Green500)
                 }
                 Slider(
                     value = height,
@@ -468,12 +468,7 @@ fun BodyMetricsPage(
             bmiValue < 30 -> Color(0xFFF59E0B) // Orange for overweight
             else -> Color(0xFFEF4444) // Red for obese
         }
-        val bmiStatus = when {
-            bmiValue < 18.5 -> "Underweight"
-            bmiValue < 25 -> "Normal"
-            bmiValue < 30 -> "Overweight"
-            else -> "Obese"
-        }
+        val bmiStatus = "" // Removed, handled in Text composable directly
         
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -486,14 +481,19 @@ fun BodyMetricsPage(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "BMI: ${String.format("%.1f", bmiValue)}",
+                    text = stringResource(R.string.bmi_label, bmiValue),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = bmiColor
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "• $bmiStatus",
+                    text = "• " + when {
+                        bmiValue < 18.5 -> stringResource(R.string.bmi_underweight)
+                        bmiValue < 25 -> stringResource(R.string.bmi_normal)
+                        bmiValue < 30 -> stringResource(R.string.bmi_overweight)
+                        else -> stringResource(R.string.bmi_obese)
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = bmiColor
                 )
@@ -522,7 +522,7 @@ fun GoalsPage(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Your Goals",
+            text = stringResource(R.string.goals_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -531,7 +531,7 @@ fun GoalsPage(
 
         // Activity Level
         Text(
-            text = "Activity Level",
+            text = stringResource(R.string.activity_level_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.Start)
@@ -570,7 +570,7 @@ fun GoalsPage(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = level.label.split(" ").first(),
+                            text = stringResource(level.labelResId).split(" ").first(),
                             fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) Green500 else MaterialTheme.colorScheme.onSurface
@@ -584,7 +584,7 @@ fun GoalsPage(
 
         // Fitness Goal
         Text(
-            text = "Fitness Goal",
+            text = stringResource(R.string.fitness_goal_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.Start)
@@ -627,7 +627,7 @@ fun GoalsPage(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = goal.label.split(" ").first(),
+                            text = stringResource(goal.labelResId).split(" ").first(),
                             fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) color else MaterialTheme.colorScheme.onSurface
@@ -650,7 +650,7 @@ fun GoalsPage(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Your Daily Target",
+                    text = stringResource(R.string.daily_target_title),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -662,7 +662,7 @@ fun GoalsPage(
                     color = Blue500
                 )
                 Text(
-                    text = "calories per day",
+                    text = stringResource(R.string.calories_per_day),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )

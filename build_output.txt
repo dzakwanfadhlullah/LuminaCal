@@ -8,41 +8,77 @@
 > Task :app:generateDebugResValues UP-TO-DATE
 > Task :app:mapDebugSourceSetPaths UP-TO-DATE
 > Task :app:generateDebugResources UP-TO-DATE
-> Task :app:mergeDebugResources UP-TO-DATE
-> Task :app:packageDebugResources UP-TO-DATE
-> Task :app:parseDebugLocalResources UP-TO-DATE
-> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
-> Task :app:extractDeepLinksDebug UP-TO-DATE
-> Task :app:processDebugMainManifest UP-TO-DATE
-> Task :app:processDebugManifest UP-TO-DATE
-> Task :app:processDebugManifestForPackage UP-TO-DATE
-> Task :app:processDebugResources UP-TO-DATE
-> Task :app:javaPreCompileDebug UP-TO-DATE
-> Task :app:mergeDebugShaders UP-TO-DATE
-> Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets UP-TO-DATE
-> Task :app:compressDebugAssets UP-TO-DATE
-> Task :app:checkDebugDuplicateClasses UP-TO-DATE
-> Task :app:desugarDebugFileDependencies UP-TO-DATE
-> Task :app:mergeExtDexDebug UP-TO-DATE
-> Task :app:mergeLibDexDebug UP-TO-DATE
-> Task :app:mergeDebugJniLibFolders UP-TO-DATE
-> Task :app:mergeDebugNativeLibs UP-TO-DATE
-> Task :app:stripDebugDebugSymbols UP-TO-DATE
-> Task :app:validateSigningDebug UP-TO-DATE
-> Task :app:writeDebugAppMetadata UP-TO-DATE
-> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
-> Task :app:kspDebugKotlin
-> Task :app:compileDebugKotlin
-> Task :app:compileDebugJavaWithJavac UP-TO-DATE
-> Task :app:processDebugJavaRes UP-TO-DATE
-> Task :app:mergeDebugJavaResource UP-TO-DATE
-> Task :app:dexBuilderDebug
-> Task :app:mergeProjectDexDebug
-> Task :app:packageDebug
-> Task :app:createDebugApkListingFileRedirect
-> Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 6s
-38 actionable tasks: 6 executed, 32 up-to-date
+> Task :app:mergeDebugResources FAILED
+.\gradlew : ERROR: D:
+\Code\LuminaCal\app\s
+rc\main\res\values\st
+rings.xml: Resource 
+and asset merger: 
+Found item String/tot
+al_calories more 
+than one time
+At line:1 char:1
++ .\gradlew 
+assembleDebug 2>&1 | 
+Out-File -FilePath 
+.\build_output.txt  
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (ERROR:    
+ D:\Code\...e tha    
+n one time:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+ERROR: D:\Code\Lumina
+Cal\app\src\main\res\
+values-id\strings.xml
+: Resource and asset 
+merger: Found item St
+ring/total_calories 
+more than one time
+
+FAILURE: Build 
+failed with an 
+exception.
+
+* What went wrong:
+Execution failed for 
+task ':app:mergeDebug
+Resources'.
+> D:\Code\LuminaCal\a
+pp\src\main\res\value
+s\strings.xml: 
+Error: Found item Str
+ing/total_calories 
+more than one time
+  D:\Code\LuminaCal\a
+pp\src\main\res\value
+s-id\strings.xml: 
+Error: Found item Str
+ing/total_calories 
+more than one time
+
+* Try:
+> Run with 
+--stacktrace option 
+to get the stack 
+trace.
+> Run with --info or 
+--debug option to 
+get more log output.
+> Run with --scan to 
+get full insights.
+> Get more help at ht
+tps://help.gradle.org
+.
+
+BUILD FAILED in 1s
+7 actionable tasks: 1 executed, 6 up-to-date
