@@ -111,6 +111,9 @@
     <!-- Camera -->
     <string name="camera_title">AI Scanner</string>
     <string name="camera_permission_required">Camera permission required</string>
+    <string name="camera_permission_hint">We need camera access to scan and recognize food items</string>
+    <string name="camera_permission_settings_hint">Camera permission was denied. Please enable it in Settings to use the food scanner.</string>
+    <string name="camera_initializing">Starting camera…</string>
     <string name="scanning">Scanning…</string>
     <string name="scanning_hint">Point camera at food item</string>
     <string name="ai_detected">AI Detected</string>
@@ -120,6 +123,9 @@
     <string name="camera_analyzing">Analyzing...</string>
     <string name="camera_point_at_food">Point camera at food</string>
     <string name="camera_grant_permission">Grant Permission</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="try_again">Try Again</string>
+    <string name="go_back">Go Back</string>
     
     <!-- Food Detail -->
     <string name="food_detail_title">Food Detail</string>

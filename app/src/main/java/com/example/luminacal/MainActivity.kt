@@ -227,7 +227,7 @@ fun MainContent(
                                         com.example.luminacal.data.local.MealEntity(
                                             id = entry.id,
                                             name = entry.name,
-                                            time = entry.time,
+                                            time = "",
                                             calories = entry.calories,
                                             protein = entry.macros.protein,
                                             carbs = entry.macros.carbs,
@@ -244,7 +244,7 @@ fun MainContent(
                                         com.example.luminacal.data.local.MealEntity(
                                             id = entry.id,
                                             name = entry.name,
-                                            time = entry.time,
+                                            time = "",
                                             calories = entry.calories,
                                             protein = entry.macros.protein,
                                             carbs = entry.macros.carbs,

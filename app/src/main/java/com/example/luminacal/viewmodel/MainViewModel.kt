@@ -280,7 +280,7 @@ class MainViewModel(
             val meal = MealEntity(
                 id = entry.id,
                 name = entry.name,
-                time = entry.time,
+                time = "",
                 calories = entry.calories,
                 protein = entry.macros.protein,
                 carbs = entry.macros.carbs,
