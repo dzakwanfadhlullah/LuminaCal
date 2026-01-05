@@ -56,7 +56,8 @@ class MainActivity : ComponentActivity() {
         val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
         val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
         val weightRepository = com.example.luminacal.data.repository.WeightRepository(database.weightDao())
-        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository)
+        val appPreferences = com.example.luminacal.util.AppPreferences.getInstance(this)
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository, appPreferences)
         
         // Check onboarding status
         val showOnboarding = !com.example.luminacal.util.OnboardingPrefs.isOnboardingComplete(this)
@@ -311,6 +312,7 @@ fun MainContent(
                         }
                         composable(Screen.HealthMetrics.route) {
                             com.example.luminacal.ui.screens.health.HealthMetricsScreen(
+                                savedHealthMetrics = state.healthMetrics,
                                 onBack = { navController.popBackStack() },
                                 onApplyGoals = { metrics ->
                                     viewModel.updateHealthMetrics(metrics)

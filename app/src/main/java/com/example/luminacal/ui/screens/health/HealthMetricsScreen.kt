@@ -37,6 +37,7 @@ import com.example.luminacal.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthMetricsScreen(
+    savedHealthMetrics: HealthMetrics = HealthMetrics(),
     onBack: () -> Unit,
     onApplyGoals: (HealthMetrics) -> Unit,
     weightHistory: List<WeightEntry> = emptyList(),
@@ -46,26 +47,30 @@ fun HealthMetricsScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     
-    // State for health metrics
-    var weight by remember { mutableFloatStateOf(70f) }
-    var height by remember { mutableFloatStateOf(170f) }
-    var age by remember { mutableIntStateOf(25) }
-    var gender by remember { mutableStateOf(Gender.MALE) }
-    var activityLevel by remember { mutableStateOf(ActivityLevel.MODERATE) }
-    var fitnessGoal by remember { mutableStateOf(FitnessGoal.MAINTAIN) }
+    // State for health metrics - initialized from saved values
+    var weight by remember { mutableFloatStateOf(savedHealthMetrics.weight) }
+    var targetWeight by remember { mutableFloatStateOf(savedHealthMetrics.targetWeight) }
+    var height by remember { mutableFloatStateOf(savedHealthMetrics.height) }
+    var age by remember { mutableIntStateOf(savedHealthMetrics.age) }
+    var gender by remember { mutableStateOf(savedHealthMetrics.gender) }
+    var activityLevel by remember { mutableStateOf(savedHealthMetrics.activityLevel) }
+    var fitnessGoal by remember { mutableStateOf(savedHealthMetrics.fitnessGoal) }
     
     // Dialog state
     var showAddWeightDialog by remember { mutableStateOf(false) }
     
     // Create health metrics object
-    val healthMetrics = remember(weight, height, age, gender, activityLevel, fitnessGoal) {
+    val healthMetrics = remember(weight, targetWeight, height, age, gender, activityLevel, fitnessGoal) {
         HealthMetrics(
+            userName = savedHealthMetrics.userName,
             weight = weight,
+            targetWeight = targetWeight,
             height = height,
             age = age,
             gender = gender,
             activityLevel = activityLevel,
-            fitnessGoal = fitnessGoal
+            fitnessGoal = fitnessGoal,
+            waterTargetMl = savedHealthMetrics.waterTargetMl
         )
     }
     

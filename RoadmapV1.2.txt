@@ -78,10 +78,12 @@ Priority: CRITICAL — NO MORE DUMMY DATA
       - ProfileScreen.kt: Removed fake "2 connected" devices row
       - ProfileScreen.kt: Notification toggle replaced with "Coming Soon"
 
-  [ ] Emergency 2.2: Fix Missing Data Loading
-      - HealthMetricsScreen: load saved metrics (currently uses defaults)
-      - MainViewModel: persist dark mode to SharedPreferences
-      - Load dark mode preference on app startup
+  [x] Emergency 2.2: Fix Missing Data Loading (COMPLETED)
+      - HealthMetricsScreen: now accepts savedHealthMetrics parameter
+      - All form fields initialize from user's saved values
+      - MainViewModel: dark mode persisted to SharedPreferences
+      - Created AppPreferences.kt utility class
+      - Dark mode preference loads on app startup
 
   [ ] Emergency 2.3: Use Real Database Values
       - ExploreScreen quick-add: use real macros from FoodNutritionDatabase

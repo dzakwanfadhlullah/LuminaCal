@@ -12,6 +12,7 @@ import com.example.luminacal.data.repository.WeightRepository
 import com.example.luminacal.data.repository.WeightEntry
 import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
+import com.example.luminacal.util.AppPreferences
 import com.example.luminacal.util.ValidationUtils
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -38,7 +39,8 @@ class MainViewModel(
     private val mealRepository: MealRepository,
     private val healthMetricsRepository: HealthMetricsRepository,
     private val waterRepository: WaterRepository,
-    private val weightRepository: WeightRepository
+    private val weightRepository: WeightRepository,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
     
     companion object {
@@ -57,6 +59,8 @@ class MainViewModel(
     }
 
     init {
+        // Load dark mode preference from SharedPreferences
+        _uiState.update { it.copy(darkMode = appPreferences.darkMode) }
         // Load meals and calculate daily/weekly stats
         viewModelScope.launch(exceptionHandler) {
             mealRepository.allMeals.collect { meals ->
@@ -179,7 +183,9 @@ class MainViewModel(
     }
 
     fun toggleDarkMode() {
-        _uiState.update { it.copy(darkMode = !it.darkMode) }
+        val newDarkMode = !_uiState.value.darkMode
+        appPreferences.darkMode = newDarkMode  // Persist to SharedPreferences
+        _uiState.update { it.copy(darkMode = newDarkMode) }
     }
 
     fun updateHealthMetrics(metrics: HealthMetrics) {
@@ -324,12 +330,13 @@ class MainViewModel(
         private val mealRepository: MealRepository,
         private val healthMetricsRepository: HealthMetricsRepository,
         private val waterRepository: WaterRepository,
-        private val weightRepository: WeightRepository
+        private val weightRepository: WeightRepository,
+        private val appPreferences: AppPreferences
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository) as T
+                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository, appPreferences) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
