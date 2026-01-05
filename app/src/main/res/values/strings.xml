@@ -126,7 +126,10 @@
     <string name="grant_permission">Grant Permission</string>
     <string name="try_again">Try Again</string>
     <string name="go_back">Go Back</string>
-    
+    <string name="not_a_food_item">Not a food item</string>
+    <string name="detected_as">Detected as: %s</string>
+    <string name="point_at_food_hint">Please point the camera at food to scan</string>
+
     <!-- Food Detail -->
     <string name="food_detail_title">Food Detail</string>
     <string name="total_calories">Total Calories (kcal)</string>

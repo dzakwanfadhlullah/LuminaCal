@@ -15,6 +15,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.luminacal.data.ml.FoodAnalyzer
 import com.example.luminacal.data.ml.FoodDetection
+import com.example.luminacal.data.ml.NonFoodDetection
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -60,6 +61,7 @@ fun CameraPreview(
     modifier: Modifier = Modifier,
     scaleType: PreviewView.ScaleType = PreviewView.ScaleType.FILL_CENTER,
     onFoodDetected: (FoodDetection?) -> Unit = {},
+    onNonFoodDetected: (NonFoodDetection?) -> Unit = {},
     onCameraStateChanged: (CameraState) -> Unit = {},
     onError: (CameraError) -> Unit = {}
 ) {
@@ -177,16 +179,28 @@ fun CameraPreview(
                             .build()
                             .also { analysis ->
                                 try {
-                                    analysis.setAnalyzer(executor, FoodAnalyzer { detection ->
-                                        try {
-                                            onFoodDetected(detection)
-                                            if (detection != null) {
-                                                onCameraStateChanged(CameraState.Analyzing)
+                                    analysis.setAnalyzer(
+                                        executor,
+                                        FoodAnalyzer(
+                                            onFoodDetected = { detection ->
+                                                try {
+                                                    onFoodDetected(detection)
+                                                    if (detection != null) {
+                                                        onCameraStateChanged(CameraState.Analyzing)
+                                                    }
+                                                } catch (e: Exception) {
+                                                    Log.e(TAG, "Error in food detection callback: ${e.message}")
+                                                }
+                                            },
+                                            onNonFoodDetected = { nonFood ->
+                                                try {
+                                                    onNonFoodDetected(nonFood)
+                                                } catch (e: Exception) {
+                                                    Log.e(TAG, "Error in non-food detection callback: ${e.message}")
+                                                }
                                             }
-                                        } catch (e: Exception) {
-                                            Log.e(TAG, "Error in food detection callback: ${e.message}")
-                                        }
-                                    })
+                                        )
+                                    )
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Failed to set analyzer: ${e.message}")
                                     val error = CameraError.AnalyzerFailed

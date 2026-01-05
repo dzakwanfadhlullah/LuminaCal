@@ -38,6 +38,7 @@ import androidx.core.content.ContextCompat
 import com.example.luminacal.R
 import com.example.luminacal.data.ml.FoodDetection
 import com.example.luminacal.data.ml.FoodNutritionDatabase
+import com.example.luminacal.data.ml.NonFoodDetection
 import com.example.luminacal.data.ml.NutritionInfo
 import com.example.luminacal.ui.components.CameraError
 import com.example.luminacal.ui.components.CameraPreview
@@ -56,6 +57,7 @@ fun CameraScannerScreen(
     
     // Camera states
     var currentDetection by remember { mutableStateOf<FoodDetection?>(null) }
+    var nonFoodDetection by remember { mutableStateOf<NonFoodDetection?>(null) }
     var selectedFood by remember { mutableStateOf<NutritionInfo?>(null) }
     var cameraState by remember { mutableStateOf<CameraState>(CameraState.Initializing) }
     var cameraError by remember { mutableStateOf<CameraError?>(null) }
@@ -119,6 +121,16 @@ fun CameraScannerScreen(
                         modifier = Modifier.fillMaxSize(),
                         onFoodDetected = { detection ->
                             currentDetection = detection
+                            if (detection != null) {
+                                nonFoodDetection = null // Clear non-food when food detected
+                            }
+                        },
+                        onNonFoodDetected = { nonFood ->
+                            nonFoodDetection = nonFood
+                            if (nonFood != null) {
+                                currentDetection = null // Clear food when non-food detected
+                                selectedFood = null
+                            }
                         },
                         onCameraStateChanged = { state ->
                             cameraState = state
@@ -144,6 +156,7 @@ fun CameraScannerScreen(
             CameraOverlayUI(
                 cameraState = cameraState,
                 currentDetection = currentDetection,
+                nonFoodDetection = nonFoodDetection,
                 selectedFood = selectedFood,
                 onSelectedFoodChange = { selectedFood = it },
                 onFoodConfirmed = onFoodConfirmed,
@@ -369,6 +382,7 @@ private fun CameraErrorUI(
 private fun CameraOverlayUI(
     cameraState: CameraState,
     currentDetection: FoodDetection?,
+    nonFoodDetection: NonFoodDetection?,
     selectedFood: NutritionInfo?,
     onSelectedFoodChange: (NutritionInfo?) -> Unit,
     onFoodConfirmed: (NutritionInfo) -> Unit,
@@ -409,7 +423,10 @@ private fun CameraOverlayUI(
         Spacer(modifier = Modifier.weight(1f))
 
         // Focus Area with animated border
-        FocusAreaBox(hasDetection = currentDetection != null)
+        FocusAreaBox(
+            hasDetection = currentDetection != null,
+            isNonFood = nonFoodDetection != null
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -428,6 +445,10 @@ private fun CameraOverlayUI(
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 14.sp
                         )
+                    }
+                    nonFoodDetection != null -> {
+                        // Show "Not a food item" message
+                        NotFoodInfoCard(nonFoodDetection = nonFoodDetection)
                     }
                     currentDetection != null -> {
                         DetectionInfoCard(detection = currentDetection)
@@ -569,10 +590,18 @@ private fun CameraStateIndicator(state: CameraState) {
  * Animated focus area box
  */
 @Composable
-private fun FocusAreaBox(hasDetection: Boolean) {
-    val borderColor = if (hasDetection) Green500 else Color.White.copy(alpha = 0.5f)
+private fun FocusAreaBox(hasDetection: Boolean, isNonFood: Boolean = false) {
+    val borderColor = when {
+        isNonFood -> Color(0xFFFF453A) // Red for non-food
+        hasDetection -> Green500
+        else -> Color.White.copy(alpha = 0.5f)
+    }
     val animatedBorderWidth by animateDpAsState(
-        targetValue = if (hasDetection) 3.dp else 2.dp,
+        targetValue = when {
+            isNonFood -> 3.dp
+            hasDetection -> 3.dp
+            else -> 2.dp
+        },
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "border_width"
     )
@@ -687,3 +716,49 @@ private fun NutritionColumn(value: String, label: String, valueColor: Color) {
         )
     }
 }
+
+/**
+ * Info card shown when a non-food item is detected
+ */
+@Composable
+private fun NotFoodInfoCard(nonFoodDetection: NonFoodDetection) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.NotInterested,
+            contentDescription = null,
+            tint = Color(0xFFFF453A),
+            modifier = Modifier.size(32.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = stringResource(R.string.not_a_food_item),
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Text(
+            text = stringResource(R.string.detected_as, nonFoodDetection.detectedCategory),
+            color = Color.White.copy(alpha = 0.6f),
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = stringResource(R.string.point_at_food_hint),
+            color = Color.White.copy(alpha = 0.5f),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
