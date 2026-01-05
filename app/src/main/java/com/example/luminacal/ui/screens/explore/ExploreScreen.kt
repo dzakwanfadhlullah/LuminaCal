@@ -272,10 +272,11 @@ fun ExploreScreen(
                             animatedVisibilityScope = animatedVisibilityScope,
                             onQuickAdd = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                // Estimate macros: 30% protein, 40% carbs, 30% fat
-                                val protein = (recipeCalories * 0.30 / 4).toInt()
-                                val carbs = (recipeCalories * 0.40 / 4).toInt()
-                                val fat = (recipeCalories * 0.30 / 9).toInt()
+                                // Look up real macros from database instead of estimating
+                                val nutrition = FoodNutritionDatabase.lookup(recipe.name)
+                                val protein = nutrition?.protein ?: (recipeCalories * 0.25 / 4).toInt()
+                                val carbs = nutrition?.carbs ?: (recipeCalories * 0.50 / 4).toInt()
+                                val fat = nutrition?.fat ?: (recipeCalories * 0.25 / 9).toInt()
                                 val mealType = when (recipe.category) {
                                     "Breakfast" -> MealType.BREAKFAST
                                     "Snacks" -> MealType.SNACK

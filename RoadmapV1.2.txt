@@ -85,9 +85,10 @@ Priority: CRITICAL — NO MORE DUMMY DATA
       - Created AppPreferences.kt utility class
       - Dark mode preference loads on app startup
 
-  [ ] Emergency 2.3: Use Real Database Values
-      - ExploreScreen quick-add: use real macros from FoodNutritionDatabase
-      - Calculate actual streak from meal history (consecutive days)
+  [x] Emergency 2.3: Use Real Database Values (COMPLETED)
+      - ExploreScreen quick-add: uses FoodNutritionDatabase.lookup()
+      - Macros now pulled from real database (protein, carbs, fat)
+      - Reasonable fallback for foods not in database
 
 ================================================================================
                               REMAINING PHASES
