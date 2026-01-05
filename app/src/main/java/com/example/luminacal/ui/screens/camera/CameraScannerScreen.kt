@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -65,10 +66,17 @@ fun CameraScannerScreen(
     var cameraError by remember { mutableStateOf<CameraError?>(null) }
     var retryTrigger by remember { mutableIntStateOf(0) }
     
+    // Flash state
+    var isFlashEnabled by remember { mutableStateOf(false) }
+    var isFlashAvailable by remember { mutableStateOf(false) }
+    
     // Meal type state - auto-detect based on current time
     var selectedMealType by remember { 
         mutableStateOf(MealTypeDetector.detectFromCurrentTime()) 
     }
+    
+    // Track previous detection for haptic feedback
+    var previousDetectionLabel by remember { mutableStateOf<String?>(null) }
     
     // Permission state
     var hasCameraPermission by remember {
@@ -126,17 +134,26 @@ fun CameraScannerScreen(
                 key(retryTrigger) {
                     CameraPreview(
                         modifier = Modifier.fillMaxSize(),
+                        isFlashEnabled = isFlashEnabled,
                         onFoodDetected = { detection ->
+                            // Haptic feedback when new food detected
+                            if (detection != null && detection.label != previousDetectionLabel) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                previousDetectionLabel = detection.label
+                            } else if (detection == null) {
+                                previousDetectionLabel = null
+                            }
                             currentDetection = detection
                             if (detection != null) {
-                                nonFoodDetection = null // Clear non-food when food detected
+                                nonFoodDetection = null
                             }
                         },
                         onNonFoodDetected = { nonFood ->
                             nonFoodDetection = nonFood
                             if (nonFood != null) {
-                                currentDetection = null // Clear food when non-food detected
+                                currentDetection = null
                                 selectedFood = null
+                                previousDetectionLabel = null
                             }
                         },
                         onCameraStateChanged = { state ->
@@ -144,6 +161,9 @@ fun CameraScannerScreen(
                             if (state is CameraState.Error) {
                                 cameraError = state.error
                             }
+                        },
+                        onFlashAvailable = { available ->
+                            isFlashAvailable = available
                         },
                         onError = { error ->
                             cameraError = error
@@ -166,8 +186,11 @@ fun CameraScannerScreen(
                 nonFoodDetection = nonFoodDetection,
                 selectedFood = selectedFood,
                 selectedMealType = selectedMealType,
+                isFlashEnabled = isFlashEnabled,
+                isFlashAvailable = isFlashAvailable,
                 onSelectedFoodChange = { selectedFood = it },
                 onMealTypeChange = { selectedMealType = it },
+                onFlashToggle = { isFlashEnabled = !isFlashEnabled },
                 onFoodConfirmed = onFoodConfirmed,
                 onClose = onClose
             )
@@ -394,8 +417,11 @@ private fun CameraOverlayUI(
     nonFoodDetection: NonFoodDetection?,
     selectedFood: NutritionInfo?,
     selectedMealType: MealType,
+    isFlashEnabled: Boolean,
+    isFlashAvailable: Boolean,
     onSelectedFoodChange: (NutritionInfo?) -> Unit,
     onMealTypeChange: (MealType) -> Unit,
+    onFlashToggle: () -> Unit,
     onFoodConfirmed: (NutritionInfo, MealType) -> Unit,
     onClose: () -> Unit
 ) {
@@ -422,11 +448,19 @@ private fun CameraOverlayUI(
             // Camera state indicator
             CameraStateIndicator(state = cameraState)
             
-            IconButton(onClick = {}) {
+            // Flash toggle button
+            IconButton(
+                onClick = onFlashToggle,
+                enabled = isFlashAvailable
+            ) {
                 Icon(
-                    Icons.Default.FlashOn,
+                    imageVector = if (isFlashEnabled) Icons.Default.FlashOn else Icons.Default.FlashOff,
                     contentDescription = stringResource(R.string.cd_flash),
-                    tint = Color.White
+                    tint = when {
+                        !isFlashAvailable -> Color.White.copy(alpha = 0.3f)
+                        isFlashEnabled -> Color.Yellow
+                        else -> Color.White
+                    }
                 )
             }
         }
@@ -605,7 +639,7 @@ private fun CameraStateIndicator(state: CameraState) {
 }
 
 /**
- * Animated focus area box
+ * Animated focus area box with pulse animation when scanning
  */
 @Composable
 private fun FocusAreaBox(hasDetection: Boolean, isNonFood: Boolean = false) {
@@ -624,10 +658,44 @@ private fun FocusAreaBox(hasDetection: Boolean, isNonFood: Boolean = false) {
         label = "border_width"
     )
     
+    // Pulse animation when scanning (no detection yet)
+    val infiniteTransition = rememberInfiniteTransition(label = "scanning_pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.03f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_scale"
+    )
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_alpha"
+    )
+    
+    // Apply pulse only when scanning (no detection)
+    val isScanning = !hasDetection && !isNonFood
+    val scale = if (isScanning) pulseScale else 1f
+    val effectiveBorderColor = if (isScanning) {
+        Color.White.copy(alpha = pulseAlpha)
+    } else {
+        borderColor
+    }
+    
     Box(
         modifier = Modifier
             .size(280.dp)
-            .border(animatedBorderWidth, borderColor, RoundedCornerShape(32.dp))
+            .graphicsLayer { 
+                scaleX = scale
+                scaleY = scale
+            }
+            .border(animatedBorderWidth, effectiveBorderColor, RoundedCornerShape(32.dp))
     )
 }
 

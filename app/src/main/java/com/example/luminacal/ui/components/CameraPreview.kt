@@ -2,6 +2,7 @@ package com.example.luminacal.ui.components
 
 import android.util.Log
 import android.view.ViewGroup
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -60,9 +61,11 @@ private const val EXECUTOR_SHUTDOWN_TIMEOUT_MS = 500L
 fun CameraPreview(
     modifier: Modifier = Modifier,
     scaleType: PreviewView.ScaleType = PreviewView.ScaleType.FILL_CENTER,
+    isFlashEnabled: Boolean = false,
     onFoodDetected: (FoodDetection?) -> Unit = {},
     onNonFoodDetected: (NonFoodDetection?) -> Unit = {},
     onCameraStateChanged: (CameraState) -> Unit = {},
+    onFlashAvailable: (Boolean) -> Unit = {},
     onError: (CameraError) -> Unit = {}
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -72,6 +75,16 @@ fun CameraPreview(
     var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? by remember { mutableStateOf(null) }
     var analysisExecutor: ExecutorService? by remember { mutableStateOf(null) }
     var cameraProvider: ProcessCameraProvider? by remember { mutableStateOf(null) }
+    var camera: Camera? by remember { mutableStateOf(null) }
+    
+    // Control flash when isFlashEnabled changes
+    LaunchedEffect(isFlashEnabled) {
+        camera?.let { cam ->
+            if (cam.cameraInfo.hasFlashUnit()) {
+                cam.cameraControl.enableTorch(isFlashEnabled)
+            }
+        }
+    }
     
     // Notify initializing state
     LaunchedEffect(Unit) {
@@ -213,15 +226,25 @@ fun CameraPreview(
                         // Unbind all previous use cases before binding new ones
                         provider.unbindAll()
 
-                        // Bind use cases to lifecycle
-                        provider.bindToLifecycle(
+                        // Bind use cases to lifecycle and store camera instance
+                        val boundCamera = provider.bindToLifecycle(
                             lifecycleOwner,
                             cameraSelector,
                             preview,
                             imageAnalysis
                         )
+                        camera = boundCamera
                         
-                        Log.d(TAG, "Camera bound successfully")
+                        // Notify if flash is available
+                        val hasFlash = boundCamera.cameraInfo.hasFlashUnit()
+                        onFlashAvailable(hasFlash)
+                        
+                        // Apply initial flash state
+                        if (isFlashEnabled && hasFlash) {
+                            boundCamera.cameraControl.enableTorch(true)
+                        }
+                        
+                        Log.d(TAG, "Camera bound successfully, flash available: $hasFlash")
                         onCameraStateChanged(CameraState.Ready)
                         
                     } catch (e: java.util.concurrent.ExecutionException) {
