@@ -12,6 +12,7 @@ data class HealthMetricsEntity(
     @PrimaryKey val id: Int = 1, // Single row, always update
     val userName: String = "User",
     val weight: Float,
+    val targetWeight: Float = 65f,
     val height: Float,
     val age: Int,
     val gender: String,
@@ -23,6 +24,7 @@ data class HealthMetricsEntity(
     fun toHealthMetrics(): HealthMetrics = HealthMetrics(
         userName = userName,
         weight = weight,
+        targetWeight = targetWeight,
         height = height,
         age = age,
         gender = Gender.valueOf(gender),
@@ -37,6 +39,7 @@ data class HealthMetricsEntity(
                 id = 1,
                 userName = metrics.userName,
                 weight = metrics.weight,
+                targetWeight = metrics.targetWeight,
                 height = metrics.height,
                 age = metrics.age,
                 gender = metrics.gender.name,

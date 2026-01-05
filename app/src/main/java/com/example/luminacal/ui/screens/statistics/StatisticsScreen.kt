@@ -42,7 +42,9 @@ fun StatisticsScreen(
     weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories>,
     weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint>,
     macros: com.example.luminacal.model.Macros,
-    weightGoal: Float = 65f // Mock for now
+    currentWeight: Float,
+    weightGoal: Float,
+    loggingStreak: Int
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -187,10 +189,22 @@ fun StatisticsScreen(
                 GlassCard(modifier = Modifier.weight(1f)) {
                     Text(stringResource(R.string.stats_target_weight), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("$weightGoal kg", fontSize = 20.sp, fontWeight = FontWeight.Black)
+                    Text("${weightGoal.toInt()} kg", fontSize = 20.sp, fontWeight = FontWeight.Black)
                     Spacer(modifier = Modifier.height(12.dp))
+                    // Calculate progress: how close current weight is to goal
+                    val progress = if (currentWeight > weightGoal) {
+                        // Losing weight: progress = how much lost / total to lose
+                        val totalToLose = currentWeight - weightGoal
+                        ((currentWeight - currentWeight) / totalToLose).coerceIn(0f, 1f)
+                    } else if (currentWeight < weightGoal) {
+                        // Gaining weight: progress = how much gained / total to gain
+                        val totalToGain = weightGoal - currentWeight
+                        ((currentWeight - currentWeight) / totalToGain).coerceIn(0f, 1f)
+                    } else {
+                        1f // Already at goal!
+                    }
                     LinearProgressIndicator(
-                        progress = { 0.7f },
+                        progress = { if (currentWeight == weightGoal) 1f else 0.5f },
                         modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
                         color = Blue500,
                         trackColor = Blue500.copy(alpha = 0.1f)
@@ -201,7 +215,7 @@ fun StatisticsScreen(
                 GlassCard(modifier = Modifier.weight(1f)) {
                     Text(stringResource(R.string.stats_active_streak), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(R.string.stats_days_count, 12), fontSize = 20.sp, fontWeight = FontWeight.Black, color = Peach400)
+                    Text(stringResource(R.string.stats_days_count, loggingStreak), fontSize = 20.sp, fontWeight = FontWeight.Black, color = Peach400)
                     Spacer(modifier = Modifier.height(12.dp))
                     Icon(Icons.Default.MilitaryTech, contentDescription = null, tint = Peach400, modifier = Modifier.size(24.dp))
                 }

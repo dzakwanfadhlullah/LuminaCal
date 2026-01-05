@@ -58,4 +58,45 @@ class MealRepository(private val mealDao: MealDao) {
     }.onFailure { e ->
         Log.e(TAG, "Error clearing all meal data", e)
     }
+    
+    /**
+     * Calculate logging streak - consecutive days with at least 1 meal logged
+     * Counts backwards from today
+     */
+    suspend fun getLoggingStreak(): Int {
+        return try {
+            val meals = mealDao.getAllMealsList()
+            if (meals.isEmpty()) return 0
+            
+            val calendar = java.util.Calendar.getInstance()
+            val today = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+            val year = calendar.get(java.util.Calendar.YEAR)
+            
+            // Get unique days with meals
+            val daysWithMeals = meals.map { meal ->
+                val mealCal = java.util.Calendar.getInstance()
+                mealCal.timeInMillis = meal.date
+                Pair(mealCal.get(java.util.Calendar.YEAR), mealCal.get(java.util.Calendar.DAY_OF_YEAR))
+            }.toSet()
+            
+            var streak = 0
+            var checkYear = year
+            var checkDay = today
+            
+            while (daysWithMeals.contains(Pair(checkYear, checkDay))) {
+                streak++
+                checkDay--
+                if (checkDay < 1) {
+                    checkYear--
+                    val tempCal = java.util.Calendar.getInstance()
+                    tempCal.set(java.util.Calendar.YEAR, checkYear)
+                    checkDay = tempCal.getActualMaximum(java.util.Calendar.DAY_OF_YEAR)
+                }
+            }
+            streak
+        } catch (e: Exception) {
+            Log.e(TAG, "Error calculating streak", e)
+            0
+        }
+    }
 }

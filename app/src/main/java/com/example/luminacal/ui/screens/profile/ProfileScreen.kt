@@ -146,14 +146,6 @@ fun ProfileScreen(
                     tint = Color(0xFFFB923C),
                     onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
-                ProfileItemRow(
-                    icon = Icons.Default.Devices, 
-                    title = stringResource(R.string.profile_devices_apps), 
-                    trailing = stringResource(R.string.profile_connected_count, 2), 
-                    tint = Color(0xFF22C55E),
-                    onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
-                )
             }
         }
 
@@ -229,7 +221,7 @@ fun ProfileScreen(
                         )
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
-                    // Notification Setting Placeholder
+                    // Notification Setting - Coming Soon
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -244,15 +236,11 @@ fun ProfileScreen(
                                 Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color(0xFF3B82F6), modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(stringResource(R.string.profile_meal_reminders), fontWeight = FontWeight.Medium)
+                            Column {
+                                Text(stringResource(R.string.profile_meal_reminders), fontWeight = FontWeight.Medium)
+                                Text("Coming Soon", fontSize = 10.sp, color = Color(0xFF6B7280))
+                            }
                         }
-                        Switch(
-                            checked = true, 
-                            onCheckedChange = { 
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            }, 
-                            colors = SwitchDefaults.colors(checkedThumbColor = Blue500)
-                        )
                     }
                 }
             }

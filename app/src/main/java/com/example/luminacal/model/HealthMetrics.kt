@@ -22,7 +22,8 @@ enum class FitnessGoal(val calorieAdjustment: Int, val labelResId: Int) {
 
 data class HealthMetrics(
     val userName: String = "User",
-    val weight: Float = 70f,       // kg
+    val weight: Float = 70f,       // kg - current weight
+    val targetWeight: Float = 65f, // kg - goal weight
     val height: Float = 170f,      // cm
     val age: Int = 25,
     val gender: Gender = Gender.MALE,

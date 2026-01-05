@@ -19,4 +19,7 @@ interface MealDao {
 
     @Query("DELETE FROM meal_entries")
     suspend fun deleteAllMeals()
+    
+    @Query("SELECT * FROM meal_entries ORDER BY date DESC")
+    suspend fun getAllMealsList(): List<MealEntity>
 }

@@ -30,7 +30,8 @@ data class LuminaCalState(
     val weightHistory: List<WeightEntry> = emptyList(),
     val weightTrend: WeightTrend = WeightTrend(null, null, null),
     val weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories> = emptyList(),
-    val weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint> = emptyList()
+    val weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint> = emptyList(),
+    val loggingStreak: Int = 0
 )
 
 class MainViewModel(
@@ -157,6 +158,14 @@ class MainViewModel(
                 _uiState.update { state ->
                     state.copy(weightTrend = trend)
                 }
+            }
+        }
+        
+        // Load logging streak
+        viewModelScope.launch(exceptionHandler) {
+            val streak = mealRepository.getLoggingStreak()
+            _uiState.update { state ->
+                state.copy(loggingStreak = streak)
             }
         }
     }

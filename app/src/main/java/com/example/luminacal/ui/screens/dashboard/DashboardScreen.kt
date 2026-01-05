@@ -125,28 +125,40 @@ fun DashboardScreen(
         item {
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.fillMaxWidth()) {
+                    // Calculate dynamic status based on calorie intake
+                    val consumedPercent = if (calorieState.target > 0) {
+                        calorieState.consumed.toFloat() / calorieState.target
+                    } else 0f
+                    
+                    val (statusText, statusColor, statusIcon) = when {
+                        consumedPercent > 1.1f -> Triple("Over Budget", Color(0xFFEF4444), Icons.AutoMirrored.Filled.TrendingUp)
+                        consumedPercent < 0.3f && calorieState.consumed > 0 -> Triple("Getting Started", Color(0xFFF59E0B), Icons.AutoMirrored.Filled.TrendingUp)
+                        consumedPercent < 0.1f -> Triple("Start Logging", Color(0xFF6B7280), Icons.AutoMirrored.Filled.TrendingUp)
+                        else -> Triple("On Track", Color(0xFF22C55E), Icons.AutoMirrored.Filled.TrendingUp)
+                    }
+                    
                     // Status Badge
                     Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .clip(CircleShape)
-                            .background(Color(0xFF22C55E).copy(alpha = 0.1f))
-                            .border(1.dp, Color(0xFF22C55E).copy(alpha = 0.2f), CircleShape)
+                            .background(statusColor.copy(alpha = 0.1f))
+                            .border(1.dp, statusColor.copy(alpha = 0.2f), CircleShape)
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                            imageVector = statusIcon,
                             contentDescription = null,
-                            tint = Color(0xFF22C55E),
+                            tint = statusColor,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "On Track",
+                            text = statusText,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF22C55E)
+                            color = statusColor
                         )
                     }
 

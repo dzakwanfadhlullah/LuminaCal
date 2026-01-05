@@ -1,0 +1,552 @@
+================================================================================
+                    LUMINACAL BETA V1.2 — DETAILED ROADMAP
+================================================================================
+
+Status Legend:
+  [x] = Completed
+  [/] = In Progress  
+  [ ] = Not Started
+
+================================================================================
+                              COMPLETED PHASES
+================================================================================
+
+PHASE 1: CRITICAL BUG FIXES — CAMERA & ML KIT
+------------------------------------------------------------------------------
+
+  [x] 1.1 Camera Crash Fix & Error Handling
+      - Added try-catch wrapper around CameraPreview initialization
+      - Implemented proper lifecycle management for ProcessCameraProvider
+      - Added graceful fallback when camera binding fails
+      - Handled analysisExecutor cleanup to prevent memory leaks
+      - Added camera error state UI with retry button
+
+  [x] 1.2 ML Kit False Detection Fix (Face → Nasi Bug)
+      - Increased confidence threshold from 0.5f to 0.7f
+      - Filtered out non-food categories (Person, Face, etc.)
+      - Added food-specific label validation before showing detection
+      - Implemented "Not a food item" feedback for non-food objects
+      - Added detection debounce to prevent rapid false positives
+
+PHASE 2: CAMERA SCANNER ENHANCEMENT
+------------------------------------------------------------------------------
+
+  [x] 2.1 Smart Meal Type Detection
+      - Auto-detect meal type based on current time (Breakfast/Lunch/Dinner/Snack)
+      - Added manual meal type selector in camera screen
+      - Store user's meal time preferences
+
+  [x] 2.2 Camera UX Improvements
+      - Implemented working flash toggle
+      - Added scanning animation/pulse effect on focus area
+      - Added haptic feedback when food is detected
+      - Implemented manual food search fallback when AI fails
+      - Added "Scan Tips" overlay for first-time users
+
+PHASE 3.1: INDONESIAN FOOD DATABASE EXPANSION
+------------------------------------------------------------------------------
+
+  [x] Indonesian Food Database
+      - Added 135+ Indonesian foods with verified nutrition data
+      - Added regional specialties (Aceh, Sumatra, Java, Bali, Sulawesi)
+      - Added street food category (Gorengan, Martabak variants)
+      - Added fast food items (KFC, McD, Burger King Indonesia)
+      - Added cafe beverages (Starbucks, Chatime, Kopi Kenangan, etc.)
+      - Assigned unique Unsplash image URLs to all items
+
+EMERGENCY PHASE 1: DATA ACCURACY & VISUALS
+------------------------------------------------------------------------------
+
+  [x] Emergency 1.1: Nutrition Validation
+      - Audited all 135+ items against FatSecret Indonesia
+      - Verified against official restaurant nutrition guides
+      - Ensured distinct calories, protein, carbs, fat values
+
+  [x] Emergency 1.2: Unique Image Sourcing
+      - Replaced placeholder images with unique Unsplash URLs
+      - Updated ExploreScreen to consume imageUrl from database
+
+EMERGENCY PHASE 2: REAL-TIME DATA & PERSISTENCE (NEW!)
+------------------------------------------------------------------------------
+Priority: CRITICAL — NO MORE DUMMY DATA
+
+  [x] Emergency 2.1: Remove All Hardcoded Values (COMPLETED)
+      - StatisticsScreen.kt: weightGoal now from HealthMetrics.targetWeight
+      - StatisticsScreen.kt: streak now from loggingStreak (calculated from DB)
+      - StatisticsScreen.kt: progress now calculated dynamically
+      - DashboardScreen.kt: "On Track" now dynamic based on calorie intake
+      - ProfileScreen.kt: Removed fake "2 connected" devices row
+      - ProfileScreen.kt: Notification toggle replaced with "Coming Soon"
+
+  [ ] Emergency 2.2: Fix Missing Data Loading
+      - HealthMetricsScreen: load saved metrics (currently uses defaults)
+      - MainViewModel: persist dark mode to SharedPreferences
+      - Load dark mode preference on app startup
+
+  [ ] Emergency 2.3: Use Real Database Values
+      - ExploreScreen quick-add: use real macros from FoodNutritionDatabase
+      - Calculate actual streak from meal history (consecutive days)
+
+================================================================================
+                              REMAINING PHASES
+================================================================================
+
+PHASE 3.2: CUSTOM FOOD ENTRY SYSTEM
+------------------------------------------------------------------------------
+Priority: HIGH
+Estimated: 2-3 days
+
+  [ ] Database Layer
+      - Create CustomFoodEntity.kt
+        * id: Long (PrimaryKey, autoGenerate)
+        * name: String
+        * calories: Int
+        * protein: Int
+        * carbs: Int
+        * fat: Int
+        * servingSize: String
+        * isFavorite: Boolean
+        * lastUsed: Long (timestamp)
+        * useCount: Int
+
+      - Create CustomFoodDao.kt
+        * insertFood(food: CustomFoodEntity)
+        * updateFood(food: CustomFoodEntity)
+        * deleteFood(id: Long)
+        * getAllCustomFoods(): Flow<List<CustomFoodEntity>>
+        * getRecentFoods(limit: Int): Flow<List<CustomFoodEntity>>
+        * getFavoriteFoods(): Flow<List<CustomFoodEntity>>
+        * toggleFavorite(id: Long)
+        * incrementUseCount(id: Long)
+
+      - Update LuminaDatabase.kt
+        * Add CustomFoodEntity to entities array
+        * Increment database version
+        * Add customFoodDao() abstract function
+
+  [ ] Repository Layer
+      - Create CustomFoodRepository.kt
+        * Wrapper around CustomFoodDao
+        * Combine database foods + custom foods for unified search
+        * Handle favorite persistence logic
+
+  [ ] ViewModel Updates
+      - Add to MainViewModel.kt:
+        * customFoods: StateFlow<List<CustomFood>>
+        * recentFoods: StateFlow<List<CustomFood>>
+        * favoriteFoods: StateFlow<List<CustomFood>>
+        * saveCustomFood(name, calories, protein, carbs, fat, serving)
+        * updateCustomFood(id, ...)
+        * deleteCustomFood(id)
+        * toggleFoodFavorite(id)
+
+  [ ] UI Components
+      - Create CustomFoodDialog.kt
+        * Input fields: Name, Calories, Protein, Carbs, Fat, Serving Size
+        * Form validation (required fields, number validation)
+        * Save / Cancel buttons
+        * Edit mode support
+
+      - Update ExploreScreen.kt
+        * Add "My Foods" tab in category filter
+        * Show custom foods with edit/delete options
+        * Add floating action button for "Add Custom Food"
+
+      - Update Recipe/Food Cards
+        * Add favorite (heart) icon toggle
+        * Show "Custom" badge for user-added foods
+        * Add swipe-to-delete gesture
+
+  [ ] Recent Foods Feature
+      - Add "Recent" section at top of Explore
+      - Show last 5-10 logged foods
+      - Quick-add with one tap
+
+PHASE 4: DASHBOARD & STATISTICS POLISH
+------------------------------------------------------------------------------
+Priority: MEDIUM
+Estimated: 3 days
+
+  [ ] 4.1 Dashboard Enhancements
+
+      - Streak Counter
+        * Calculate consecutive logging days
+        * Display flame icon with streak number
+        * Store streak data in SharedPreferences
+        * Show streak broken message
+
+      - Weekly Calorie Trend Mini-Chart
+        * 7-day bar chart in header area
+        * Color code: green (under), yellow (near), red (over)
+        * Tap to expand to full Statistics screen
+
+      - Today's Progress Summary
+        * Circular percentage indicator
+        * "You're at 65% of your goal"
+        * Animated fill on load
+
+      - Pull-to-Refresh
+        * SwipeRefresh composable wrapper
+        * Reload today's data from database
+        * Loading indicator
+
+      - Improved Empty States
+        * Custom illustrations for no meals/no water
+        * Action buttons: "Scan Food" / "Add Water"
+        * Motivational messages
+
+  [ ] 4.2 Statistics Screen Improvements
+
+      - Date Range Picker
+        * Today / This Week / This Month / Custom
+        * Calendar popup for custom range
+        * Update all charts based on selection
+
+      - Macro Breakdown Pie Chart
+        * Animated pie chart (Protein/Carbs/Fat)
+        * Percentage labels
+        * Tap segment for details
+
+      - Weight Progress Line Chart
+        * Plot weight entries over time
+        * Goal line visualization
+        * Trend calculation (gaining/losing)
+
+      - Export Statistics
+        * "Share" button in toolbar
+        * Generate image snapshot of stats
+        * PDF export option
+
+      - Week Comparison
+        * This week vs last week cards
+        * Arrows showing +/- change
+        * Highlight improvements
+
+PHASE 5: HEALTH METRICS & GOALS ENHANCEMENT
+------------------------------------------------------------------------------
+Priority: MEDIUM
+Estimated: 2-3 days
+
+  [ ] 5.1 Advanced Goal System
+
+      - BMI Calculator & Display
+        * Calculate from height/weight
+        * Show BMI category (Underweight/Normal/Overweight/Obese)
+        * Color-coded indicator
+
+      - Calorie Deficit/Surplus Goal
+        * User sets target: Lose/Maintain/Gain
+        * Calculate TDEE based on activity level
+        * Suggest daily calorie target
+
+      - Estimated Time to Goal
+        * Based on current deficit/surplus
+        * "At this rate, you'll reach 65kg in 8 weeks"
+        * Progress bar visualization
+
+      - Macro Ratio Customization
+        * Slider for Protein/Carbs/Fat percentages
+        * Presets: Balanced, Low Carb, High Protein
+        * Save custom ratios
+
+  [ ] 5.2 Weight Tracking Improvements
+
+      - Weight Graph with Trend Line
+        * Smooth line chart
+        * Moving average trend overlay
+        * Min/Max markers
+
+      - Milestone Celebrations
+        * Detect 1kg, 5kg, 10kg milestones
+        * Show celebration animation
+        * Achievement badges
+
+      - Weekly Average Weight
+        * Calculate and display
+        * Less fluctuation anxiety
+        * Compare weekly averages
+
+      - Body Measurements (Optional)
+        * Waist, Hip, Chest, Arms
+        * Progress tracking
+        * Measurement reminders
+
+PHASE 6: WATER TRACKING ENHANCEMENT
+------------------------------------------------------------------------------
+Priority: MEDIUM
+Estimated: 2 days
+
+  [ ] 6.1 Water Widget Improvements
+
+      - Customizable Glass Sizes
+        * Preset: 150ml, 250ml, 500ml
+        * Add custom size option
+        * Remember last used size
+
+      - Smart Water Goal
+        * Calculate based on body weight (30ml/kg)
+        * Adjust for activity level
+        * Display in cups AND ml
+
+      - Beverage Type Tracking
+        * Water, Tea, Coffee, Juice, Other
+        * Different icons for each
+        * Caffeine warning for coffee
+
+  [ ] 6.2 Animation & Gamification
+
+      - Improved Wave Animation
+        * Smoother water level rising
+        * Bubble particles effect
+        * Realistic wave motion
+
+      - Hourly Reminders
+        * Notification every X hours
+        * Customizable reminder interval
+        * Smart timing (not during sleep)
+
+      - Goal Celebration
+        * Splash animation when 100% reached
+        * Sound effect (optional)
+        * Confetti overlay
+
+      - Hydration Streak
+        * Track days meeting water goal
+        * Streak badge display
+        * Streak protection (one miss allowed)
+
+      - Achievement Badges
+        * "Hydration Hero" - 7 day streak
+        * "Water Champion" - 30 day streak
+        * "Aqua Master" - 100 day streak
+
+PHASE 7: UI/UX POLISH & ACCESSIBILITY
+------------------------------------------------------------------------------
+Priority: MEDIUM
+Estimated: 3 days
+
+  [ ] 7.1 Animation & Micro-interactions
+
+      - Page Transitions
+        * Shared element transitions between screens
+        * Fade + slide animations
+        * Consistent animation duration (300ms)
+
+      - Skeleton Loading
+        * Shimmer effect for loading states
+        * Match actual content layout
+        * All screens: Dashboard, Explore, Statistics
+
+      - Button Feedback
+        * Scale animation on press (0.95x)
+        * Haptic feedback on all buttons
+        * Ripple effects
+
+      - List Animations
+        * Staggered entrance for items
+        * Swipe animations for delete
+        * Smooth reordering
+
+      - AppleRing Polish
+        * Smoother arc drawing
+        * Glow effect on completion
+        * Pulse animation on update
+
+  [ ] 7.2 Accessibility
+
+      - Content Descriptions
+        * All icons have contentDescription
+        * Meaningful labels (not "icon" or "button")
+        * Screen reader friendly
+
+      - Touch Targets
+        * Minimum 48dp for all tappable elements
+        * Review all IconButtons
+        * Add padding where needed
+
+      - High Contrast Mode
+        * Detect system setting
+        * Increase border widths
+        * Stronger color contrasts
+
+      - Indonesian Translations
+        * Complete strings-id.xml
+        * Review all hardcoded strings
+        * Date/number formatting
+
+PHASE 8: NOTIFICATION & REMINDER SYSTEM
+------------------------------------------------------------------------------
+Priority: LOW
+Estimated: 2 days
+
+  [ ] 8.1 Smart Meal Reminders
+
+      - Customizable Reminder Times
+        * Set breakfast/lunch/dinner times
+        * Enable/disable per meal
+        * Days of week selection
+
+      - "Forgot to Log" Reminder
+        * Evening notification if no logs today
+        * "Did you eat today?" prompt
+        * Quick log action from notification
+
+      - Motivational Quotes
+        * Rotate through quote database
+        * Include with reminder notifications
+        * "Stay consistent!" etc.
+
+      - Snooze Functionality
+        * 15min / 30min / 1hr snooze
+        * Don't show again today option
+
+  [ ] 8.2 Daily/Weekly Summaries
+
+      - End of Day Summary
+        * "Today: 1,850 kcal (92% of goal)"
+        * Show macro breakdown
+        * Scheduled at 9pm
+
+      - Weekly Progress Report
+        * Sunday evening notification
+        * Week highlights
+        * Streak updates
+
+      - Goal Achievement Alerts
+        * Celebrate reaching daily goal
+        * Weight milestone notifications
+        * Streak achievement alerts
+
+      - Notification Preferences Screen
+        * Toggle each notification type
+        * Set quiet hours
+        * Sound/vibration settings
+
+PHASE 9: DATA MANAGEMENT & BACKUP
+------------------------------------------------------------------------------
+Priority: LOW
+Estimated: 2 days
+
+  [ ] 9.1 Enhanced Data Export
+
+      - Date Range Selection
+        * Export specific time period
+        * Preset options (last week, last month, all)
+        * Calendar picker for custom
+
+      - Format Options
+        * CSV (spreadsheet compatible)
+        * JSON (full backup)
+        * PDF (printable diary)
+
+      - Automatic Backup
+        * Weekly auto-backup to local storage
+        * Configurable backup day
+        * Keep last 4 backups
+
+  [ ] 9.2 Data Import & Restore
+
+      - Import from Backup
+        * Select JSON backup file
+        * Preview data before import
+        * Confirm/cancel dialog
+
+      - Merge Strategy
+        * Skip duplicates option
+        * Overwrite existing option
+        * Merge (combine) option
+
+      - Clear Data Safety
+        * "Export first?" reminder before clear
+        * Type "DELETE" confirmation
+        * Grace period before actual deletion
+
+PHASE 10: TESTING & PERFORMANCE
+------------------------------------------------------------------------------
+Priority: CRITICAL
+Estimated: 3-4 days
+
+  [ ] 10.1 Unit & Integration Testing
+
+      - FoodAnalyzer Tests
+        * Test confidence threshold logic
+        * Test non-food filtering
+        * Test label mapping
+
+      - ViewModel Tests
+        * Test state management
+        * Test data flow
+        * Mock repository tests
+
+      - Repository Tests
+        * Room database mocking
+        * CRUD operation tests
+        * Edge case handling
+
+      - UI Tests
+        * Camera flow integration test
+        * Food logging flow test
+        * Navigation tests
+
+      - Coverage Target: 60%+
+
+  [ ] 10.2 Performance Optimization
+
+      - Lazy Loading
+        * Paginate food history (load 20 at a time)
+        * Lazy load images
+        * Defer non-critical data
+
+      - Database Optimization
+        * Add indices to frequently queried columns
+        * Optimize JOIN queries
+        * Batch insert operations
+
+      - Image Caching
+        * Configure Coil disk cache
+        * Memory cache sizing
+        * Placeholder images
+
+      - APK Size Reduction
+        * Enable R8 minification
+        * Remove unused resources
+        * Split APKs by ABI
+
+      - Memory Profiling
+        * Find and fix leaks
+        * Reduce bitmap memory
+        * Clean up coroutine scopes
+
+================================================================================
+                              PRIORITY EXECUTION ORDER
+================================================================================
+
+1. Phase 3.2 - Custom Food Entry (HIGH - core feature)
+2. Phase 10.1 - Testing (CRITICAL - prevent regressions)
+3. Phase 4 - Dashboard/Stats (MEDIUM - user-facing polish)
+4. Phase 5 - Health Metrics (MEDIUM)
+5. Phase 6 - Water Tracking (MEDIUM)
+6. Phase 7 - UI/UX Polish (MEDIUM)
+7. Phase 8 - Notifications (LOW)
+8. Phase 9 - Data Backup (LOW)
+9. Phase 10.2 - Performance (CRITICAL - final optimization)
+
+================================================================================
+                              ESTIMATED TOTAL TIME
+================================================================================
+
+Total: ~22-27 development days
+
+Breakdown:
+  - Phase 3.2: 2-3 days
+  - Phase 4: 3 days
+  - Phase 5: 2-3 days
+  - Phase 6: 2 days
+  - Phase 7: 3 days
+  - Phase 8: 2 days
+  - Phase 9: 2 days
+  - Phase 10: 3-4 days
+
+================================================================================
+                                   END OF ROADMAP
+================================================================================
