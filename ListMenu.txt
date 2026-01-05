@@ -1,0 +1,255 @@
+### 🍚 INDONESIAN RICE DISHES
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Nasi Goreng | 575 | 18 | 72 | 24 | 1 piring |
+| Nasi Putih | 200 | 4 | 44 | 1 | 1 piring |
+| Nasi Uduk | 490 | 12 | 70 | 19 | 1 piring |
+| Nasi Kuning | 450 | 11 | 65 | 17 | 1 piring |
+| Nasi Padang | 750 | 40 | 77 | 35 | 1 porsi |
+| Bubur Ayam | 370 | 18 | 47 | 12 | 1 mangkok |
+| Lontong Sayur | 460 | 16 | 60 | 21 | 1 porsi |
+
+### 🍗 INDONESIAN MEAT DISHES
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Rendang | 255 | 25 | 8 | 19 | 100g |
+| Sate Ayam | 375 | 32 | 15 | 25 | 10 tusuk |
+| Ayam Goreng | 290 | 24 | 7 | 18 | 1 potong |
+| Ayam Geprek | 560 | 30 | 42 | 31 | 1 porsi |
+| Ayam Bakar | 330 | 32 | 8 | 20 | 1 potong |
+| Opor Ayam | 420 | 26 | 12 | 28 | 1 potong |
+| Bebek Goreng | 490 | 30 | 9 | 37 | 1 potong |
+| Ikan Bakar | 320 | 33 | 6 | 19 | 1 ekor |
+| Ikan Goreng | 370 | 29 | 8 | 23 | 1 ekor |
+
+### 🍲 INDONESIAN SOUPS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Soto Ayam | 285 | 22 | 30 | 12 | 1 mangkok |
+| Soto Betawi | 430 | 24 | 30 | 29 | 1 mangkok |
+| Bakso | 450 | 25 | 50 | 18 | 1 mangkok |
+| Rawon | 370 | 30 | 32 | 17 | 1 mangkok |
+| Sop Buntut | 565 | 35 | 24 | 34 | 1 mangkok |
+
+### 🍜 INDONESIAN NOODLES
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Mie Goreng | 510 | 16 | 65 | 21 | 1 piring |
+| Mie Ayam | 430 | 20 | 55 | 18 | 1 mangkok |
+| Indomie Goreng | 390 | 8 | 55 | 16 | 1 bungkus |
+| Indomie Kuah | 330 | 7 | 52 | 11 | 1 bungkus |
+| Kwetiau Goreng | 490 | 15 | 60 | 21 | 1 piring |
+
+### 🥗 INDONESIAN VEGETABLES
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Gado-Gado | 320 | 13 | 28 | 21 | 1 porsi |
+| Sayur Asem | 90 | 4 | 17 | 2 | 1 mangkok |
+| Sayur Lodeh | 200 | 6 | 23 | 10 | 1 mangkok |
+| Capcay | 220 | 12 | 20 | 12 | 1 porsi |
+| Tumis Kangkung | 120 | 4 | 9 | 9 | 1 porsi |
+| Pecel | 280 | 11 | 26 | 16 | 1 porsi |
+| Urap | 190 | 6 | 22 | 9 | 1 porsi |
+| Lalapan | 60 | 2 | 11 | 0 | 1 porsi |
+
+### 🥣 INDONESIAN TOFU/TEMPE
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Tempe Goreng | 200 | 14 | 11 | 13 | 3 potong |
+| Tahu Goreng | 165 | 10 | 9 | 11 | 3 potong |
+| Tahu Isi | 230 | 12 | 21 | 13 | 3 potong |
+| Tempe Mendoan | 215 | 11 | 18 | 14 | 3 potong |
+| Perkedel | 190 | 7 | 22 | 11 | 2 buah |
+
+### 🥟 INDONESIAN SNACKS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Gorengan | 275 | 6 | 28 | 18 | 3 buah |
+| Martabak Manis | 525 | 10 | 70 | 27 | 1 potong |
+| Martabak Telur | 400 | 20 | 34 | 24 | 1 potong |
+| Risol | 190 | 6 | 21 | 11 | 2 buah |
+| Pisang Goreng | 250 | 3 | 35 | 11 | 2 buah |
+| Pempek | 395 | 16 | 50 | 14 | 4 buah |
+| Ketoprak | 420 | 15 | 55 | 17 | 1 porsi |
+
+### 🥤 INDONESIAN DRINKS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Es Teh | 80 | 0 | 18 | 0 | 1 gelas |
+| Es Jeruk | 125 | 0 | 29 | 0 | 1 gelas |
+| Kopi | 50 | 0 | 8 | 1 | 1 gelas |
+| Jus Alpukat | 340 | 4 | 35 | 23 | 1 gelas |
+| Es Campur | 290 | 4 | 50 | 9 | 1 porsi |
+| Cendol | 320 | 4 | 60 | 11 | 1 porsi |
+| Teh Tarik | 150 | 3 | 28 | 6 | 1 gelas |
+| Susu | 160 | 8 | 11 | 8 | 1 gelas |
+
+### 🍎 FRUITS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Pisang | 100 | 1 | 27 | 0 | 1 buah |
+| Mangga | 145 | 1 | 35 | 0 | 1 buah |
+| Jeruk | 70 | 1 | 15 | 0 | 1 buah |
+| Apel | 90 | 0 | 24 | 0 | 1 buah |
+| Semangka | 90 | 1 | 22 | 0 | 1 potong |
+| Pepaya | 120 | 3 | 30 | 0 | 1 mangkok |
+| Nanas | 85 | 1 | 22 | 0 | 1 mangkok |
+| Durian | 350 | 4 | 70 | 14 | 1 biji |
+
+### 🍔 COMMON INTERNATIONAL FOODS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Avocado Toast | 340 | 8 | 35 | 22 | 1 serving |
+| Egg Omelet | 220 | 15 | 4 | 17 | 2 eggs |
+| Pancakes | 420 | 8 | 51 | 18 | 3 pieces |
+| Salad | 170 | 5 | 17 | 12 | 1 bowl |
+| Burger | 575 | 30 | 45 | 29 | 1 piece |
+| Pizza | 305 | 12 | 35 | 14 | 1 slice |
+| Pasta | 510 | 18 | 65 | 22 | 1 plate |
+| Fried Rice | 520 | 14 | 75 | 21 | 1 plate |
+| Fried Chicken | 335 | 24 | 14 | 20 | 1 piece |
+
+### 🕌 REGIONAL SPECIALTIES - ACEH & SUMATERA
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Mie Aceh | 530 | 20 | 66 | 28 | 1 piring |
+| Kuah Pliek U | 290 | 15 | 24 | 15 | 1 mangkok |
+| Sate Padang | 490 | 30 | 22 | 37 | 10 tusuk |
+| Gulai Kepala Ikan | 420 | 32 | 16 | 27 | 1 porsi |
+| Dendeng Batokok | 320 | 34 | 9 | 16 | 100g |
+| Gulai Cubadak | 280 | 8 | 25 | 18 | 1 mangkok |
+| Asam Padeh | 350 | 30 | 12 | 22 | 1 porsi |
+| Pempek Palembang | 430 | 18 | 53 | 13 | 6 buah |
+| Tekwan | 290 | 16 | 34 | 11 | 1 mangkok |
+| Model | 370 | 16 | 44 | 13 | 1 mangkok |
+
+### 🌋 REGIONAL SPECIALTIES - JAWA
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Nasi Liwet | 550 | 20 | 75 | 22 | 1 porsi |
+| Gudeg | 370 | 12 | 50 | 16 | 1 porsi |
+| Nasi Pecel | 450 | 15 | 59 | 23 | 1 porsi |
+| Rujak Cingur | 320 | 18 | 37 | 14 | 1 porsi |
+| Tahu Campur | 390 | 18 | 45 | 17 | 1 porsi |
+| Lontong Balap | 430 | 16 | 54 | 17 | 1 porsi |
+| Sate Klatak | 550 | 35 | 9 | 42 | 10 tusuk |
+| Sego Tempong | 480 | 18 | 62 | 20 | 1 porsi |
+| Nasi Gandul | 550 | 30 | 60 | 28 | 1 porsi |
+| Tahu Tek | 340 | 15 | 42 | 18 | 1 porsi |
+| Nasi Krawu | 550 | 28 | 62 | 28 | 1 porsi |
+| Soto Lamongan | 340 | 23 | 31 | 15 | 1 mangkok |
+
+### 🏝️ REGIONAL SPECIALTIES - BALI & NUSA TENGGARA
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Babi Guling | 610 | 38 | 14 | 44 | 1 porsi |
+| Sate Lilit | 370 | 28 | 9 | 26 | 8 tusuk |
+| Ayam Betutu | 470 | 35 | 16 | 30 | 1 potong |
+| Lawar | 280 | 19 | 17 | 16 | 1 porsi |
+| Nasi Jinggo | 380 | 15 | 46 | 16 | 1 bungkus |
+| Se'i Sapi | 320 | 38 | 6 | 16 | 100g |
+
+### 🐟 REGIONAL SPECIALTIES - SULAWESI & KALIMANTAN
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Coto Makassar | 370 | 32 | 22 | 23 | 1 mangkok |
+| Pallubasa | 420 | 30 | 25 | 26 | 1 mangkok |
+| Konro | 560 | 34 | 29 | 37 | 1 mangkok |
+| Pisang Epe | 300 | 4 | 60 | 9 | 2 buah |
+| Kapurung | 310 | 15 | 41 | 9 | 1 mangkok |
+
+### 🍡 STREET FOOD - GORENGAN
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Bakwan | 125 | 3 | 14 | 9 | 2 buah |
+| Tahu Sumedang | 190 | 10 | 15 | 13 | 4 buah |
+| Tempe Kemul | 170 | 10 | 15 | 11 | 3 buah |
+| Cireng | 180 | 3 | 31 | 9 | 4 buah |
+| Combro | 220 | 6 | 34 | 12 | 2 buah |
+| Misro | 200 | 3 | 38 | 9 | 2 buah |
+| Gehu | 150 | 8 | 14 | 9 | 3 buah |
+| Ote-ote | 150 | 6 | 19 | 9 | 3 buah |
+| Bala-bala | 120 | 3 | 15 | 7 | 3 buah |
+| Sukun Goreng | 180 | 3 | 34 | 7 | 3 potong |
+
+### 🥞 STREET FOOD - MARTABAK & SNACKS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Martabak Telor Spesial | 620 | 29 | 44 | 36 | 1 porsi |
+| Martabak Manis Coklat | 520 | 10 | 68 | 27 | 1 potong |
+| Martabak Manis Keju | 480 | 12 | 58 | 24 | 1 potong |
+| Lumpia Semarang | 220 | 8 | 28 | 11 | 2 buah |
+| Pastel | 180 | 6 | 23 | 9 | 2 buah |
+| Kue Cubit | 130 | 3 | 19 | 6 | 6 buah |
+| Serabi | 180 | 6 | 32 | 7 | 3 buah |
+| Terang Bulan | 520 | 11 | 74 | 27 | 1 potong |
+
+### 🍗 FAST FOOD - KFC
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| KFC Original | 310 | 27 | 13 | 20 | 1 potong |
+| KFC Crispy | 370 | 24 | 17 | 26 | 1 potong |
+| KFC Combo Attack | 850 | 43 | 82 | 38 | 1 paket |
+| KFC Chicken Wings | 450 | 32 | 18 | 29 | 5 buah |
+| KFC Rice | 190 | 4 | 40 | 2 | 1 porsi |
+| KFC Pergedel | 115 | 3 | 14 | 6 | 1 buah |
+| KFC Coleslaw | 155 | 3 | 15 | 10 | 1 porsi |
+
+### 🍔 FAST FOOD - McDONALD'S
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| McD Big Mac | 565 | 26 | 49 | 29 | 1 buah |
+| McD McChicken | 410 | 16 | 41 | 22 | 1 buah |
+| McD Cheeseburger | 320 | 16 | 33 | 14 | 1 buah |
+| McD Double Cheeseburger | 460 | 27 | 39 | 25 | 1 buah |
+| McD PaNas 1 | 600 | 31 | 70 | 28 | 1 paket |
+| McD Ayam Gulai | 340 | 25 | 13 | 22 | 1 potong |
+| McD McFlurry | 430 | 8 | 63 | 16 | 1 cup |
+| McD French Fries M | 350 | 4 | 42 | 17 | 1 porsi |
+| McD Sundae | 290 | 5 | 44 | 8 | 1 cup |
+
+### 👑 FAST FOOD - BURGER KING
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| BK Whopper | 700 | 31 | 53 | 40 | 1 buah |
+| BK Whopper Jr | 390 | 16 | 32 | 22 | 1 buah |
+| BK Chicken Royale | 560 | 27 | 48 | 33 | 1 buah |
+| BK Onion Rings | 370 | 4 | 46 | 22 | 1 porsi |
+
+### ☕ CAFE BEVERAGES - STARBUCKS
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Starbucks Caramel Macchiato | 280 | 10 | 34 | 8 | Grande |
+| Starbucks Latte | 200 | 12 | 19 | 8 | Grande |
+| Starbucks Cappuccino | 140 | 10 | 15 | 6 | Grande |
+| Starbucks Americano | 15 | 1 | 3 | 0 | Grande |
+| Starbucks Frappuccino | 375 | 6 | 58 | 16 | Grande |
+| Starbucks Green Tea Latte | 320 | 8 | 44 | 10 | Grande |
+| Starbucks Java Chip | 440 | 8 | 68 | 16 | Grande |
+
+### 🧋 CAFE BEVERAGES - CHATIME
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Chatime Pearl Milk Tea | 370 | 4 | 67 | 12 | Large |
+| Chatime Hazelnut Chocolate | 420 | 6 | 73 | 14 | Large |
+| Chatime Taro Milk Tea | 340 | 4 | 63 | 11 | Large |
+| Chatime Mango Green Tea | 280 | 3 | 56 | 6 | Large |
+| Chatime Matcha Milk Tea | 340 | 6 | 59 | 11 | Large |
+
+### ☕ CAFE BEVERAGES - KOPI KENANGAN
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Kopi Kenangan Mantan | 180 | 7 | 30 | 6 | Medium |
+| Kopi Kenangan Signature | 220 | 8 | 32 | 8 | Medium |
+| Kopi Susu Tetangga | 250 | 9 | 39 | 9 | Medium |
+| Es Kopi Susu | 210 | 7 | 32 | 6 | Medium |
+| Avocado Coffee | 370 | 6 | 45 | 19 | Medium |
+
+### 🥤 CAFE BEVERAGES - OTHER POPULAR
+| Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| Kopi Janji Jiwa | 190 | 7 | 31 | 7 | Medium |
+| Fore Coffee Latte | 190 | 9 | 25 | 9 | Medium |
+| Gulu Gulu Cheese Tea | 420 | 8 | 60 | 18 | Large |
+| Xing Fu Tang | 490 | 6 | 83 | 15 | Large |
+| Tiger Sugar | 490 | 6 | 87 | 18 | Large |

@@ -43,6 +43,7 @@ import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.*
 import androidx.compose.ui.res.stringResource
 import com.example.luminacal.R
+import com.example.luminacal.data.ml.FoodNutritionDatabase
 import com.example.luminacal.viewmodel.MainViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -56,80 +57,36 @@ fun ExploreScreen(
     val haptic = LocalHapticFeedback.current
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
-    var maxCaloriesFilter by remember { mutableStateOf<Int?>(null) }  // null = all, 300, 500
-    val categories = listOf("All", "Breakfast", "Indonesian", "Vegan", "Dinner", "Snacks")
+    var maxCaloriesFilter by remember { mutableStateOf<Int?>(null) }
+    val categories = listOf("All", "Indonesian", "FastFood", "Drinks", "Snacks", "Breakfast")
     val calorieFilters = listOf("All" to null, "< 300" to 300, "< 500" to 500)
     var showManualEntry by remember { mutableStateOf(false) }
     
+    // Convert NutritionInfo from database to Recipe for display
     val allRecipes = remember {
-        listOf(
-            // --- BREAKFAST ---
-            Recipe("Nasi Uduk Komplit", "480 kcal", "20m", "Breakfast", "https://images.pexels.com/photos/5638527/pexels-photo-5638527.jpeg?w=800"),
-            Recipe("Bubur Ayam", "350 kcal", "15m", "Breakfast", "https://images.pexels.com/photos/6646351/pexels-photo-6646351.jpeg?w=800"),
-            Recipe("Avocado Toast", "340 kcal", "10m", "Breakfast", "https://images.pexels.com/photos/1656666/pexels-photo-1656666.jpeg?w=800"),
-            Recipe("Egg & Spinach Omelet", "220 kcal", "8m", "Breakfast", "https://images.pexels.com/photos/3026805/pexels-photo-3026805.jpeg?w=800"),
-            Recipe("Blueberry Pancakes", "410 kcal", "15m", "Breakfast", "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?w=800"),
-            Recipe("Nasi Kuning", "450 kcal", "15m", "Breakfast", "https://images.pexels.com/photos/5638527/pexels-photo-5638527.jpeg?w=800"),
-            
-            // --- INDONESIAN SPECIALTIES ---
-            Recipe("Nasi Goreng", "580 kcal", "20m", "Indonesian", "https://images.pexels.com/photos/6646069/pexels-photo-6646069.jpeg?w=800"),
-            Recipe("Sate Ayam", "420 kcal", "25m", "Indonesian", "https://images.pexels.com/photos/2673353/pexels-photo-2673353.jpeg?w=800"),
-            Recipe("Rendang Sapi", "350 kcal", "3h", "Indonesian", "https://images.pexels.com/photos/5409015/pexels-photo-5409015.jpeg?w=800"),
-            Recipe("Bakso Sapi", "480 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/6646354/pexels-photo-6646354.jpeg?w=800"),
-            Recipe("Soto Ayam", "280 kcal", "30m", "Indonesian", "https://images.pexels.com/photos/6646350/pexels-photo-6646350.jpeg?w=800"),
-            Recipe("Gado-Gado", "310 kcal", "20m", "Indonesian", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Ayam Geprek", "620 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?w=800"),
-            Recipe("Ikan Bakar", "340 kcal", "30m", "Indonesian", "https://images.pexels.com/photos/3296279/pexels-photo-3296279.jpeg?w=800"),
-            Recipe("Mie Goreng", "510 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/6646071/pexels-photo-6646071.jpeg?w=800"),
-            Recipe("Opor Ayam", "420 kcal", "40m", "Indonesian", "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?w=800"),
-            Recipe("Sop Buntut", "550 kcal", "50m", "Indonesian", "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?w=800"),
-            Recipe("Lontong Sayur", "470 kcal", "30m", "Indonesian", "https://images.pexels.com/photos/5638527/pexels-photo-5638527.jpeg?w=800"),
-            Recipe("Rawon", "390 kcal", "2h", "Indonesian", "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?w=800"),
-            Recipe("Pempek", "380 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/6646354/pexels-photo-6646354.jpeg?w=800"),
-            Recipe("Ketoprak", "410 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Ayam Bakar", "350 kcal", "45m", "Indonesian", "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?w=800"),
-            Recipe("Tempe Goreng", "180 kcal", "10m", "Indonesian", "https://images.pexels.com/photos/6646067/pexels-photo-6646067.jpeg?w=800"),
-            Recipe("Sayur Asem", "95 kcal", "25m", "Indonesian", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Sate Padang", "480 kcal", "30m", "Indonesian", "https://images.pexels.com/photos/2673353/pexels-photo-2673353.jpeg?w=800"),
-            Recipe("Gudeg", "450 kcal", "3h", "Indonesian", "https://images.pexels.com/photos/5638527/pexels-photo-5638527.jpeg?w=800"),
-            Recipe("Siomay", "350 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/6646354/pexels-photo-6646354.jpeg?w=800"),
-            Recipe("Batagor", "430 kcal", "15m", "Indonesian", "https://images.pexels.com/photos/6646354/pexels-photo-6646354.jpeg?w=800"),
-            
-            // --- VEGAN & HEALTHY ---
-            Recipe("Quinoa Buddha Bowl", "420 kcal", "20m", "Vegan", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Zucchini Pasta", "180 kcal", "15m", "Vegan", "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?w=800"),
-            Recipe("Roasted Sweet Potato", "160 kcal", "40m", "Vegan", "https://images.pexels.com/photos/5966434/pexels-photo-5966434.jpeg?w=800"),
-            Recipe("Tofu Salad", "170 kcal", "10m", "Vegan", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Tempeh Buddha Bowl", "310 kcal", "20m", "Vegan", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Hummus Wrap", "280 kcal", "12m", "Vegan", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Lentil Soup", "220 kcal", "35m", "Vegan", "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?w=800"),
-            
-            // --- DINNER & PROTEIN ---
-            Recipe("Grilled Chicken", "450 kcal", "30m", "Dinner", "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?w=800"),
-            Recipe("Beef Stir Fry", "520 kcal", "20m", "Dinner", "https://images.pexels.com/photos/3535383/pexels-photo-3535383.jpeg?w=800"),
-            Recipe("Salmon Fillet", "380 kcal", "20m", "Dinner", "https://images.pexels.com/photos/3296279/pexels-photo-3296279.jpeg?w=800"),
-            Recipe("Ribeye Steak", "650 kcal", "25m", "Dinner", "https://images.pexels.com/photos/1251198/pexels-photo-1251198.jpeg?w=800"),
-            Recipe("Shrimp Scampi", "320 kcal", "15m", "Dinner", "https://images.pexels.com/photos/3298637/pexels-photo-3298637.jpeg?w=800"),
-            Recipe("Turkey Breast", "290 kcal", "45m", "Dinner", "https://images.pexels.com/photos/6210959/pexels-photo-6210959.jpeg?w=800"),
-            Recipe("Lamb Chops", "580 kcal", "30m", "Dinner", "https://images.pexels.com/photos/3535383/pexels-photo-3535383.jpeg?w=800"),
-            
-            // --- SNACKS & DRINKS ---
-            Recipe("Greek Yogurt", "210 kcal", "5m", "Snacks", "https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?w=800"),
-            Recipe("Mixed Berries", "80 kcal", "5m", "Snacks", "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?w=800"),
-            Recipe("Dark Chocolate", "180 kcal", "10m", "Snacks", "https://images.pexels.com/photos/65882/chocolate-dark-coffee-confiserie-65882.jpeg?w=800"),
-            Recipe("Pisang Goreng", "240 kcal", "15m", "Snacks", "https://images.pexels.com/photos/6646067/pexels-photo-6646067.jpeg?w=800"),
-            Recipe("Martabak Manis", "320 kcal", "10m", "Snacks", "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?w=800"),
-            Recipe("Alpukat Kocok", "350 kcal", "5m", "Snacks", "https://images.pexels.com/photos/1656666/pexels-photo-1656666.jpeg?w=800"),
-            Recipe("Fresh Orange Juice", "120 kcal", "5m", "Snacks", "https://images.pexels.com/photos/158053/fresh-orange-juice-squeezed-refreshing-citrus-158053.jpeg?w=800"),
-            Recipe("Iced Matcha Latte", "150 kcal", "5m", "Snacks", "https://images.pexels.com/photos/5946651/pexels-photo-5946651.jpeg?w=800"),
-            Recipe("Boba Milk Tea", "420 kcal", "5m", "Snacks", "https://images.pexels.com/photos/4053293/pexels-photo-4053293.jpeg?w=800"),
-            Recipe("Banana Smoothie", "210 kcal", "5m", "Snacks", "https://images.pexels.com/photos/3679973/pexels-photo-3679973.jpeg?w=800"),
-            Recipe("Edamame", "120 kcal", "10m", "Snacks", "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"),
-            Recipe("Chia Pudding", "160 kcal", "5m", "Snacks", "https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?w=800"),
-            Recipe("Roasted Almonds", "170 kcal", "5m", "Snacks", "https://images.pexels.com/photos/1295572/pexels-photo-1295572.jpeg?w=800"),
-            Recipe("Fruit Salad", "130 kcal", "10m", "Snacks", "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?w=800"),
-            Recipe("Es Campur", "280 kcal", "10m", "Snacks", "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?w=800")
-        )
+        FoodNutritionDatabase.getAllFoods().map { nutrition ->
+            val category = when {
+                nutrition.name.startsWith("KFC") || nutrition.name.startsWith("McD") || 
+                nutrition.name.startsWith("BK") || nutrition.name.contains("Burger") -> "FastFood"
+                nutrition.name.contains("Starbucks") || nutrition.name.contains("Chatime") ||
+                nutrition.name.contains("Kenangan") || nutrition.name.contains("Kopi") ||
+                nutrition.name.contains("Teh") || nutrition.name.contains("Es ") ||
+                nutrition.name.contains("Jus") || nutrition.name.contains("Milk Tea") -> "Drinks"
+                nutrition.name.contains("Gorengan") || nutrition.name.contains("Martabak") ||
+                nutrition.name.contains("Pisang Goreng") || nutrition.name.contains("Cireng") ||
+                nutrition.name.contains("Combro") || nutrition.name.contains("Kue") -> "Snacks"
+                nutrition.name.contains("Bubur") || nutrition.name.contains("Toast") ||
+                nutrition.name.contains("Omelet") || nutrition.name.contains("Pancakes") -> "Breakfast"
+                else -> "Indonesian"
+            }
+            Recipe(
+                name = nutrition.name,
+                calories = "${nutrition.calories} kcal",
+                time = "~",
+                category = category,
+                imageUrl = nutrition.imageUrl ?: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?w=800"
+            )
+        }
     }
 
     val recipes = remember(selectedCategory, searchQuery, maxCaloriesFilter, allRecipes) {
@@ -221,11 +178,11 @@ fun ExploreScreen(
                             Text(
                                 text = when (cat) {
                                     "All" -> stringResource(R.string.category_all)
-                                    "Breakfast" -> stringResource(R.string.category_breakfast)
                                     "Indonesian" -> stringResource(R.string.category_indonesian)
-                                    "Vegan" -> stringResource(R.string.category_vegan)
-                                    "Dinner" -> stringResource(R.string.category_dinner)
+                                    "FastFood" -> "Fast Food"
+                                    "Drinks" -> "Drinks"
                                     "Snacks" -> stringResource(R.string.category_snacks)
+                                    "Breakfast" -> stringResource(R.string.category_breakfast)
                                     else -> cat
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
