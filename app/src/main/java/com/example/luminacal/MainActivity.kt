@@ -296,7 +296,7 @@ fun MainContent(
                                 onClose = {
                                     navController.popBackStack()
                                 },
-                                onFoodConfirmed = { nutritionInfo ->
+                                onFoodConfirmed = { nutritionInfo, mealType ->
                                     val macros = com.example.luminacal.model.Macros(
                                         protein = nutritionInfo.protein,
                                         carbs = nutritionInfo.carbs,
@@ -306,7 +306,7 @@ fun MainContent(
                                         name = nutritionInfo.name,
                                         calories = nutritionInfo.calories,
                                         macros = macros,
-                                        type = com.example.luminacal.model.MealType.LUNCH
+                                        type = mealType
                                     )
                                 }
                             )

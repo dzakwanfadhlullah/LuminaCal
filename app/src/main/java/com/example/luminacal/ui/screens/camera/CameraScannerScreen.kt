@@ -40,17 +40,19 @@ import com.example.luminacal.data.ml.FoodDetection
 import com.example.luminacal.data.ml.FoodNutritionDatabase
 import com.example.luminacal.data.ml.NonFoodDetection
 import com.example.luminacal.data.ml.NutritionInfo
+import com.example.luminacal.model.MealType
 import com.example.luminacal.ui.components.CameraError
 import com.example.luminacal.ui.components.CameraPreview
 import com.example.luminacal.ui.components.CameraState
 import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.Blue500
 import com.example.luminacal.ui.theme.Green500
+import com.example.luminacal.util.MealTypeDetector
 
 @Composable
 fun CameraScannerScreen(
     onClose: () -> Unit,
-    onFoodConfirmed: (NutritionInfo) -> Unit = {}
+    onFoodConfirmed: (NutritionInfo, MealType) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -62,6 +64,11 @@ fun CameraScannerScreen(
     var cameraState by remember { mutableStateOf<CameraState>(CameraState.Initializing) }
     var cameraError by remember { mutableStateOf<CameraError?>(null) }
     var retryTrigger by remember { mutableIntStateOf(0) }
+    
+    // Meal type state - auto-detect based on current time
+    var selectedMealType by remember { 
+        mutableStateOf(MealTypeDetector.detectFromCurrentTime()) 
+    }
     
     // Permission state
     var hasCameraPermission by remember {
@@ -158,7 +165,9 @@ fun CameraScannerScreen(
                 currentDetection = currentDetection,
                 nonFoodDetection = nonFoodDetection,
                 selectedFood = selectedFood,
+                selectedMealType = selectedMealType,
                 onSelectedFoodChange = { selectedFood = it },
+                onMealTypeChange = { selectedMealType = it },
                 onFoodConfirmed = onFoodConfirmed,
                 onClose = onClose
             )
@@ -384,8 +393,10 @@ private fun CameraOverlayUI(
     currentDetection: FoodDetection?,
     nonFoodDetection: NonFoodDetection?,
     selectedFood: NutritionInfo?,
+    selectedMealType: MealType,
     onSelectedFoodChange: (NutritionInfo?) -> Unit,
-    onFoodConfirmed: (NutritionInfo) -> Unit,
+    onMealTypeChange: (MealType) -> Unit,
+    onFoodConfirmed: (NutritionInfo, MealType) -> Unit,
     onClose: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
@@ -419,6 +430,13 @@ private fun CameraOverlayUI(
                 )
             }
         }
+        
+        // Meal Type Selector
+        Spacer(modifier = Modifier.height(12.dp))
+        MealTypeSelector(
+            selectedMealType = selectedMealType,
+            onMealTypeChange = onMealTypeChange
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -510,7 +528,7 @@ private fun CameraOverlayUI(
             Button(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onFoodConfirmed(foodToLog)
+                    onFoodConfirmed(foodToLog, selectedMealType)
                     onClose()
                 },
                 modifier = Modifier
@@ -762,3 +780,60 @@ private fun NotFoodInfoCard(nonFoodDetection: NonFoodDetection) {
     }
 }
 
+/**
+ * Meal type selector with chip-style buttons
+ */
+@Composable
+private fun MealTypeSelector(
+    selectedMealType: MealType,
+    onMealTypeChange: (MealType) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Color.Black.copy(alpha = 0.4f),
+                RoundedCornerShape(16.dp)
+            )
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        MealTypeDetector.getAllMealTypes().forEach { mealType ->
+            val isSelected = mealType == selectedMealType
+            val emoji = MealTypeDetector.getEmoji(mealType)
+            val displayName = MealTypeDetector.getDisplayName(mealType)
+            
+            Surface(
+                color = if (isSelected) Green500 else Color.Transparent,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 2.dp)
+                    .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onMealTypeChange(mealType)
+                    }
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = emoji,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = displayName,
+                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f),
+                        fontSize = 10.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
