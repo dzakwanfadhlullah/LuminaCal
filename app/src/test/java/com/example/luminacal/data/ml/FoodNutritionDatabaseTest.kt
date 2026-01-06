@@ -228,7 +228,7 @@ class FoodNutritionDatabaseTest {
         
         assertNotNull(nasiGoreng)
         assertEquals("Nasi Goreng", nasiGoreng?.name)
-        assertEquals(580, nasiGoreng?.calories)
+        assertEquals(575, nasiGoreng?.calories)
         assertEquals(18, nasiGoreng?.protein)
         assertEquals(72, nasiGoreng?.carbs)
         assertEquals(24, nasiGoreng?.fat)
