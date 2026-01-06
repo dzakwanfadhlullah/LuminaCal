@@ -62,10 +62,16 @@ fun StatisticsScreen(
         stringResource(R.string.tab_macros)
     )
     
-    // Calculate week comparison data
-    val thisWeekCalories = weeklyCalories.sumOf { it.calories.toInt() }
-    val thisWeekAvg = if (weeklyCalories.isNotEmpty()) thisWeekCalories / weeklyCalories.size else 0
-    val targetCalories = weeklyCalories.firstOrNull()?.target?.toInt() ?: 2000
+    // OPTIMIZED: Memoize calculations to avoid recalculation on every recomposition
+    val thisWeekCalories = remember(weeklyCalories) {
+        weeklyCalories.sumOf { it.calories.toInt() }
+    }
+    val thisWeekAvg = remember(weeklyCalories) {
+        if (weeklyCalories.isNotEmpty()) thisWeekCalories / weeklyCalories.size else 0
+    }
+    val targetCalories = remember(weeklyCalories) {
+        weeklyCalories.firstOrNull()?.target?.toInt() ?: 2000
+    }
     
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
