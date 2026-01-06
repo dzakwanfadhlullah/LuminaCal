@@ -1,0 +1,340 @@
+================================================================================
+                    GUIDE FOR AI AGENTS: ZERO-FAILURE CODING
+================================================================================
+
+This guide documents the best practices for achieving near-100% build success
+rate when working on Android/Kotlin/Compose projects. Follow these rules to
+minimize errors and maximize code quality.
+
+================================================================================
+                              PHASE 1: BEFORE YOU CODE
+================================================================================
+
+1.1 ALWAYS READ BEFORE WRITE
+--------------------------------------------------------------------------------
+NEVER edit a file you haven't read first. Always use view_file or view_code_item
+before making changes.
+
+  ❌ BAD:  "I'll add this function to MainViewModel.kt"
+           *immediately edits without reading*
+  
+  ✅ GOOD: "Let me first view MainViewModel.kt to understand the current structure"
+           *reads file → identifies patterns → then edits*
+
+Why: You need to know:
+  - What imports already exist
+  - What naming conventions are used
+  - What patterns are established
+  - Where to place new code
+
+1.2 TRACE THE DATA FLOW
+--------------------------------------------------------------------------------
+Before adding a feature, understand the full path:
+
+  Model ─→ Entity ─→ DAO ─→ Repository ─→ ViewModel ─→ UI (Composable)
+
+Example: Adding "weekly calorie average"
+  1. Check if DailyCalories model exists
+  2. Check if MealDao has relevant queries
+  3. Check if MealRepository has the calculation
+  4. Check if ViewModel state includes this data
+  5. Check how UI consumes it
+
+1.3 IDENTIFY DEPENDENCIES FIRST
+--------------------------------------------------------------------------------
+Before editing File A, check if it depends on File B that you also need to modify.
+
+  Order of edits:
+  1. Model/Data classes (no dependencies)
+  2. DAOs and Entities (depend on models)
+  3. Repositories (depend on DAOs)
+  4. ViewModels (depend on repositories)
+  5. UI Composables (depend on ViewModels)
+
+================================================================================
+                              PHASE 2: CODING RULES
+================================================================================
+
+2.1 FOLLOW EXISTING PATTERNS
+--------------------------------------------------------------------------------
+Copy the EXACT pattern already used in the codebase.
+
+Example - Adding a new state property:
+  
+  // EXISTING (in LuminaCalState):
+  val weightHistory: List<WeightEntry> = emptyList(),
+  val weightTrend: WeightTrend = WeightTrend(null, null, null),
+  
+  // NEW (follow the same pattern):
+  val weightStats: WeightStats = WeightStats(null, null, null, null, null, null),
+
+Example - Adding a new Flow collection:
+  
+  // EXISTING:
+  viewModelScope.launch(exceptionHandler) {
+      weightRepository.weeklyTrend.collect { trend ->
+          _uiState.update { state ->
+              state.copy(weightTrend = trend)
+          }
+      }
+  }
+  
+  // NEW (follow the same pattern):
+  viewModelScope.launch(exceptionHandler) {
+      weightRepository.weightStats.collect { stats ->
+          _uiState.update { state ->
+              state.copy(weightStats = stats)
+          }
+      }
+  }
+
+2.2 IMPORT RULES
+--------------------------------------------------------------------------------
+When you move or create a data class:
+
+  1. Check ALL files that reference the class
+  2. Update imports in EVERY file
+  3. Use simple names with imports, NOT fully qualified names
+
+  ❌ BAD:
+  fun calculate(): com.example.app.model.DailyCalories
+  
+  ✅ GOOD:
+  import com.example.app.model.DailyCalories
+  fun calculate(): DailyCalories
+
+2.3 ROOM DATABASE GOTCHAS
+--------------------------------------------------------------------------------
+Room has strict rules that cause KSP failures. MEMORIZE these:
+
+  ❌ NEVER use default parameter values in DAO methods:
+  @Query("UPDATE table SET count = count + 1 WHERE id = :id")
+  suspend fun increment(id: Long, timestamp: Long = System.currentTimeMillis())
+  
+  ✅ ALWAYS move defaults to Repository layer:
+  // In DAO:
+  @Query("UPDATE table SET count = count + 1 WHERE id = :id")
+  suspend fun increment(id: Long, timestamp: Long)
+  
+  // In Repository:
+  suspend fun increment(id: Long, timestamp: Long = System.currentTimeMillis()) {
+      dao.increment(id, timestamp)
+  }
+
+2.4 COMPOSE MATERIAL3 GOTCHAS
+--------------------------------------------------------------------------------
+Some components are EXPERIMENTAL and may not exist in older versions:
+
+  Components that may NOT exist:
+  - PullToRefreshBox
+  - rememberPullToRefreshState
+  - SwipeToDismissBox (some overloads)
+
+  Before using experimental components:
+  1. Check Compose Material3 version in build.gradle
+  2. If version < 1.2.0, don't use PullToRefreshBox
+  3. Use simpler alternatives or skip the feature
+
+2.5 EDITING RULES
+--------------------------------------------------------------------------------
+Use the RIGHT tool for the job:
+
+  | Scenario                        | Tool                      |
+  |---------------------------------|---------------------------|
+  | Single contiguous change        | replace_file_content      |
+  | Multiple non-adjacent changes   | multi_replace_file_content|
+  | New file                        | write_to_file             |
+  | Large rewrite (>50% of file)    | write_to_file (overwrite) |
+
+NEVER:
+  - Make parallel edits to the same file
+  - Guess at line numbers without reading the file first
+  - Use fully qualified TargetContent without checking exact whitespace
+
+================================================================================
+                              PHASE 3: VERIFICATION
+================================================================================
+
+3.1 BUILD AFTER EVERY SIGNIFICANT CHANGE
+--------------------------------------------------------------------------------
+Run the build command after:
+  - Adding new files
+  - Adding new imports
+  - Changing function signatures
+  - Modifying data classes
+
+Command:
+  .\gradlew.bat assembleDebug --warning-mode=none
+
+3.2 IF BUILD FAILS
+--------------------------------------------------------------------------------
+Follow this checklist:
+
+  1. "Unresolved reference 'X'"
+     → X is not imported. Add the import statement.
+     → X doesn't exist. Check spelling or if you created it.
+
+  2. "Expecting '}'"
+     → Missing closing brace. Check brace matching.
+     → Often happens when copy-pasting code.
+
+  3. "Type mismatch"
+     → Wrong type being passed. Check function signature.
+     → May need .toInt(), .toFloat(), etc.
+
+  4. "KSP failure" or "Room compilation failed"
+     → Check DAO for default parameters (not allowed!)
+     → Check Entity for missing @PrimaryKey
+     → Check database version increment
+
+3.3 VERIFY BEFORE REPORTING DONE
+--------------------------------------------------------------------------------
+NEVER report task completion without:
+  1. Running a successful build
+  2. Confirming exit code is 0
+  3. Checking for any warnings that could become errors
+
+================================================================================
+                              PHASE 4: COMPOSABLE RULES
+================================================================================
+
+4.1 COMPOSABLE FUNCTION STRUCTURE
+--------------------------------------------------------------------------------
+Follow this order inside @Composable functions:
+
+  @Composable
+  fun MyScreen(...) {
+      // 1. Remember states
+      var state by remember { mutableStateOf(...) }
+      
+      // 2. Derived values
+      val computed = remember(dependency) { calculate() }
+      
+      // 3. Side effects
+      LaunchedEffect(key) { ... }
+      
+      // 4. UI Content
+      Column { ... }
+  }
+
+4.2 PARAMETER ORDERING
+--------------------------------------------------------------------------------
+Order composable parameters consistently:
+
+  @Composable
+  fun MyCard(
+      // 1. Required data
+      title: String,
+      value: Int,
+      // 2. Optional data with defaults
+      subtitle: String = "",
+      // 3. Modifier (always has default)
+      modifier: Modifier = Modifier,
+      // 4. Event callbacks
+      onClick: () -> Unit = {},
+      onDelete: () -> Unit = {}
+  )
+
+4.3 AVOID THESE MISTAKES
+--------------------------------------------------------------------------------
+  ❌ Calling @Composable from non-composable context
+  ❌ Using mutableStateOf without remember
+  ❌ Blocking operations in composable body (use LaunchedEffect)
+  ❌ Creating new objects on every recomposition
+
+================================================================================
+                              PHASE 5: PROJECT-SPECIFIC RULES
+================================================================================
+
+5.1 LUMINACAL ARCHITECTURE
+--------------------------------------------------------------------------------
+This project follows MVVM with these layers:
+
+  /model         → Data classes, enums (MealType, HealthMetrics, etc.)
+  /data/local    → Room Entities and DAOs
+  /data/repository → Business logic, data transformation
+  /viewmodel     → UI state management, user actions
+  /ui/screens    → Composable screens
+  /ui/components → Reusable composable components
+
+5.2 COLOR PALETTE
+--------------------------------------------------------------------------------
+Use theme colors, not hardcoded values:
+
+  import com.example.luminacal.ui.theme.*
+  
+  Blue500    → Primary actions, links
+  Green500   → Success, positive values
+  Peach400   → Accent, highlights
+  Pink500    → Errors, negative values
+
+5.3 STRING RESOURCES
+--------------------------------------------------------------------------------
+Use stringResource() for user-facing text:
+
+  ❌ Text("Calories")
+  ✅ Text(stringResource(R.string.calories))
+
+Exception: Temporary/debug text during development is OK.
+
+================================================================================
+                              QUICK REFERENCE CHECKLIST
+================================================================================
+
+Before ANY edit:
+  [ ] Have I read the file I'm about to edit?
+  [ ] Do I understand the existing patterns?
+  [ ] Have I identified all files that need changes?
+  [ ] Am I editing in dependency order?
+
+During edit:
+  [ ] Am I following existing code style?
+  [ ] Are all imports correct and complete?
+  [ ] Am I using replace_file_content correctly?
+  [ ] Is my TargetContent EXACTLY matching the file?
+
+After edit:
+  [ ] Have I run the build?
+  [ ] Is exit code 0?
+  [ ] Did I check for warnings?
+
+Before reporting done:
+  [ ] Is the build successful?
+  [ ] Have I documented what was changed?
+  [ ] Have I updated task.md?
+
+================================================================================
+                              COMMON ERROR PATTERNS
+================================================================================
+
+ERROR: "Unresolved reference 'X'"
+FIX:   Add import statement for X
+
+ERROR: "Expecting '}'"  
+FIX:   Count opening and closing braces, add missing one
+
+ERROR: "Cannot access 'X': it is internal"
+FIX:   Make X public or use a public accessor
+
+ERROR: "Type mismatch: inferred type is X but Y was expected"
+FIX:   Convert type or fix function signature
+
+ERROR: "None of the following functions can be called with the arguments supplied"
+FIX:   Check function signature and parameter types
+
+ERROR: "@Composable invocations can only happen in composable context"
+FIX:   Ensure you're calling composable from @Composable function
+
+ERROR: "Room KSP: Query method parameters should NOT be default values"
+FIX:   Move default values from DAO to Repository
+
+================================================================================
+                                    END OF GUIDE
+================================================================================
+
+Version: 1.0
+Created: 2026-01-06
+Author: AI Assistant (Claude/Opus)
+Project: LuminaCal
+
+Follow these rules and your build success rate will approach 100%.
