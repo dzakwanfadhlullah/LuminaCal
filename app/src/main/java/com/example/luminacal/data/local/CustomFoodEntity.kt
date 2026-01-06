@@ -1,13 +1,21 @@
 package com.example.luminacal.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
  * Entity for user's custom food entries
  * Stored separately from the built-in FoodNutritionDatabase
  */
-@Entity(tableName = "custom_foods")
+@Entity(
+    tableName = "custom_foods",
+    indices = [
+        Index(value = ["name"]),
+        Index(value = ["lastUsed"]),
+        Index(value = ["isFavorite"])
+    ]
+)
 data class CustomFoodEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
