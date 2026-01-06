@@ -1,6 +1,6 @@
 package com.example.luminacal.ui.screens.statistics
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,27 +8,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MilitaryTech
-import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +33,16 @@ import com.example.luminacal.ui.components.charts.WeeklyCalorieChart
 import com.example.luminacal.ui.components.charts.WeightProgressChart
 import com.example.luminacal.ui.theme.*
 
+/**
+ * Date range options for statistics filtering
+ */
+enum class DateRange(val label: String) {
+    TODAY("Today"),
+    THIS_WEEK("This Week"),
+    THIS_MONTH("This Month")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
     weeklyCalories: List<DailyCalories>,
@@ -53,25 +53,84 @@ fun StatisticsScreen(
     loggingStreak: Int
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedDateRange by remember { mutableStateOf(DateRange.THIS_WEEK) }
+    var showDateRangeMenu by remember { mutableStateOf(false) }
+    
     val tabs = listOf(
         stringResource(R.string.tab_calories),
         stringResource(R.string.tab_weight),
         stringResource(R.string.tab_macros)
     )
     
+    // Calculate week comparison data
+    val thisWeekCalories = weeklyCalories.sumOf { it.calories.toInt() }
+    val thisWeekAvg = if (weeklyCalories.isNotEmpty()) thisWeekCalories / weeklyCalories.size else 0
+    val targetCalories = weeklyCalories.firstOrNull()?.target?.toInt() ?: 2000
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        // Header with Date Range Picker
         item {
             Column {
-                Text(
-                    text = stringResource(R.string.stats_analytics),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.stats_analytics),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    // Date Range Dropdown
+                    Box {
+                        Surface(
+                            modifier = Modifier.clickable { showDateRangeMenu = true },
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = selectedDateRange.label,
+                                    fontSize = 14.sp,
+                                    color = Blue500,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Select date range",
+                                    tint = Blue500,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showDateRangeMenu,
+                            onDismissRequest = { showDateRangeMenu = false }
+                        ) {
+                            DateRange.entries.forEach { range ->
+                                DropdownMenuItem(
+                                    text = { Text(range.label) },
+                                    onClick = {
+                                        selectedDateRange = range
+                                        showDateRangeMenu = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Tab Selector
@@ -106,7 +165,11 @@ fun StatisticsScreen(
 
         // Active Chart Item
         item {
-            GlassCard(modifier = Modifier.fillMaxWidth()) {
+            GlassCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
+            ) {
                 when (selectedTab) {
                     0 -> { // Calories
                         Column {
@@ -116,7 +179,11 @@ fun StatisticsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(stringResource(R.string.stats_weekly_intake), fontWeight = FontWeight.Bold)
-                                Text(stringResource(R.string.stats_avg_kcal, (weeklyCalories.map { it.calories }.average().toInt())), fontSize = 12.sp, color = Blue500)
+                                Text(
+                                    stringResource(R.string.stats_avg_kcal, thisWeekAvg), 
+                                    fontSize = 12.sp, 
+                                    color = Blue500
+                                )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             WeeklyCalorieChart(
@@ -144,12 +211,21 @@ fun StatisticsScreen(
                                 Text(stringResource(R.string.stats_weight_progress), fontWeight = FontWeight.Bold)
                                 if (weightPoints.isNotEmpty()) {
                                     val change = weightPoints.last().weight - weightPoints.first().weight
-                                    Text(
-                                        text = "${if (change >= 0) "+" else ""}${String.format("%.1f", change)} kg",
-                                        color = if (change <= 0) Green500 else Pink500,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            if (change <= 0) Icons.Default.TrendingDown else Icons.Default.TrendingUp,
+                                            contentDescription = null,
+                                            tint = if (change <= 0) Green500 else Pink500,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${if (change >= 0) "+" else ""}${String.format("%.1f", change)} kg",
+                                            color = if (change <= 0) Green500 else Pink500,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 12.sp
+                                        )
+                                    }
                                 }
                             }
                             Spacer(modifier = Modifier.height(24.dp))
@@ -183,8 +259,99 @@ fun StatisticsScreen(
                 }
             }
         }
+        
+        // Week Comparison Section
+        item {
+            Text(
+                text = "Week Comparison",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // This Week Card
+                GlassCard(modifier = Modifier.weight(1f)) {
+                    Column {
+                        Text(
+                            text = "This Week",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "$thisWeekCalories",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Blue500
+                        )
+                        Text(
+                            text = "kcal total",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Avg: $thisWeekAvg kcal/day",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+                
+                // Target vs Actual Card
+                GlassCard(modifier = Modifier.weight(1f)) {
+                    Column {
+                        Text(
+                            text = "vs Target",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val diff = thisWeekAvg - targetCalories
+                        val diffText = if (diff >= 0) "+$diff" else "$diff"
+                        val diffColor = when {
+                            diff > 200 -> Pink500
+                            diff < -200 -> Peach400
+                            else -> Green500
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = diffText,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Black,
+                                color = diffColor
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                if (diff <= 0) Icons.Default.TrendingDown else Icons.Default.TrendingUp,
+                                contentDescription = null,
+                                tint = diffColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Text(
+                            text = "kcal/day",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (diff <= 0) "On Track! 🎯" else "Over target",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = diffColor
+                        )
+                    }
+                }
+            }
+        }
 
-        // Summary Section
+        // Goal Progress Section
         item {
             Text(stringResource(R.string.stats_goal_progress), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
@@ -196,21 +363,27 @@ fun StatisticsScreen(
                     Text(stringResource(R.string.stats_target_weight), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("${weightGoal.toInt()} kg", fontSize = 20.sp, fontWeight = FontWeight.Black)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Current: ${currentWeight.toInt()} kg",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
-                    // Calculate progress: how close current weight is to goal
-                    val progress = if (currentWeight > weightGoal) {
-                        // Losing weight: progress = how much lost / total to lose
-                        val totalToLose = currentWeight - weightGoal
-                        ((currentWeight - currentWeight) / totalToLose).coerceIn(0f, 1f)
-                    } else if (currentWeight < weightGoal) {
-                        // Gaining weight: progress = how much gained / total to gain
-                        val totalToGain = weightGoal - currentWeight
-                        ((currentWeight - currentWeight) / totalToGain).coerceIn(0f, 1f)
-                    } else {
-                        1f // Already at goal!
+                    // Calculate progress
+                    val progress = when {
+                        currentWeight == weightGoal -> 1f
+                        currentWeight > weightGoal -> {
+                            val diff = currentWeight - weightGoal
+                            (1 - (diff / 20f)).coerceIn(0.1f, 0.9f) // Scale for reasonable display
+                        }
+                        else -> {
+                            val diff = weightGoal - currentWeight
+                            (1 - (diff / 20f)).coerceIn(0.1f, 0.9f)
+                        }
                     }
                     LinearProgressIndicator(
-                        progress = { if (currentWeight == weightGoal) 1f else 0.5f },
+                        progress = { progress },
                         modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
                         color = Blue500,
                         trackColor = Blue500.copy(alpha = 0.1f)
@@ -222,6 +395,12 @@ fun StatisticsScreen(
                     Text(stringResource(R.string.stats_active_streak), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(stringResource(R.string.stats_days_count, loggingStreak), fontSize = 20.sp, fontWeight = FontWeight.Black, color = Peach400)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (loggingStreak >= 7) "🔥 Great job!" else "Keep going!",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     Icon(Icons.Default.MilitaryTech, contentDescription = null, tint = Peach400, modifier = Modifier.size(24.dp))
                 }
