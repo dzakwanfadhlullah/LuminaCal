@@ -141,6 +141,24 @@ fun HealthMetricsScreen(
             )
         }
         
+        // BMI Display Card
+        item {
+            BmiDisplayCard(
+                bmi = healthMetrics.bmi,
+                category = healthMetrics.bmiCategory
+            )
+        }
+        
+        // Estimated Time to Goal Card
+        item {
+            TimeToGoalCard(
+                currentWeight = healthMetrics.weight,
+                targetWeight = healthMetrics.targetWeight,
+                weeksToGoal = healthMetrics.estimatedWeeksToGoal,
+                fitnessGoal = healthMetrics.fitnessGoal
+            )
+        }
+        
         // BMI Warning Banner (if applicable)
         bmiValidation.warningMessage?.let { warning ->
             item {
@@ -437,6 +455,230 @@ fun MacroInfo(label: String, value: String, color: Color) {
             fontSize = 10.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
+    }
+}
+
+@Composable
+fun BmiDisplayCard(
+    bmi: Float,
+    category: com.example.luminacal.model.BmiCategory
+) {
+    val categoryColor = Color(category.colorHex)
+    
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Body Mass Index",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Surface(
+                    color = categoryColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = category.label,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        color = categoryColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // BMI Value Display
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = String.format("%.1f", bmi),
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Black,
+                    color = categoryColor
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "kg/m²",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // BMI Scale Visual
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+            ) {
+                Box(modifier = Modifier.weight(18.5f).fillMaxHeight().background(Color(0xFF3B82F6))) // Underweight
+                Box(modifier = Modifier.weight(6.5f).fillMaxHeight().background(Color(0xFF22C55E)))  // Normal
+                Box(modifier = Modifier.weight(5f).fillMaxHeight().background(Color(0xFFF59E0B)))    // Overweight
+                Box(modifier = Modifier.weight(10f).fillMaxHeight().background(Color(0xFFEF4444)))   // Obese
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("< 18.5", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+                Text("18.5-25", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+                Text("25-30", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+                Text("> 30", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+            }
+        }
+    }
+}
+
+@Composable
+fun TimeToGoalCard(
+    currentWeight: Float,
+    targetWeight: Float,
+    weeksToGoal: Int?,
+    fitnessGoal: com.example.luminacal.model.FitnessGoal
+) {
+    val weightDiff = targetWeight - currentWeight
+    val isLosing = weightDiff < 0
+    val diffAbs = kotlin.math.abs(weightDiff)
+    
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Goal Timeline",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    Icons.Default.Timer,
+                    contentDescription = null,
+                    tint = Peach400,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Weight journey visualization
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "${currentWeight.toInt()}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Current",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+                
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        if (isLosing) Icons.Default.TrendingDown else Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        tint = if (isLosing) Green500 else Blue500,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text(
+                        text = "${if (isLosing) "-" else "+"}${String.format("%.1f", diffAbs)} kg",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isLosing) Green500 else Blue500
+                    )
+                }
+                
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "${targetWeight.toInt()}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Peach400
+                    )
+                    Text(
+                        text = "Target",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Timeline estimate
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Peach400.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.CalendarMonth,
+                        contentDescription = null,
+                        tint = Peach400,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    when {
+                        weeksToGoal == 0 -> {
+                            Text(
+                                text = "🎉 You've reached your goal!",
+                                fontWeight = FontWeight.Medium,
+                                color = Green500
+                            )
+                        }
+                        weeksToGoal == null -> {
+                            Text(
+                                text = "Set a weight loss/gain goal to see timeline",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                        else -> {
+                            Text(
+                                text = "Estimated: ~$weeksToGoal weeks (${weeksToGoal / 4} months)",
+                                fontWeight = FontWeight.Medium,
+                                color = Peach400
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

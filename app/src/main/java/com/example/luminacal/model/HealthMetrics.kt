@@ -1,6 +1,7 @@
 package com.example.luminacal.model
 
 import com.example.luminacal.R
+import kotlin.math.abs
 
 enum class Gender {
     MALE, FEMALE, OTHER
@@ -20,6 +21,16 @@ enum class FitnessGoal(val calorieAdjustment: Int, val labelResId: Int) {
     GAIN_MUSCLE(300, R.string.goal_gain_muscle)
 }
 
+/**
+ * BMI Category based on WHO classification
+ */
+enum class BmiCategory(val label: String, val colorHex: Long) {
+    UNDERWEIGHT("Underweight", 0xFF3B82F6),    // Blue
+    NORMAL("Normal", 0xFF22C55E),               // Green
+    OVERWEIGHT("Overweight", 0xFFF59E0B),       // Amber
+    OBESE("Obese", 0xFFEF4444)                  // Red
+}
+
 data class HealthMetrics(
     val userName: String = "User",
     val weight: Float = 70f,       // kg - current weight
@@ -34,6 +45,38 @@ data class HealthMetrics(
     // Avatar seed based on user name for consistent avatar
     val avatarSeed: String
         get() = userName.replace(" ", "").take(10)
+    
+    // BMI Calculation: weight(kg) / height(m)²
+    val bmi: Float
+        get() {
+            val heightInMeters = height / 100f
+            return if (heightInMeters > 0) weight / (heightInMeters * heightInMeters) else 0f
+        }
+    
+    // BMI Category based on WHO classification
+    val bmiCategory: BmiCategory
+        get() = when {
+            bmi < 18.5f -> BmiCategory.UNDERWEIGHT
+            bmi < 25f -> BmiCategory.NORMAL
+            bmi < 30f -> BmiCategory.OVERWEIGHT
+            else -> BmiCategory.OBESE
+        }
+    
+    // Estimated weeks to reach target weight
+    // Based on: 1kg = 7700 calories, deficit/surplus from fitness goal
+    val estimatedWeeksToGoal: Int?
+        get() {
+            val weightDifference = abs(targetWeight - weight)
+            if (weightDifference < 0.5f) return 0 // Already at goal
+            
+            val weeklyCalorieChange = abs(fitnessGoal.calorieAdjustment) * 7
+            if (weeklyCalorieChange == 0) return null // Maintaining, no timeline
+            
+            // 1kg = ~7700 calories
+            val caloriesPerKg = 7700
+            val weeksPerKg = caloriesPerKg.toFloat() / weeklyCalorieChange
+            return (weightDifference * weeksPerKg).toInt().coerceAtLeast(1)
+        }
     
     // BMR using Mifflin-St Jeor equation
     val bmr: Int
