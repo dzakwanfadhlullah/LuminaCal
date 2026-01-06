@@ -20,6 +20,35 @@ data class WeightTrend(
     val weeklyChange: Float? // positive = gained, negative = lost
 )
 
+/**
+ * Weight statistics for the statistics screen
+ */
+data class WeightStats(
+    val weeklyAverage: Float?,
+    val monthlyAverage: Float?,
+    val minWeight: Float?,
+    val maxWeight: Float?,
+    val totalChange: Float?, // from first to last entry
+    val milestone: WeightMilestone? // active milestone if any
+)
+
+/**
+ * Weight milestones for celebrations
+ */
+data class WeightMilestone(
+    val type: MilestoneType,
+    val kilosLost: Float
+)
+
+enum class MilestoneType(val label: String, val emoji: String) {
+    ONE_KG("1 kg lost!", "🎉"),
+    THREE_KG("3 kg lost!", "🌟"),
+    FIVE_KG("5 kg lost!", "🔥"),
+    TEN_KG("10 kg lost!", "🏆"),
+    FIFTEEN_KG("15 kg lost!", "💪"),
+    TWENTY_KG("20 kg lost!", "👑")
+}
+
 class WeightRepository(private val dao: WeightDao) {
 
     companion object {
@@ -58,6 +87,74 @@ class WeightRepository(private val dao: WeightDao) {
             Log.e(TAG, "Error calculating weekly trend", e)
             emit(WeightTrend(null, null, null))
         }
+    
+    /**
+     * Weight statistics including weekly/monthly average, min/max, and milestones
+     */
+    val weightStats: Flow<WeightStats> = dao.getAllWeights()
+        .map { weights ->
+            if (weights.isEmpty()) {
+                WeightStats(null, null, null, null, null, null)
+            } else {
+                val now = System.currentTimeMillis()
+                val oneWeekAgo = now - (7 * 24 * 60 * 60 * 1000L)
+                val oneMonthAgo = now - (30 * 24 * 60 * 60 * 1000L)
+                
+                // Calculate weekly average
+                val weeklyWeights = weights.filter { it.date >= oneWeekAgo }
+                val weeklyAvg = if (weeklyWeights.isNotEmpty()) 
+                    weeklyWeights.map { it.weightKg }.average().toFloat() 
+                else null
+                
+                // Calculate monthly average
+                val monthlyWeights = weights.filter { it.date >= oneMonthAgo }
+                val monthlyAvg = if (monthlyWeights.isNotEmpty()) 
+                    monthlyWeights.map { it.weightKg }.average().toFloat() 
+                else null
+                
+                // Min/Max
+                val allWeightValues = weights.map { it.weightKg }
+                val minW = allWeightValues.minOrNull()
+                val maxW = allWeightValues.maxOrNull()
+                
+                // Total change (first recorded to latest)
+                val oldest = weights.lastOrNull()?.weightKg
+                val newest = weights.firstOrNull()?.weightKg
+                val totalChange = if (oldest != null && newest != null) newest - oldest else null
+                
+                // Milestone detection
+                val milestone = detectMilestone(oldest, newest)
+                
+                WeightStats(
+                    weeklyAverage = weeklyAvg,
+                    monthlyAverage = monthlyAvg,
+                    minWeight = minW,
+                    maxWeight = maxW,
+                    totalChange = totalChange,
+                    milestone = milestone
+                )
+            }
+        }
+        .catch { e ->
+            Log.e(TAG, "Error calculating weight stats", e)
+            emit(WeightStats(null, null, null, null, null, null))
+        }
+    
+    private fun detectMilestone(startWeight: Float?, currentWeight: Float?): WeightMilestone? {
+        if (startWeight == null || currentWeight == null) return null
+        val lost = startWeight - currentWeight
+        if (lost <= 0) return null
+        
+        return when {
+            lost >= 20 -> WeightMilestone(MilestoneType.TWENTY_KG, lost)
+            lost >= 15 -> WeightMilestone(MilestoneType.FIFTEEN_KG, lost)
+            lost >= 10 -> WeightMilestone(MilestoneType.TEN_KG, lost)
+            lost >= 5 -> WeightMilestone(MilestoneType.FIVE_KG, lost)
+            lost >= 3 -> WeightMilestone(MilestoneType.THREE_KG, lost)
+            lost >= 1 -> WeightMilestone(MilestoneType.ONE_KG, lost)
+            else -> null
+        }
+    }
 
     suspend fun addWeight(weightKg: Float, note: String? = null): Result<Unit> {
         // Pre-insert validation

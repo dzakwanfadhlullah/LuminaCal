@@ -12,6 +12,7 @@ import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.data.repository.WaterRepository
 import com.example.luminacal.data.repository.WeightRepository
 import com.example.luminacal.data.repository.WeightEntry
+import com.example.luminacal.data.repository.WeightStats
 import com.example.luminacal.data.repository.WeightTrend
 import com.example.luminacal.model.*
 import com.example.luminacal.util.AppPreferences
@@ -32,6 +33,7 @@ data class LuminaCalState(
     val water: WaterState = WaterState(),
     val weightHistory: List<WeightEntry> = emptyList(),
     val weightTrend: WeightTrend = WeightTrend(null, null, null),
+    val weightStats: WeightStats = WeightStats(null, null, null, null, null, null),
     val weeklyCalories: List<DailyCalories> = emptyList(),
     val weightPoints: List<WeightPoint> = emptyList(),
     val loggingStreak: Int = 0,
@@ -175,6 +177,15 @@ class MainViewModel(
             val streak = mealRepository.getLoggingStreak()
             _uiState.update { state ->
                 state.copy(loggingStreak = streak)
+            }
+        }
+        
+        // Load weight stats (weekly/monthly averages, milestones)
+        viewModelScope.launch(exceptionHandler) {
+            weightRepository.weightStats.collect { stats ->
+                _uiState.update { state ->
+                    state.copy(weightStats = stats)
+                }
             }
         }
     }

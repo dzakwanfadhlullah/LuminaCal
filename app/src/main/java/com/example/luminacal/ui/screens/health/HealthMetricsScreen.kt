@@ -927,3 +927,186 @@ fun FitnessGoalSelector(
         }
     }
 }
+
+/**
+ * Weight statistics card showing weekly/monthly averages and min/max
+ */
+@Composable
+fun WeightStatsCard(
+    stats: com.example.luminacal.data.repository.WeightStats
+) {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Weight Statistics",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Weekly Average
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stats.weeklyAverage?.let { String.format("%.1f", it) } ?: "--",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue500
+                    )
+                    Text(
+                        text = "Weekly Avg",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+                
+                // Monthly Average
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stats.monthlyAverage?.let { String.format("%.1f", it) } ?: "--",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Green500
+                    )
+                    Text(
+                        text = "Monthly Avg",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Min/Max Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.ArrowDownward,
+                            contentDescription = null,
+                            tint = Green500,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stats.minWeight?.let { String.format("%.1f kg", it) } ?: "--",
+                            fontWeight = FontWeight.Bold,
+                            color = Green500
+                        )
+                    }
+                    Text(
+                        text = "Lowest",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+                
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.ArrowUpward,
+                            contentDescription = null,
+                            tint = Pink500,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stats.maxWeight?.let { String.format("%.1f kg", it) } ?: "--",
+                            fontWeight = FontWeight.Bold,
+                            color = Pink500
+                        )
+                    }
+                    Text(
+                        text = "Highest",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+                
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val change = stats.totalChange
+                    Text(
+                        text = change?.let { "${if (it >= 0) "+" else ""}${String.format("%.1f", it)} kg" } ?: "--",
+                        fontWeight = FontWeight.Bold,
+                        color = if ((change ?: 0f) <= 0) Green500 else Pink500
+                    )
+                    Text(
+                        text = "Total Change",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Milestone celebration card for weight loss achievements
+ */
+@Composable
+fun MilestoneCelebrationCard(
+    milestone: com.example.luminacal.data.repository.WeightMilestone
+) {
+    val gradientColors = listOf(
+        Color(0xFFFFD700),
+        Color(0xFFFFA500)
+    )
+    
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Transparent
+    ) {
+        Box(
+            modifier = Modifier
+                .background(Brush.horizontalGradient(gradientColors))
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "🎉 Achievement Unlocked!",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = milestone.type.label,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Total: ${String.format("%.1f", milestone.kilosLost)} kg lost",
+                        fontSize = 12.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                }
+                
+                Text(
+                    text = milestone.type.emoji,
+                    fontSize = 48.sp
+                )
+            }
+        }
+    }
+}
+
