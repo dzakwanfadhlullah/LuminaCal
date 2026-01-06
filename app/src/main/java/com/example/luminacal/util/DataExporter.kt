@@ -75,6 +75,7 @@ class DataExporter(private val context: Context) {
 
             // Health Metrics
             put("healthMetrics", JSONObject().apply {
+                put("userName", health.userName)
                 put("weight", health.weight)
                 put("height", health.height)
                 put("age", health.age)
@@ -83,6 +84,7 @@ class DataExporter(private val context: Context) {
                 put("fitnessGoal", health.fitnessGoal.name)
                 put("targetCalories", health.targetCalories)
                 put("targetWeight", health.targetWeight ?: JSONObject.NULL)
+                put("waterTargetMl", health.waterTargetMl)
             })
 
             // Meals
@@ -91,6 +93,7 @@ class DataExporter(private val context: Context) {
                     put(JSONObject().apply {
                         put("id", meal.id)
                         put("name", meal.name)
+                        put("time", meal.time)
                         put("date", meal.date)
                         put("calories", meal.calories)
                         put("protein", meal.protein)
@@ -138,6 +141,7 @@ class DataExporter(private val context: Context) {
                 put("isAutoBackup", true)
 
                 put("healthMetrics", JSONObject().apply {
+                    put("userName", health.userName)
                     put("weight", health.weight)
                     put("height", health.height)
                     put("age", health.age)
@@ -146,6 +150,7 @@ class DataExporter(private val context: Context) {
                     put("fitnessGoal", health.fitnessGoal.name)
                     put("targetCalories", health.targetCalories)
                     put("targetWeight", health.targetWeight ?: JSONObject.NULL)
+                    put("waterTargetMl", health.waterTargetMl)
                 })
 
                 put("meals", JSONArray().apply {
@@ -153,6 +158,7 @@ class DataExporter(private val context: Context) {
                         put(JSONObject().apply {
                             put("id", meal.id)
                             put("name", meal.name)
+                            put("time", meal.time)
                             put("date", meal.date)
                             put("calories", meal.calories)
                             put("protein", meal.protein)
