@@ -104,3 +104,44 @@ enum class ReminderAction(val action: String) {
     DISMISS("com.example.luminacal.DISMISS_REMINDER"),
     QUICK_LOG("com.example.luminacal.QUICK_LOG")
 }
+
+/**
+ * Notification preferences for user customization
+ */
+data class NotificationPreferences(
+    // Toggle each notification type
+    val mealRemindersEnabled: Boolean = true,
+    val dailySummaryEnabled: Boolean = true,
+    val weeklySummaryEnabled: Boolean = true,
+    val forgotToLogEnabled: Boolean = true,
+    val goalAchievementEnabled: Boolean = true,
+    val streakAchievementEnabled: Boolean = true,
+    val weightMilestoneEnabled: Boolean = true,
+    
+    // Quiet hours
+    val quietHoursEnabled: Boolean = false,
+    val quietHoursStart: Int = 22,  // 10 PM
+    val quietHoursEnd: Int = 7,     // 7 AM
+    
+    // Sound & vibration
+    val soundEnabled: Boolean = true,
+    val vibrationEnabled: Boolean = true
+) {
+    /**
+     * Check if current time is within quiet hours
+     */
+    fun isInQuietHours(): Boolean {
+        if (!quietHoursEnabled) return false
+        
+        val now = java.util.Calendar.getInstance()
+        val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
+        
+        return if (quietHoursStart > quietHoursEnd) {
+            // Quiet hours span midnight (e.g., 22:00 - 07:00)
+            currentHour >= quietHoursStart || currentHour < quietHoursEnd
+        } else {
+            // Normal range (e.g., 01:00 - 06:00)
+            currentHour in quietHoursStart until quietHoursEnd
+        }
+    }
+}
