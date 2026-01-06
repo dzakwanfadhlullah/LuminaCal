@@ -67,3 +67,57 @@ data class WaterState(
         }
     }
 }
+
+/**
+ * Hydration streak tracking
+ */
+data class HydrationStreak(
+    val currentStreak: Int = 0,
+    val longestStreak: Int = 0,
+    val lastGoalMetDate: Long? = null,
+    val streakProtectionUsed: Boolean = false  // one miss allowed
+) {
+    val hasActiveStreak: Boolean
+        get() = currentStreak > 0
+    
+    // Check if streak is at risk (last goal met was yesterday)
+    val isAtRisk: Boolean
+        get() {
+            if (lastGoalMetDate == null) return false
+            val daysSinceGoal = (System.currentTimeMillis() - lastGoalMetDate) / (24 * 60 * 60 * 1000)
+            return daysSinceGoal == 1L && !streakProtectionUsed
+        }
+    
+    // Get current achievement level
+    val currentAchievement: HydrationAchievement?
+        get() = HydrationAchievement.entries
+            .sortedByDescending { it.requiredDays }
+            .firstOrNull { currentStreak >= it.requiredDays }
+    
+    // Get next achievement to unlock
+    val nextAchievement: HydrationAchievement?
+        get() = HydrationAchievement.entries
+            .sortedBy { it.requiredDays }
+            .firstOrNull { currentStreak < it.requiredDays }
+    
+    // Days until next achievement
+    val daysToNextAchievement: Int?
+        get() = nextAchievement?.let { it.requiredDays - currentStreak }
+}
+
+/**
+ * Hydration achievement badges
+ */
+enum class HydrationAchievement(
+    val title: String,
+    val emoji: String,
+    val requiredDays: Int,
+    val description: String
+) {
+    HYDRATION_STARTER("Hydration Starter", "💧", 3, "3 day streak"),
+    HYDRATION_HERO("Hydration Hero", "🦸", 7, "7 day streak"),
+    WATER_WARRIOR("Water Warrior", "⚔️", 14, "14 day streak"),
+    WATER_CHAMPION("Water Champion", "🏆", 30, "30 day streak"),
+    HYDRATION_MASTER("Hydration Master", "👑", 60, "60 day streak"),
+    AQUA_LEGEND("Aqua Legend", "🌊", 100, "100 day streak")
+}
