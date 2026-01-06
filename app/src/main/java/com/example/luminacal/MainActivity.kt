@@ -56,8 +56,9 @@ class MainActivity : ComponentActivity() {
         val healthMetricsRepository = HealthMetricsRepository(database.healthMetricsDao())
         val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
         val weightRepository = com.example.luminacal.data.repository.WeightRepository(database.weightDao())
+        val customFoodRepository = com.example.luminacal.data.repository.CustomFoodRepository(database.customFoodDao())
         val appPreferences = com.example.luminacal.util.AppPreferences.getInstance(this)
-        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository, appPreferences)
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, appPreferences)
         
         // Check onboarding status
         val showOnboarding = !com.example.luminacal.util.OnboardingPrefs.isOnboardingComplete(this)
@@ -168,6 +169,8 @@ fun MainContent(
                                 healthMetrics = state.healthMetrics,
                                 history = state.history,
                                 waterState = state.water,
+                                loggingStreak = state.loggingStreak,
+                                weeklyCalories = state.weeklyCalories,
                                 onAddWater = { amount -> viewModel.addWater(amount) },
                                 onLogClick = { entry ->
                                     navController.navigate(Screen.FoodDetail.route)
@@ -210,6 +213,13 @@ fun MainContent(
                                 },
                                 onManualAdd = { name, calories, macros, type ->
                                     viewModel.addFood(name, calories, macros, type)
+                                },
+                                customFoods = state.customFoods,
+                                onSaveCustomFood = { name, cals, protein, carbs, fat, serving ->
+                                    viewModel.saveCustomFood(name, cals, protein, carbs, fat, serving)
+                                },
+                                onDeleteCustomFood = { id ->
+                                    viewModel.deleteCustomFood(id)
                                 }
                             )
                         }

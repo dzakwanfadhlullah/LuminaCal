@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.luminacal.data.local.MealEntity
+import com.example.luminacal.data.local.CustomFoodEntity
+import com.example.luminacal.data.repository.CustomFoodRepository
 import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.data.repository.WaterRepository
@@ -30,9 +32,11 @@ data class LuminaCalState(
     val water: WaterState = WaterState(),
     val weightHistory: List<WeightEntry> = emptyList(),
     val weightTrend: WeightTrend = WeightTrend(null, null, null),
-    val weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories> = emptyList(),
-    val weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint> = emptyList(),
-    val loggingStreak: Int = 0
+    val weeklyCalories: List<DailyCalories> = emptyList(),
+    val weightPoints: List<WeightPoint> = emptyList(),
+    val loggingStreak: Int = 0,
+    val customFoods: List<CustomFoodEntity> = emptyList(),
+    val recentCustomFoods: List<CustomFoodEntity> = emptyList()
 )
 
 class MainViewModel(
@@ -40,6 +44,7 @@ class MainViewModel(
     private val healthMetricsRepository: HealthMetricsRepository,
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository,
+    private val customFoodRepository: CustomFoodRepository,
     private val appPreferences: AppPreferences
 ) : ViewModel() {
     
@@ -82,7 +87,7 @@ class MainViewModel(
                 )
 
                 // Calculate weekly calories
-                val weekly = mutableListOf<com.example.luminacal.ui.components.charts.DailyCalories>()
+                val weekly = mutableListOf<DailyCalories>()
                 val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
                 
                 for (i in 6 downTo 0) {
@@ -95,7 +100,7 @@ class MainViewModel(
                     
                     val dayCalories = meals.filter { it.date in start..end }.sumOf { it.calories }
                     weekly.add(
-                        com.example.luminacal.ui.components.charts.DailyCalories(
+                        DailyCalories(
                             day = sdf.format(cal.time),
                             calories = dayCalories.toFloat(),
                             target = _uiState.value.healthMetrics.targetCalories.toFloat()
@@ -142,7 +147,7 @@ class MainViewModel(
         viewModelScope.launch(exceptionHandler) {
             weightRepository.allWeights.collect { weights ->
                 val points = weights.take(30).reversed().map {
-                    com.example.luminacal.ui.components.charts.WeightPoint(
+                    WeightPoint(
                         date = "", // We'll just use index for now in chart
                         weight = it.weightKg
                     )
@@ -325,18 +330,66 @@ class MainViewModel(
         macros = Macros(protein, carbs, fat),
         type = type
     )
+    
+    // ============== CUSTOM FOODS ==============
+    
+    init {
+        // Load custom foods
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.allCustomFoods.collect { foods ->
+                _uiState.update { it.copy(customFoods = foods) }
+            }
+        }
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.getRecentFoods(5).collect { foods ->
+                _uiState.update { it.copy(recentCustomFoods = foods) }
+            }
+        }
+    }
+    
+    fun saveCustomFood(
+        name: String,
+        calories: Int,
+        protein: Int,
+        carbs: Int,
+        fat: Int,
+        servingSize: String = "1 serving"
+    ) {
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.saveCustomFood(name, calories, protein, carbs, fat, servingSize)
+        }
+    }
+    
+    fun deleteCustomFood(id: Long) {
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.deleteCustomFood(id)
+        }
+    }
+    
+    fun toggleCustomFoodFavorite(id: Long) {
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.toggleFavorite(id)
+        }
+    }
+    
+    fun incrementCustomFoodUseCount(id: Long) {
+        viewModelScope.launch(exceptionHandler) {
+            customFoodRepository.incrementUseCount(id)
+        }
+    }
 
     class Factory(
         private val mealRepository: MealRepository,
         private val healthMetricsRepository: HealthMetricsRepository,
         private val waterRepository: WaterRepository,
         private val weightRepository: WeightRepository,
+        private val customFoodRepository: CustomFoodRepository,
         private val appPreferences: AppPreferences
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository, appPreferences) as T
+                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, appPreferences) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

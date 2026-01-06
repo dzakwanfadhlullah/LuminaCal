@@ -94,76 +94,31 @@ Priority: CRITICAL — NO MORE DUMMY DATA
                               REMAINING PHASES
 ================================================================================
 
-PHASE 3.2: CUSTOM FOOD ENTRY SYSTEM
+PHASE 3.2: CUSTOM FOOD ENTRY SYSTEM (COMPLETED)
 ------------------------------------------------------------------------------
-Priority: HIGH
-Estimated: 2-3 days
+Priority: HIGH — DONE!
 
-  [ ] Database Layer
-      - Create CustomFoodEntity.kt
-        * id: Long (PrimaryKey, autoGenerate)
-        * name: String
-        * calories: Int
-        * protein: Int
-        * carbs: Int
-        * fat: Int
-        * servingSize: String
-        * isFavorite: Boolean
-        * lastUsed: Long (timestamp)
-        * useCount: Int
+  [x] Database Layer
+      - Created CustomFoodEntity.kt with all fields
+      - Created CustomFoodDao.kt with CRUD, favorites, recent, search
+      - Updated LuminaDatabase.kt (version 6)
 
-      - Create CustomFoodDao.kt
-        * insertFood(food: CustomFoodEntity)
-        * updateFood(food: CustomFoodEntity)
-        * deleteFood(id: Long)
-        * getAllCustomFoods(): Flow<List<CustomFoodEntity>>
-        * getRecentFoods(limit: Int): Flow<List<CustomFoodEntity>>
-        * getFavoriteFoods(): Flow<List<CustomFoodEntity>>
-        * toggleFavorite(id: Long)
-        * incrementUseCount(id: Long)
+  [x] Repository Layer
+      - Created CustomFoodRepository.kt with full business logic
 
-      - Update LuminaDatabase.kt
-        * Add CustomFoodEntity to entities array
-        * Increment database version
-        * Add customFoodDao() abstract function
+  [x] ViewModel Updates
+      - Added customFoods and recentCustomFoods to LuminaCalState
+      - Added saveCustomFood, deleteCustomFood, toggleFavorite functions
 
-  [ ] Repository Layer
-      - Create CustomFoodRepository.kt
-        * Wrapper around CustomFoodDao
-        * Combine database foods + custom foods for unified search
-        * Handle favorite persistence logic
+  [x] UI Components
+      - Created AddCustomFoodDialog.kt with form validation
+      - Added "My Foods" tab to ExploreScreen categories
+      - Added FAB for adding custom foods
+      - Custom foods display in unified recipe grid
 
-  [ ] ViewModel Updates
-      - Add to MainViewModel.kt:
-        * customFoods: StateFlow<List<CustomFood>>
-        * recentFoods: StateFlow<List<CustomFood>>
-        * favoriteFoods: StateFlow<List<CustomFood>>
-        * saveCustomFood(name, calories, protein, carbs, fat, serving)
-        * updateCustomFood(id, ...)
-        * deleteCustomFood(id)
-        * toggleFoodFavorite(id)
-
-  [ ] UI Components
-      - Create CustomFoodDialog.kt
-        * Input fields: Name, Calories, Protein, Carbs, Fat, Serving Size
-        * Form validation (required fields, number validation)
-        * Save / Cancel buttons
-        * Edit mode support
-
-      - Update ExploreScreen.kt
-        * Add "My Foods" tab in category filter
-        * Show custom foods with edit/delete options
-        * Add floating action button for "Add Custom Food"
-
-      - Update Recipe/Food Cards
-        * Add favorite (heart) icon toggle
-        * Show "Custom" badge for user-added foods
-        * Add swipe-to-delete gesture
-
-  [ ] Recent Foods Feature
-      - Add "Recent" section at top of Explore
-      - Show last 5-10 logged foods
-      - Quick-add with one tap
+  [x] Integration
+      - MainActivity wired up with all callbacks
+      - Custom foods persist to Room database
 
 PHASE 4: DASHBOARD & STATISTICS POLISH
 ------------------------------------------------------------------------------

@@ -34,14 +34,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.example.luminacal.R
+import com.example.luminacal.model.DailyCalories
+import com.example.luminacal.model.Macros
+import com.example.luminacal.model.WeightPoint
 import com.example.luminacal.ui.components.GlassCard
+import com.example.luminacal.ui.components.charts.MacroDistributionChart
+import com.example.luminacal.ui.components.charts.WeeklyCalorieChart
+import com.example.luminacal.ui.components.charts.WeightProgressChart
 import com.example.luminacal.ui.theme.*
 
 @Composable
 fun StatisticsScreen(
-    weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories>,
-    weightPoints: List<com.example.luminacal.ui.components.charts.WeightPoint>,
-    macros: com.example.luminacal.model.Macros,
+    weeklyCalories: List<DailyCalories>,
+    weightPoints: List<WeightPoint>,
+    macros: Macros,
     currentWeight: Float,
     weightGoal: Float,
     loggingStreak: Int
@@ -113,7 +119,7 @@ fun StatisticsScreen(
                                 Text(stringResource(R.string.stats_avg_kcal, (weeklyCalories.map { it.calories }.average().toInt())), fontSize = 12.sp, color = Blue500)
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            com.example.luminacal.ui.components.charts.WeeklyCalorieChart(
+                            WeeklyCalorieChart(
                                 data = weeklyCalories,
                                 modifier = Modifier.height(200.dp).fillMaxWidth()
                             )
@@ -147,7 +153,7 @@ fun StatisticsScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            com.example.luminacal.ui.components.charts.WeightProgressChart(
+                            WeightProgressChart(
                                 data = weightPoints,
                                 modifier = Modifier.height(200.dp).fillMaxWidth()
                             )
@@ -157,7 +163,7 @@ fun StatisticsScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(stringResource(R.string.stats_today_macros), fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
                             Spacer(modifier = Modifier.height(24.dp))
-                            com.example.luminacal.ui.components.charts.MacroDistributionChart(
+                            MacroDistributionChart(
                                 protein = macros.protein,
                                 carbs = macros.carbs,
                                 fat = macros.fat,

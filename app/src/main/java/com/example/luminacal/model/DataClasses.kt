@@ -40,3 +40,20 @@ data class ScanResult(
     val macros: Macros,
     val ingredients: List<String>
 )
+
+/**
+ * Data point for weekly calorie chart
+ */
+data class DailyCalories(
+    val day: String,
+    val calories: Float,
+    val target: Float
+)
+
+/**
+ * Data point for weight chart
+ */
+data class WeightPoint(
+    val date: String,
+    val weight: Float
+)

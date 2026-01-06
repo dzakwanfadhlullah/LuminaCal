@@ -35,6 +35,7 @@ import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
 import com.example.luminacal.model.WaterState
 import com.example.luminacal.ui.components.*
+import com.example.luminacal.ui.components.charts.WeeklyCalorieChart
 import com.example.luminacal.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +48,8 @@ fun DashboardScreen(
     history: List<HistoryEntry>,
     waterState: WaterState,
     loggingStreak: Int = 0,
-    weeklyCalories: List<com.example.luminacal.model.DailyCalories> = emptyList(),
+    weeklyCalories: List<com.example.luminacal.ui.components.charts.DailyCalories> = emptyList(),
+    onRefresh: () -> Unit = {},
     onAddWater: (Int) -> Unit,
     onLogClick: (HistoryEntry) -> Unit,
     onDeleteMeal: (HistoryEntry) -> Unit = {},
@@ -74,18 +76,18 @@ fun DashboardScreen(
         lastWaterMet = isWaterGoalMet
     }
     
-    // Show loading indicator
-    if (isLoading) {
+    // Show full-screen skeleton only on initial load when no data is available
+    if (isLoading && history.isEmpty() && weeklyCalories.isEmpty()) {
         DashboardSkeleton()
         return
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp, start = 16.dp, end = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
         // Header
         item {
             Row(
@@ -151,6 +153,43 @@ fun DashboardScreen(
             }
         }
 
+        // Weekly Trend Mini Chart
+        if (weeklyCalories.isNotEmpty()) {
+            item {
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onViewAllClick
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Weekly Trend",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                contentDescription = null,
+                                tint = Blue500,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Box(modifier = Modifier.fillMaxWidth().height(80.dp)) {
+                            WeeklyCalorieChart(
+                                data = weeklyCalories,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         // Main Ring Card
         item {
             GlassCard(modifier = Modifier.fillMaxWidth()) {
@@ -199,15 +238,22 @@ fun DashboardScreen(
                     AppleRing(
                         progress = calorieState.consumed.toFloat() / calorieState.target,
                         labelProvider = {
-                            AnimatedNumber(
-                                value = calorieState.target - calorieState.consumed,
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                AnimatedNumber(
+                                    value = (calorieState.target - calorieState.consumed).coerceAtLeast(0),
+                                    fontSize = 48.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "kcal remaining",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                            }
                         },
-                        subLabel = stringResource(R.string.dashboard_remaining),
+                        subLabel = if (consumedPercent > 0) "${(consumedPercent * 100).toInt()}% of goal" else "0% of goal",
                         icon = Icons.Default.Whatshot,
-                        color = Color(0xFFFFB88C)
+                        color = if (consumedPercent > 1f) Color(0xFFEF4444) else Color(0xFFFFB88C)
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
@@ -265,18 +311,7 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(top = 16.dp)
                             )
                         } else {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                        // Weekly Trend Chart Integration
-                        if (weeklyCalories.isNotEmpty()) {
-                            com.example.luminacal.ui.components.charts.WeeklyCalorieChart(
-                                data = weeklyCalories,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                            Spacer(modifier = Modifier.height(0.dp))
                         }
                     }
                 }
@@ -469,5 +504,4 @@ fun DashboardScreen(
         isVisible = showCelebration,
         onFinished = { showCelebration = false }
     )
-}
 }

@@ -18,24 +18,9 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.luminacal.model.DailyCalories
+import com.example.luminacal.model.WeightPoint
 import com.example.luminacal.ui.theme.*
-
-/**
- * Data point for weekly calorie chart
- */
-data class DailyCalories(
-    val day: String,
-    val calories: Float,
-    val target: Float
-)
-
-/**
- * Data point for weight chart
- */
-data class WeightPoint(
-    val date: String,
-    val weight: Float
-)
 
 /**
  * Weekly Calorie Bar Chart

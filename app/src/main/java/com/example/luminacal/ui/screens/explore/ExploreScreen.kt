@@ -44,6 +44,8 @@ import com.example.luminacal.ui.theme.*
 import androidx.compose.ui.res.stringResource
 import com.example.luminacal.R
 import com.example.luminacal.data.ml.FoodNutritionDatabase
+import com.example.luminacal.data.local.CustomFoodEntity
+import com.example.luminacal.ui.components.AddCustomFoodDialog
 import com.example.luminacal.viewmodel.MainViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -52,15 +54,19 @@ fun ExploreScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onFoodClick: (Recipe) -> Unit,
-    onManualAdd: (String, Int, Macros, MealType) -> Unit = { _, _, _, _ -> }
+    onManualAdd: (String, Int, Macros, MealType) -> Unit = { _, _, _, _ -> },
+    customFoods: List<CustomFoodEntity> = emptyList(),
+    onSaveCustomFood: (String, Int, Int, Int, Int, String) -> Unit = { _, _, _, _, _, _ -> },
+    onDeleteCustomFood: (Long) -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
     var maxCaloriesFilter by remember { mutableStateOf<Int?>(null) }
-    val categories = listOf("All", "Indonesian", "FastFood", "Drinks", "Snacks", "Breakfast")
+    val categories = listOf("All", "My Foods", "Indonesian", "FastFood", "Drinks", "Snacks", "Breakfast")
     val calorieFilters = listOf("All" to null, "< 300" to 300, "< 500" to 500)
     var showManualEntry by remember { mutableStateOf(false) }
+    var showAddCustomFood by remember { mutableStateOf(false) }
     
     // Convert NutritionInfo from database to Recipe for display
     val allRecipes = remember {
@@ -88,17 +94,46 @@ fun ExploreScreen(
             )
         }
     }
+    
+    // Convert custom foods to Recipe format for unified display
+    val customRecipes = remember(customFoods) {
+        customFoods.map { food ->
+            Recipe(
+                name = food.name,
+                calories = "${food.calories} kcal",
+                time = food.servingSize,
+                category = "My Foods",
+                imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800" // Default food image
+            )
+        }
+    }
 
-    val recipes = remember(selectedCategory, searchQuery, maxCaloriesFilter, allRecipes) {
+    val recipes = remember(selectedCategory, searchQuery, maxCaloriesFilter, allRecipes, customRecipes) {
         val maxCal = maxCaloriesFilter
-        allRecipes.filter { recipe ->
-            val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
+        val allFoods = if (selectedCategory == "My Foods") {
+            customRecipes
+        } else {
+            allRecipes + customRecipes
+        }
+        allFoods.filter { recipe ->
+            val matchesCategory = selectedCategory == "All" || selectedCategory == "My Foods" || recipe.category == selectedCategory
             val matchesSearch = searchQuery.isEmpty() || 
                 recipe.name.contains(searchQuery, ignoreCase = true)
             val recipeCalories = recipe.calories.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
             val matchesCalories = maxCal == null || recipeCalories < maxCal
             matchesCategory && matchesSearch && matchesCalories
         }.sortedBy { it.name }
+    }
+    
+    // Show Add Custom Food Dialog
+    if (showAddCustomFood) {
+        AddCustomFoodDialog(
+            onDismiss = { showAddCustomFood = false },
+            onSave = { name, cals, protein, carbs, fat, serving ->
+                onSaveCustomFood(name, cals, protein, carbs, fat, serving)
+                showAddCustomFood = false
+            }
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -305,6 +340,19 @@ fun ExploreScreen(
             shape = CircleShape
         ) {
             Icon(Icons.Default.Edit, contentDescription = "Manual Entry")
+        }
+        
+        // FAB for adding custom foods
+        FloatingActionButton(
+            onClick = { showAddCustomFood = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 188.dp, end = 24.dp),
+            containerColor = Peach400,
+            contentColor = Color.White,
+            shape = CircleShape
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Custom Food")
         }
     }
 
