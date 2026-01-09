@@ -193,7 +193,12 @@ fun MainContent(
                                 macros = state.macros,
                                 currentWeight = state.healthMetrics.weight,
                                 weightGoal = state.healthMetrics.targetWeight,
-                                loggingStreak = state.loggingStreak
+                                loggingStreak = state.loggingStreak,
+                                onDateRangeChange = { range ->
+                                    val calories = viewModel.getCaloriesByDateRange(range)
+                                    val weights = viewModel.getWeightsByDateRange(range)
+                                    Pair(calories, weights)
+                                }
                             )
                         }
                         composable(Screen.Explore.route) {

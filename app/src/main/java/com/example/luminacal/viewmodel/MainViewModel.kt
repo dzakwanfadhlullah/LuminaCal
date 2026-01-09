@@ -189,6 +189,69 @@ class MainViewModel(
         return weekly
     }
     
+    /**
+     * Get calories data for a specific date range
+     */
+    fun getCaloriesByDateRange(range: String): List<DailyCalories> {
+        val meals = _uiState.value.history
+        val targetCalories = _uiState.value.healthMetrics.targetCalories
+        val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
+        
+        val daysToShow = when (range) {
+            "Today" -> 1
+            "This Week" -> 7
+            "This Month" -> 30
+            else -> 7
+        }
+        
+        val result = mutableListOf<DailyCalories>()
+        for (i in (daysToShow - 1) downTo 0) {
+            val cal = java.util.Calendar.getInstance()
+            cal.add(java.util.Calendar.DAY_OF_YEAR, -i)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            val start = cal.timeInMillis
+            
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 23)
+            cal.set(java.util.Calendar.MINUTE, 59)
+            val end = cal.timeInMillis
+            
+            val dayCalories = meals.filter { it.timestamp in start..end }.sumOf { it.calories }
+            result.add(
+                DailyCalories(
+                    day = sdf.format(cal.time),
+                    calories = dayCalories.toFloat(),
+                    target = targetCalories.toFloat()
+                )
+            )
+        }
+        return result
+    }
+    
+    /**
+     * Get weight points for a specific date range
+     */
+    fun getWeightsByDateRange(range: String): List<WeightPoint> {
+        val weights = _uiState.value.weightHistory
+        val daysToShow = when (range) {
+            "Today" -> 1
+            "This Week" -> 7
+            "This Month" -> 30
+            else -> 7
+        }
+        
+        val cal = java.util.Calendar.getInstance()
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -daysToShow)
+        val cutoffDate = cal.timeInMillis
+        
+        return weights
+            .filter { it.date >= cutoffDate }
+            .take(daysToShow)
+            .reversed()
+            .map { WeightPoint(date = "", weight = it.weightKg) }
+    }
+    
     private data class TodayData(val calories: Int, val macros: Macros)
     
     fun clearError() {

@@ -50,11 +50,31 @@ fun StatisticsScreen(
     macros: Macros,
     currentWeight: Float,
     weightGoal: Float,
-    loggingStreak: Int
+    loggingStreak: Int,
+    onDateRangeChange: (String) -> Pair<List<DailyCalories>, List<WeightPoint>> = { Pair(weeklyCalories, weightPoints) }
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedDateRange by remember { mutableStateOf(DateRange.THIS_WEEK) }
     var showDateRangeMenu by remember { mutableStateOf(false) }
+    
+    // Filtered data based on date range selection
+    var filteredCalories by remember { mutableStateOf(weeklyCalories) }
+    var filteredWeights by remember { mutableStateOf(weightPoints) }
+    
+    // Update filtered data when date range changes
+    LaunchedEffect(selectedDateRange) {
+        val (calories, weights) = onDateRangeChange(selectedDateRange.label)
+        filteredCalories = calories
+        filteredWeights = weights
+    }
+    
+    // Also update when source data changes
+    LaunchedEffect(weeklyCalories, weightPoints) {
+        if (selectedDateRange == DateRange.THIS_WEEK) {
+            filteredCalories = weeklyCalories
+            filteredWeights = weightPoints
+        }
+    }
     
     val tabs = listOf(
         stringResource(R.string.tab_calories),
@@ -63,14 +83,14 @@ fun StatisticsScreen(
     )
     
     // OPTIMIZED: Memoize calculations to avoid recalculation on every recomposition
-    val thisWeekCalories = remember(weeklyCalories) {
-        weeklyCalories.sumOf { it.calories.toInt() }
+    val thisWeekCalories = remember(filteredCalories) {
+        filteredCalories.sumOf { it.calories.toInt() }
     }
-    val thisWeekAvg = remember(weeklyCalories) {
-        if (weeklyCalories.isNotEmpty()) thisWeekCalories / weeklyCalories.size else 0
+    val thisWeekAvg = remember(filteredCalories) {
+        if (filteredCalories.isNotEmpty()) thisWeekCalories / filteredCalories.size else 0
     }
-    val targetCalories = remember(weeklyCalories) {
-        weeklyCalories.firstOrNull()?.target?.toInt() ?: 2000
+    val targetCalories = remember(filteredCalories) {
+        filteredCalories.firstOrNull()?.target?.toInt() ?: 2000
     }
     
     LazyColumn(
@@ -193,7 +213,7 @@ fun StatisticsScreen(
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             WeeklyCalorieChart(
-                                data = weeklyCalories,
+                                data = filteredCalories,
                                 modifier = Modifier.height(200.dp).fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +221,7 @@ fun StatisticsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                weeklyCalories.forEach {
+                                filteredCalories.forEach {
                                     Text(it.day, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                                 }
                             }
@@ -215,8 +235,8 @@ fun StatisticsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(stringResource(R.string.stats_weight_progress), fontWeight = FontWeight.Bold)
-                                if (weightPoints.isNotEmpty()) {
-                                    val change = weightPoints.last().weight - weightPoints.first().weight
+                                if (filteredWeights.isNotEmpty()) {
+                                    val change = filteredWeights.last().weight - filteredWeights.first().weight
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
                                             if (change <= 0) Icons.Default.TrendingDown else Icons.Default.TrendingUp,
@@ -236,7 +256,7 @@ fun StatisticsScreen(
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             WeightProgressChart(
-                                data = weightPoints,
+                                data = filteredWeights,
                                 modifier = Modifier.height(200.dp).fillMaxWidth()
                             )
                         }
