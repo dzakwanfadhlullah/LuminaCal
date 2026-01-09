@@ -51,7 +51,8 @@ fun StatisticsScreen(
     currentWeight: Float,
     weightGoal: Float,
     loggingStreak: Int,
-    onDateRangeChange: (String) -> Pair<List<DailyCalories>, List<WeightPoint>> = { Pair(weeklyCalories, weightPoints) }
+    onDateRangeChange: (String) -> Pair<List<DailyCalories>, List<WeightPoint>> = { Pair(weeklyCalories, weightPoints) },
+    onShareStats: (avgCalories: Int, totalDays: Int, protein: Int, carbs: Int, fat: Int, weight: Float, goal: Float, streak: Int) -> Unit = { _, _, _, _, _, _, _, _ -> }
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedDateRange by remember { mutableStateOf(DateRange.THIS_WEEK) }
@@ -93,11 +94,12 @@ fun StatisticsScreen(
         filteredCalories.firstOrNull()?.target?.toInt() ?: 2000
     }
     
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
         // Header with Date Range Picker
         item {
             Column {
@@ -431,6 +433,30 @@ fun StatisticsScreen(
                     Icon(Icons.Default.MilitaryTech, contentDescription = null, tint = Peach400, modifier = Modifier.size(24.dp))
                 }
             }
+            }
+        }
+        
+        // Share FAB
+        FloatingActionButton(
+            onClick = {
+                onShareStats(
+                    thisWeekAvg,
+                    filteredCalories.size,
+                    macros.protein,
+                    macros.carbs,
+                    macros.fat,
+                    currentWeight,
+                    weightGoal,
+                    loggingStreak
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = Blue500,
+            contentColor = Color.White
+        ) {
+            Icon(Icons.Default.Share, contentDescription = "Share Statistics")
         }
     }
 }

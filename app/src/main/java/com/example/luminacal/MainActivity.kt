@@ -187,6 +187,8 @@ fun MainContent(
                             )
                         }
                         composable(Screen.Statistics.route) {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val statsExporter = remember { com.example.luminacal.util.StatisticsExporter(context) }
                             com.example.luminacal.ui.screens.statistics.StatisticsScreen(
                                 weeklyCalories = state.weeklyCalories,
                                 weightPoints = state.weightPoints,
@@ -198,6 +200,18 @@ fun MainContent(
                                     val calories = viewModel.getCaloriesByDateRange(range)
                                     val weights = viewModel.getWeightsByDateRange(range)
                                     Pair(calories, weights)
+                                },
+                                onShareStats = { avgCal, days, protein, carbs, fat, weight, goal, streak ->
+                                    statsExporter.shareStatsAsText(
+                                        avgCalories = avgCal,
+                                        totalDays = days,
+                                        proteinG = protein,
+                                        carbsG = carbs,
+                                        fatG = fat,
+                                        currentWeight = weight,
+                                        weightGoal = goal,
+                                        streak = streak
+                                    )
                                 }
                             )
                         }
