@@ -41,6 +41,7 @@ import com.example.luminacal.data.ml.FoodDetection
 import com.example.luminacal.data.ml.FoodNutritionDatabase
 import com.example.luminacal.data.ml.NonFoodDetection
 import com.example.luminacal.data.ml.NutritionInfo
+import com.example.luminacal.data.local.ScanHistoryEntity
 import com.example.luminacal.model.MealType
 import com.example.luminacal.ui.components.CameraError
 import com.example.luminacal.ui.components.CameraPreview
@@ -54,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun CameraScannerScreen(
+    recentScans: List<ScanHistoryEntity> = emptyList(),
     onClose: () -> Unit,
     onFoodConfirmed: (NutritionInfo, MealType) -> Unit = { _, _ -> }
 ) {
@@ -198,6 +200,7 @@ fun CameraScannerScreen(
                 nonFoodDetection = nonFoodDetection,
                 selectedFood = selectedFood,
                 selectedMealType = selectedMealType,
+                recentScans = recentScans,
                 isFlashEnabled = isFlashEnabled,
                 isFlashAvailable = isFlashAvailable,
                 onSelectedFoodChange = { selectedFood = it },
@@ -426,6 +429,7 @@ private fun CameraErrorUI(
 private fun CameraOverlayUI(
     cameraState: CameraState,
     isOffline: Boolean,
+    recentScans: List<ScanHistoryEntity>,
     currentDetection: FoodDetection?,
     nonFoodDetection: NonFoodDetection?,
     selectedFood: NutritionInfo?,
@@ -502,6 +506,26 @@ private fun CameraOverlayUI(
         )
 
         Spacer(modifier = Modifier.weight(1f))
+        
+        // Recent Scans (if no current detection and history exists)
+        if (currentDetection == null && recentScans.isNotEmpty()) {
+            RecentScansHorizontalList(
+                scans = recentScans,
+                onScanClick = { scan ->
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onSelectedFoodChange(NutritionInfo(
+                        name = scan.foodName,
+                        calories = scan.calories,
+                        protein = scan.protein,
+                        carbs = scan.carbs,
+                        fat = scan.fat,
+                        servingSize = scan.servingSize,
+                        imageUrl = scan.imageUrl
+                    ))
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Info Card with detection info
         GlassCard(modifier = Modifier.fillMaxWidth()) {

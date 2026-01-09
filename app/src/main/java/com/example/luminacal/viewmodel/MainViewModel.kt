@@ -10,10 +10,9 @@ import com.example.luminacal.data.repository.CustomFoodRepository
 import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
 import com.example.luminacal.data.repository.WaterRepository
-import com.example.luminacal.data.repository.WeightRepository
-import com.example.luminacal.data.repository.WeightEntry
-import com.example.luminacal.data.repository.WeightStats
 import com.example.luminacal.data.repository.WeightTrend
+import com.example.luminacal.data.repository.ScanHistoryRepository
+import com.example.luminacal.data.local.ScanHistoryEntity
 import com.example.luminacal.model.*
 import com.example.luminacal.util.AppPreferences
 import com.example.luminacal.util.ValidationUtils
@@ -38,7 +37,8 @@ data class LuminaCalState(
     val weightPoints: List<WeightPoint> = emptyList(),
     val loggingStreak: Int = 0,
     val customFoods: List<CustomFoodEntity> = emptyList(),
-    val recentCustomFoods: List<CustomFoodEntity> = emptyList()
+    val recentCustomFoods: List<CustomFoodEntity> = emptyList(),
+    val recentScans: List<ScanHistoryEntity> = emptyList()
 )
 
 class MainViewModel(
@@ -47,6 +47,7 @@ class MainViewModel(
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository,
     private val customFoodRepository: CustomFoodRepository,
+    private val scanHistoryRepository: ScanHistoryRepository,
     private val appPreferences: AppPreferences
 ) : ViewModel() {
     
@@ -132,6 +133,13 @@ class MainViewModel(
             val streak = mealRepository.getLoggingStreak()
             _uiState.update { state ->
                 state.copy(loggingStreak = streak)
+            }
+        }
+
+        // Load recent scans
+        viewModelScope.launch(exceptionHandler) {
+            scanHistoryRepository.getRecentScans(10).collect { scans ->
+                _uiState.update { it.copy(recentScans = scans) }
             }
         }
     }
@@ -453,18 +461,43 @@ class MainViewModel(
         }
     }
 
+    // ============== SCAN HISTORY ==============
+
+    fun addToScanHistory(nutrition: NutritionInfo) {
+        viewModelScope.launch(exceptionHandler) {
+            val scan = ScanHistoryEntity(
+                foodName = nutrition.name,
+                calories = nutrition.calories,
+                protein = nutrition.protein,
+                carbs = nutrition.carbs,
+                fat = nutrition.fat,
+                imageUrl = nutrition.imageUrl,
+                servingSize = nutrition.servingSize,
+                date = System.currentTimeMillis()
+            )
+            scanHistoryRepository.insertScan(scan)
+        }
+    }
+
+    fun clearScanHistory() {
+        viewModelScope.launch(exceptionHandler) {
+            scanHistoryRepository.clearHistory()
+        }
+    }
+
     class Factory(
         private val mealRepository: MealRepository,
         private val healthMetricsRepository: HealthMetricsRepository,
         private val waterRepository: WaterRepository,
         private val weightRepository: WeightRepository,
         private val customFoodRepository: CustomFoodRepository,
+        private val scanHistoryRepository: ScanHistoryRepository,
         private val appPreferences: AppPreferences
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, appPreferences) as T
+                return MainViewModel(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, scanHistoryRepository, appPreferences) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

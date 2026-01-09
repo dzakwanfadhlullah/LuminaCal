@@ -27,11 +27,20 @@ object DatabaseMigrations {
      */
     val MIGRATION_7_8 = object : Migration(7, 8) {
         override fun migrate(db: SupportSQLiteDatabase) {
-            // No schema changes in v8 - this is an empty migration
-            // to establish proper migration infrastructure.
-            // 
-            // Future changes example:
-            // db.execSQL("ALTER TABLE meal_entries ADD COLUMN imageUrl TEXT DEFAULT NULL")
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS scan_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    foodName TEXT NOT NULL,
+                    calories INTEGER NOT NULL,
+                    protein INTEGER NOT NULL,
+                    carbs INTEGER NOT NULL,
+                    fat INTEGER NOT NULL,
+                    imageUrl TEXT,
+                    servingSize TEXT NOT NULL DEFAULT '1 serving',
+                    date INTEGER NOT NULL
+                )
+            """.trimIndent())
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_scan_history_date ON scan_history(date)")
         }
     }
 

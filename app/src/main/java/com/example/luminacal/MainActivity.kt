@@ -29,6 +29,7 @@ import com.example.luminacal.ui.screens.dashboard.DashboardScreen
 import com.example.luminacal.data.local.LuminaDatabase
 import com.example.luminacal.data.repository.HealthMetricsRepository
 import com.example.luminacal.data.repository.MealRepository
+import com.example.luminacal.data.repository.ScanHistoryRepository
 import com.example.luminacal.model.Macros
 import com.example.luminacal.model.MealType
 import com.example.luminacal.ui.theme.LuminaCalTheme
@@ -57,8 +58,9 @@ class MainActivity : ComponentActivity() {
         val waterRepository = com.example.luminacal.data.repository.WaterRepository(database.waterDao())
         val weightRepository = com.example.luminacal.data.repository.WeightRepository(database.weightDao())
         val customFoodRepository = com.example.luminacal.data.repository.CustomFoodRepository(database.customFoodDao())
+        val scanHistoryRepository = ScanHistoryRepository(database.scanHistoryDao())
         val appPreferences = com.example.luminacal.util.AppPreferences.getInstance(this)
-        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, appPreferences)
+        val factory = MainViewModel.Factory(mealRepository, healthMetricsRepository, waterRepository, weightRepository, customFoodRepository, scanHistoryRepository, appPreferences)
         
         // Check onboarding status
         val showOnboarding = !com.example.luminacal.util.OnboardingPrefs.isOnboardingComplete(this)
@@ -322,6 +324,7 @@ fun MainContent(
                         }
                         composable(Screen.Camera.route) {
                             com.example.luminacal.ui.screens.camera.CameraScannerScreen(
+                                recentScans = state.recentScans,
                                 onClose = {
                                     navController.popBackStack()
                                 },
@@ -337,6 +340,7 @@ fun MainContent(
                                         macros = macros,
                                         type = mealType
                                     )
+                                    viewModel.addToScanHistory(nutritionInfo)
                                 }
                             )
                         }

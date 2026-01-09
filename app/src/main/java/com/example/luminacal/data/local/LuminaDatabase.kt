@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [MealEntity::class, HealthMetricsEntity::class, WaterEntity::class, WeightEntity::class, CustomFoodEntity::class],
-    version = 7,
+    entities = [MealEntity::class, HealthMetricsEntity::class, WaterEntity::class, WeightEntity::class, CustomFoodEntity::class, ScanHistoryEntity::class],
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -18,6 +18,7 @@ abstract class LuminaDatabase : RoomDatabase() {
     abstract fun waterDao(): WaterDao
     abstract fun weightDao(): WeightDao
     abstract fun customFoodDao(): CustomFoodDao
+    abstract fun scanHistoryDao(): ScanHistoryDao
 
     companion object {
         @Volatile
