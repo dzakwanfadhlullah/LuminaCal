@@ -266,6 +266,10 @@
     <string name="error_network">Network error. Please check your connection.</string>
     <string name="error_camera">Camera error. Please try again.</string>
     
+    <!-- Offline Mode -->
+    <string name="offline_mode_title">Offline Mode</string>
+    <string name="offline_mode_desc">Using local database. Manual search recommended for better accuracy.</string>
+    
     <!-- Content Descriptions (Accessibility) -->
     <string name="cd_profile_image">Profile image</string>
     <string name="cd_food_image">Food image</string>

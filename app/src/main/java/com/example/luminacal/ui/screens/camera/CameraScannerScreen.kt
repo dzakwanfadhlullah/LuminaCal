@@ -49,6 +49,8 @@ import com.example.luminacal.ui.components.GlassCard
 import com.example.luminacal.ui.theme.Blue500
 import com.example.luminacal.ui.theme.Green500
 import com.example.luminacal.util.MealTypeDetector
+import com.example.luminacal.util.NetworkChecker
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun CameraScannerScreen(
@@ -88,6 +90,15 @@ fun CameraScannerScreen(
         )
     }
     var permissionDeniedPermanently by remember { mutableStateOf(false) }
+
+    // Network state
+    var isOffline by remember { mutableStateOf(!NetworkChecker.isOnline(context)) }
+    
+    LaunchedEffect(Unit) {
+        NetworkChecker.observeConnectivity(context).collectLatest { online ->
+            isOffline = !online
+        }
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -182,6 +193,7 @@ fun CameraScannerScreen(
         ) {
             CameraOverlayUI(
                 cameraState = cameraState,
+                isOffline = isOffline,
                 currentDetection = currentDetection,
                 nonFoodDetection = nonFoodDetection,
                 selectedFood = selectedFood,
@@ -413,6 +425,7 @@ private fun CameraErrorUI(
 @Composable
 private fun CameraOverlayUI(
     cameraState: CameraState,
+    isOffline: Boolean,
     currentDetection: FoodDetection?,
     nonFoodDetection: NonFoodDetection?,
     selectedFood: NutritionInfo?,
@@ -435,14 +448,22 @@ private fun CameraOverlayUI(
         // Top bar
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onClose) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = stringResource(R.string.cd_close_button),
-                    tint = Color.White
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onClose) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.cd_close_button),
+                        tint = Color.White
+                    )
+                }
+                
+                if (isOffline) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OfflineIndicator()
+                }
             }
             
             // Camera state indicator
@@ -902,6 +923,37 @@ private fun MealTypeSelector(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Simple indicator for offline mode
+ */
+@Composable
+private fun OfflineIndicator() {
+    Surface(
+        color = Color.Black.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(16.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.CloudOff,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.size(14.dp)
+            )
+            Text(
+                text = stringResource(R.string.offline_mode_title),
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

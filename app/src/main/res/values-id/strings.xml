@@ -246,6 +246,10 @@
     <string name="error_network">Kesalahan jaringan. Periksa koneksi Anda.</string>
     <string name="error_camera">Kesalahan kamera. Silakan coba lagi.</string>
     
+    <!-- Offline Mode -->
+    <string name="offline_mode_title">Mode Offline</string>
+    <string name="offline_mode_desc">Menggunakan database lokal. Pencarian manual disarankan untuk hasil lebih akurat.</string>
+    
     <!-- Content Descriptions (Accessibility) -->
     <string name="cd_profile_image">Foto profil</string>
     <string name="cd_food_image">Gambar makanan</string>
