@@ -86,6 +86,9 @@ dependencies {
     implementation(libs.mlkit.od)
     implementation(libs.mlkit.od.custom)
     implementation(libs.androidx.work.runtime.ktx)
+    
+    // Security (EncryptedSharedPreferences)
+    implementation(libs.androidx.security.crypto)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
