@@ -1,0 +1,639 @@
+================================================================================
+                    LUMINACAL BETA V1.3 — DETAILED ROADMAP
+                         (Hasil Analisis Mendalam Codebase)
+================================================================================
+
+Status Legend:
+  [x] = Selesai (Completed)
+  [/] = Sedang Dikerjakan (In Progress)  
+  [ ] = Belum Dimulai (Not Started)
+
+================================================================================
+                              RINGKASAN EXECUTIVE
+================================================================================
+
+Dokumen ini berisi hasil analisis menyeluruh terhadap seluruh codebase 
+LuminaCal, mencakup 8 layar utama, 16+ komponen UI, 12 file database, 
+5 repository, 11 utility files, dan 5 model data.
+
+Total Temuan:
+  • Bug/Anomali Kritis: 4 item
+  • Improvement UI/UX: 18 item
+  • Security & Storage: 8 item
+  • Performance: 6 item
+  • Feature Enhancement: 24 item
+
+================================================================================
+                              ANALISIS TEMUAN
+================================================================================
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ KATEGORI BUG/CRASH/ANOMALI YANG DITEMUKAN                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║ 1. [CRITICAL] LuminaDatabase.kt (Line 33)                                    ║
+║    - fallbackToDestructiveMigration() AKTIF                                  ║
+║    - Data user akan HILANG saat schema berubah                               ║
+║    - Solusi: Buat proper Room Migration                                      ║
+║                                                                              ║
+║ 2. [HIGH] ExploreScreen.kt - Category Filter Hardcoded                       ║
+║    - Beberapa kategori tidak ditranslasi (FastFood, Drinks)                  ║
+║    - Inkonsistensi dengan stringResource lainnya                             ║
+║                                                                              ║
+║ 3. [MEDIUM] DashboardScreen.kt (Line 228-231)                                ║
+║    - Pemanggilan stringResource() di dalam when block                        ║
+║    - Potential recomposition issues                                          ║
+║                                                                              ║
+║ 4. [MEDIUM] StatisticsScreen.kt - Date Range belum fungsional                ║
+║    - DateRange enum sudah ada tapi filter belum diimplementasikan            ║
+║    - showDateRangeMenu tidak memfilter data                                  ║
+║                                                                              ║
+║ 5. [LOW] ProfileScreen.kt (Line 260)                                         ║
+║    - Version hardcoded "1.0.0 (Build 204)"                                   ║
+║    - Harus dinamis dari BuildConfig                                          ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+================================================================================
+                              PHASE 1: KEAMANAN DATABASE
+================================================================================
+Priority: CRITICAL
+Estimated: 2-3 hari
+
+  [ ] 1.1 Implementasi Room Migration yang Proper
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • fallbackToDestructiveMigration() di LuminaDatabase.kt
+      • Data user hilang setiap ada schema change
+      • Tidak cocok untuk aplikasi produksi
+      
+      SOLUTIONS:
+      • Buat Migration objects untuk setiap versi (7 → 8, dst)
+      • Backup data sebelum migration
+      • Test migration dengan Room Testing Library
+      
+      FILES TO MODIFY:
+      ├── data/local/LuminaDatabase.kt
+      ├── Buat: data/local/DatabaseMigrations.kt
+      └── Test: androidTest/.../MigrationTest.kt
+
+  [ ] 1.2 Data Integrity & Encryption
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • Data sensitif (berat badan, health metrics) tidak terenkripsi
+      • SharedPreferences menyimpan data plaintext
+      
+      SOLUTIONS:
+      • Implementasi EncryptedSharedPreferences untuk data sensitif
+      • Gunakan SQLCipher untuk enkripsi database (opsional)
+      • Hash data yang tidak perlu dibaca langsung
+      
+      FILES TO MODIFY:
+      ├── util/AppPreferences.kt → EncryptedAppPreferences.kt
+      ├── data/local/LuminaDatabase.kt (add custom SupportSQLiteOpenHelper.Factory)
+      └── build.gradle.kts (add security-crypto dependency)
+
+================================================================================
+                              PHASE 2: FIX UI/UX BUGS
+================================================================================
+Priority: HIGH
+Estimated: 2 hari
+
+  [ ] 2.1 Fix Dark Mode Inconsistencies
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • ExploreScreen.kt (Line 204, 224): Hardcoded Color.White dan Slate900
+      • StatisticsScreen.kt: Beberapa teks tidak readable di dark mode
+      • Streak badge (DashboardScreen Line 112): Color(0xFFFEF3C7) hardcoded
+      
+      LOCATIONS WITH ISSUES:
+      ├── DashboardScreen.kt: Lines 112, 122, 129, 164-167, 349, 373
+      ├── ExploreScreen.kt: Lines 204, 224, 242, 254, 507, 522
+      ├── StatisticsScreen.kt: Lines 287-290, 318-319
+      └── ProfileScreen.kt: Lines 61, 241
+      
+      SOLUTIONS:
+      • Buat warna adaptif di Color.kt (DarkBackground, LightBackground)
+      • Gunakan MaterialTheme.colorScheme instead of hardcoded colors
+      • Test semua screen di dark mode sebelum merge
+
+  [ ] 2.2 Fix Translation Gaps
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • ExploreScreen.kt Lines 217-218: "Fast Food" dan "Drinks" tidak dalam strings.xml
+      • StatisticsScreen.kt Lines 271, 287-288: "Week Comparison", "This Week", "vs Target"
+      • HealthMetricsScreen.kt Lines 304, 479, 569: "Gender", "Body Mass Index", "Goal Timeline"
+      • CameraScannerScreen.kt Lines 289-310: Error messages in English only
+      • ProfileScreen.kt Lines 241, 260: "Coming Soon", "Sign Out"
+      
+      SOLUTIONS:
+      • Audit seluruh hardcoded strings
+      • Tambahkan ke res/values/strings.xml dan res/values-id/strings.xml
+      • Buat script untuk detect hardcoded strings
+
+================================================================================
+                              PHASE 3: STATISTIK SCREEN COMPLETION
+================================================================================
+Priority: HIGH
+Estimated: 3 hari
+
+  [ ] 3.1 Fungsionalkan Date Range Filter
+      ─────────────────────────────────────────────
+      CURRENT STATE (StatisticsScreen.kt):
+      • DateRange enum sudah ada (TODAY, THIS_WEEK, THIS_MONTH)
+      • Dropdown menu sudah clickable
+      • TAPI: Data tidak berubah saat filter dipilih!
+      
+      SOLUTIONS:
+      • Connect selectedDateRange ke data filtering logic
+      • Update weeklyCalories, weightPoints berdasarkan range
+      • Tambahkan loading state saat fetch data baru
+      
+      FILES TO MODIFY:
+      ├── ui/screens/statistics/StatisticsScreen.kt
+      ├── viewmodel/MainViewModel.kt (add getStatsByDateRange)
+      └── data/repository/MealRepository.kt (add date range queries)
+
+  [ ] 3.2 Tambah Export/Share Statistics Feature
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • Share button sudah di-import (Icons.Default.Share) tapi tidak dipakai
+      • User tidak bisa share progress ke social media
+      
+      SOLUTIONS:
+      • Buat StatisticsExporter.kt untuk generate shareable image
+      • Tambahkan Share FAB di StatisticsScreen
+      • Support format: Image snapshot, PDF summary
+      
+      NEW FILES:
+      ├── util/StatisticsExporter.kt
+      └── ui/components/ShareBottomSheet.kt
+
+================================================================================
+                              PHASE 4: PREMIUM UI COMPONENTS
+================================================================================
+Priority: MEDIUM
+Estimated: 3-4 hari
+
+  [ ] 4.1 Enhanced Form Input Widgets
+      ─────────────────────────────────────────────
+      CURRENT STATE:
+      • OutlinedTextField standar tanpa premium feel
+      • Tidak ada fokus animasi atau error animations
+      • Input validation tidak visual
+      
+      SOLUTIONS:
+      • Buat GlassTextField dengan blur effect
+      • PremiumNumberInput dengan +/- stepper buttons
+      • GlassSearchBar dengan expandable animation
+      • Error shake animation untuk invalid input
+      
+      NEW FILES:
+      ├── ui/components/input/GlassTextField.kt
+      ├── ui/components/input/PremiumNumberInput.kt
+      ├── ui/components/input/PremiumDecimalInput.kt
+      └── ui/components/input/GlassSwitch.kt
+
+  [ ] 4.2 Modernisasi Bottom Navigation
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • NavigationBar standar Material 3
+      • Tidak ada indicator animation atau micro-interactions
+      • Icon tidak ada glow effect saat selected
+      
+      SOLUTIONS:
+      • Custom GlassNavigationBar dengan blur backdrop
+      • Animated indicator dengan spring physics
+      • Subtle haptic feedback per tap
+      • Badge support untuk notifications
+      
+      FILES TO MODIFY:
+      ├── MainActivity.kt (NavigationBar section)
+      └── NEW: ui/components/GlassNavigationBar.kt
+
+================================================================================
+                              PHASE 5: NOTIFICATION SYSTEM COMPLETION
+================================================================================
+Priority: MEDIUM
+Estimated: 3 hari
+
+  [ ] 5.1 Aktivasi Meal Reminders UI
+      ─────────────────────────────────────────────
+      CURRENT STATE (ProfileScreen.kt Line 240-244):
+      • "Meal Reminders" ada di UI dengan "Coming Soon" label
+      • NotificationHelper.kt sudah lengkap (386 lines!)
+      • ReminderScheduler.kt sudah dibuat
+      • TAPI: UI untuk setting reminders tidak ada!
+      
+      SOLUTIONS:
+      • Buat ReminderSettingsScreen.kt
+      • Time picker untuk breakfast/lunch/dinner
+      • Toggle per-reminder dan days of week
+      • Connect ke WorkManager untuk scheduling
+      
+      NEW FILES:
+      ├── ui/screens/settings/ReminderSettingsScreen.kt
+      ├── ui/components/TimePickerDialog.kt
+      └── Model: model/ReminderSettings.kt (SUDAH ADA!)
+
+  [ ] 5.2 Push Notification Permission Flow
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • Android 13+ memerlukan POST_NOTIFICATIONS permission
+      • Tidak ada permission request UI di app
+      • NotificationHelper silently fails jika no permission
+      
+      SOLUTIONS:
+      • Tambah permission request di onboarding
+      • Buat NotificationPermissionDialog.kt
+      • Graceful fallback message jika denied
+      
+      FILES TO MODIFY:
+      ├── MainActivity.kt (add permission launcher)
+      ├── ui/screens/onboarding/OnboardingScreen.kt
+      └── NEW: ui/components/NotificationPermissionCard.kt
+
+================================================================================
+                              PHASE 6: WATER TRACKING ENHANCEMENT
+================================================================================
+Priority: MEDIUM
+Estimated: 2-3 hari
+
+  [ ] 6.1 Customizable Water Cup Sizes
+      ─────────────────────────────────────────────
+      CURRENT STATE (WaterTrackingWidget.kt):
+      • Fixed amount buttons (+150ml, +250ml, +500ml)
+      • Tidak bisa custom size
+      • Tidak remember last used size
+      
+      SOLUTIONS:
+      • Buat WaterSettingsDialog untuk custom sizes
+      • Save preferred sizes ke SharedPreferences
+      • Add long-press untuk quick edit amount
+      • Remember last 3 used sizes
+      
+      FILES TO MODIFY:
+      ├── ui/components/WaterTrackingWidget.kt
+      ├── util/AppPreferences.kt (add water preferences)
+      └── NEW: ui/components/WaterSettingsDialog.kt
+
+  [ ] 6.2 Beverage Type Tracking (Air, Teh, Kopi, dll)
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • Hanya track "water" generik
+      • Tidak bisa bedakan jenis minuman
+      • Caffeine intake tidak ter-track
+      
+      DATA MODEL CHANGES:
+      • Tambah beverageType field ke WaterEntity
+      • Tambah icon mapping per beverage type
+      • Optional: caffeine warning untuk kopi
+      
+      FILES TO MODIFY:
+      ├── data/local/WaterEntity.kt
+      ├── data/local/WaterDao.kt
+      ├── data/repository/WaterRepository.kt
+      ├── ui/components/WaterTrackingWidget.kt
+      └── UI: Horizontal chip selector untuk beverage type
+
+================================================================================
+                              PHASE 7: ACCESSIBILITY & LOCALIZATION
+================================================================================
+Priority: MEDIUM
+Estimated: 2 hari
+
+  [ ] 7.1 Content Descriptions Audit
+      ─────────────────────────────────────────────
+      PROBLEMS FOUND:
+      • DashboardScreen.kt Line 121: contentDescription = "Streak" (not translated)
+      • ExploreScreen.kt Lines 166-167, 175-176: contentDescription = null
+      • CameraScannerScreen.kt: Beberapa icon tanpa contentDescription
+      • RecipeCard: image contentDescription = null
+      
+      AUDIT NEEDED:
+      • Semua Icon() harus punya meaningful contentDescription
+      • Semua AsyncImage() harus describe content
+      • Semua clickable elements harus accessible
+      
+      FILES TO AUDIT:
+      ├── ui/screens/dashboard/DashboardScreen.kt
+      ├── ui/screens/explore/ExploreScreen.kt
+      ├── ui/screens/camera/CameraScannerScreen.kt
+      ├── ui/components/*.kt (semua komponen)
+      └── Tambahkan strings ke res/values/strings.xml
+
+  [ ] 7.2 Touch Target Size Compliance
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • RecipeCard.kt Line 546: IconButton dengan Modifier.size(24.dp) - TOO SMALL!
+      • Minimum touch target: 48dp (Android guidelines)
+      
+      REVIEW NEEDED:
+      ├── ui/screens/explore/ExploreScreen.kt (RecipeCard IconButton)
+      ├── ui/components/MacroProgressBar.kt
+      ├── ui/screens/statistics/StatisticsScreen.kt
+      └── All clickable elements < 48dp
+
+================================================================================
+                              PHASE 8: PERFORMANCE OPTIMIZATION  
+================================================================================
+Priority: MEDIUM
+Estimated: 2-3 hari
+
+  [ ] 8.1 Image Loading & Caching Optimization
+      ─────────────────────────────────────────────
+      CURRENT STATE:
+      • Coil used untuk image loading (✓)
+      • ImageLoaderFactory.kt ada tapi basic configuration
+      • No explicit disk cache size limits
+      
+      IMPROVEMENTS:
+      • Set explicit disk cache size (50MB max)
+      • Implement placeholder dengan shimmer effect
+      • Error fallback images per food category
+      • Prefetch untuk ExploreScreen grid
+      
+      FILES TO MODIFY:
+      ├── util/ImageLoaderFactory.kt
+      └── ui/screens/explore/ExploreScreen.kt (add prefetching)
+
+  [ ] 8.2 Database Query Optimization
+      ─────────────────────────────────────────────
+      AUDIT FINDINGS:
+      • MealDao.kt: getAllMeals() tanpa pagination
+      • WeightDao.kt: getAllWeights() loads semua history
+      • No database indices specified
+      
+      SOLUTIONS:
+      • Add @Index annotations ke frequently queried columns
+      • Implement pagination dengan Paging3 library
+      • Lazy load historical data (load recent first)
+      
+      FILES TO MODIFY:
+      ├── data/local/MealEntity.kt (add indices)
+      ├── data/local/WeightEntity.kt (add indices)
+      ├── data/local/MealDao.kt (add paginated query)
+      └── viewmodel/MainViewModel.kt (use PagingData)
+
+================================================================================
+                              PHASE 9: CAMERA & ML IMPROVEMENT
+================================================================================
+Priority: LOW-MEDIUM
+Estimated: 3 hari
+
+  [ ] 9.1 Offline Mode Support untuk Food Detection
+      ─────────────────────────────────────────────
+      CURRENT STATE:
+      • ML Kit requires internet untuk some models
+      • No offline fallback mechanism
+      • FoodNutritionDatabase.kt sudah local (135+ foods)
+      
+      SOLUTIONS:
+      • Download ML model on first launch
+      • Cache detected food mappings locally
+      • Show "Offline Mode" indicator
+      • Direct ke manual search jika offline
+      
+      FILES TO MODIFY:
+      ├── data/ml/FoodAnalyzer.kt
+      └── ui/screens/camera/CameraScannerScreen.kt
+
+  [ ] 9.2 Scan History & Quick Re-log
+      ─────────────────────────────────────────────
+      PROBLEMS:
+      • No history of scanned foods
+      • User harus scan ulang untuk log food yang sama
+      • Tidak ada "quick add" dari recent scans
+      
+      SOLUTIONS:
+      • Create ScanHistoryEntity untuk recent scans
+      • Show recent scans di CameraScreen
+      • One-tap re-log dari history
+      
+      NEW FILES:
+      ├── data/local/ScanHistoryEntity.kt
+      ├── data/local/ScanHistoryDao.kt
+      └── UI: Recent scans horizontal list di camera screen
+
+================================================================================
+                              PHASE 10: POLISH & TESTING
+================================================================================
+Priority: HIGH
+Estimated: 4-5 hari
+
+  [ ] 10.1 Unit & Integration Testing
+      ─────────────────────────────────────────────
+      CURRENT STATE:
+      • Tidak ada test files ditemukan di codebase!
+      • No unit tests untuk ViewModels
+      • No integration tests untuk database
+      
+      TESTING PLAN:
+      • MainViewModel: Test semua state changes
+      • MealRepository: Test CRUD operations
+      • FoodNutritionDatabase: Test lookup functions
+      • Room Database: Migration tests
+      
+      NEW TEST FILES:
+      ├── test/viewmodel/MainViewModelTest.kt
+      ├── test/repository/MealRepositoryTest.kt
+      ├── test/data/FoodNutritionDatabaseTest.kt
+      └── androidTest/database/MigrationTest.kt
+
+  [ ] 10.2 UI Testing with Compose Testing
+      ─────────────────────────────────────────────
+      PRIORITY SCREENS TO TEST:
+      • OnboardingScreen: Complete flow
+      • DashboardScreen: Dynamic data display
+      • CameraScannerScreen: Permission flow, detection
+      • ExploreScreen: Search, filter, add to log
+      
+      NEW TEST FILES:
+      ├── androidTest/ui/OnboardingScreenTest.kt
+      ├── androidTest/ui/DashboardScreenTest.kt
+      └── androidTest/ui/ExploreScreenTest.kt
+
+================================================================================
+                              PRIORITY MATRIX
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  URGENT + IMPORTANT (Do First)                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Phase 1: Database Security (Migration, Encryption)                       │
+│  • Phase 2: Dark Mode & Translation Fixes                                   │
+│  • Phase 10.1: Basic Unit Tests                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  IMPORTANT but Not Urgent                                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Phase 3: Statistics Screen Completion                                    │
+│  • Phase 5: Notification System                                             │
+│  • Phase 7: Accessibility                                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  URGENT but Not Important                                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Phase 4.2: Navigation Bar Polish                                         │
+│  • Phase 6: Water Tracking Enhancement                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Nice to Have                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Phase 4.1: Premium Form Widgets                                          │
+│  • Phase 8: Performance Optimization                                        │
+│  • Phase 9: Camera Improvements                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                              EXECUTION ORDER REKOMENDASIKAN
+================================================================================
+
+Sprint 1 (Week 1-2): FOUNDATION
+  1. Phase 1.1 - Room Migration                           [2 hari]
+  2. Phase 2.1 - Dark Mode Fixes                          [1 hari]
+  3. Phase 2.2 - Translation Gaps                         [1 hari]
+  4. Phase 10.1 - Basic Unit Tests                        [2 hari]
+
+Sprint 2 (Week 3-4): FEATURES  
+  5. Phase 3.1 - Date Range Filter                        [2 hari]
+  6. Phase 5.1 - Reminder Settings UI                     [2 hari]
+  7. Phase 5.2 - Notification Permission                  [1 hari]
+  8. Phase 7.1 - Accessibility Audit                      [1 hari]
+
+Sprint 3 (Week 5-6): POLISH
+  9. Phase 4.2 - Navigation Bar                           [2 hari]
+  10. Phase 6.1 - Water Customization                     [2 hari]
+  11. Phase 3.2 - Statistics Export                       [1 hari]
+  12. Phase 8.1 - Image Optimization                      [1 hari]
+
+Sprint 4 (Week 7-8): ENHANCEMENT
+  13. Phase 1.2 - Data Encryption (Optional)              [2 hari]
+  14. Phase 4.1 - Premium Form Widgets                    [3 hari]
+  15. Phase 9.1 - Offline Mode                            [2 hari]
+  16. Phase 10.2 - UI Tests                               [2 hari]
+
+================================================================================
+                              ESTIMATED TOTAL WAKTU
+================================================================================
+
+Total: ~27-32 hari development
+
+Breakdown per Priority:
+  ┌────────────────────────────────────────────────────────────────┐
+  │ CRITICAL (Phase 1, 10.1)         │ 4-5 hari     │ ██████░░░░  │
+  │ HIGH (Phase 2, 3)                │ 5 hari       │ ██████░░░░  │
+  │ MEDIUM (Phase 4-8)               │ 13-16 hari   │ █████████░  │
+  │ LOW (Phase 9, 10.2)              │ 5-6 hari     │ ██████░░░░  │
+  └────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                              FILES REFERENCE
+================================================================================
+
+Struktur File yang Dianalisis:
+.
+├── app/src/main/java/com/example/luminacal/
+│   ├── MainActivity.kt                    (341 lines)
+│   ├── LuminaCalApplication.kt            (22 lines)
+│   ├── data/
+│   │   ├── local/
+│   │   │   ├── LuminaDatabase.kt          (41 lines) ⚠️ CRITICAL
+│   │   │   ├── MealDao.kt                 (27 lines)
+│   │   │   ├── MealEntity.kt              (20 lines)
+│   │   │   ├── WaterDao.kt                (29 lines)
+│   │   │   ├── WaterEntity.kt             (31 lines)
+│   │   │   ├── WeightDao.kt               (28 lines)
+│   │   │   ├── WeightEntity.kt            (14 lines)
+│   │   │   ├── CustomFoodDao.kt           (46 lines)
+│   │   │   ├── CustomFoodEntity.kt        (38 lines)
+│   │   │   ├── HealthMetricsDao.kt        (14 lines)
+│   │   │   ├── HealthMetricsEntity.kt     (52 lines)
+│   │   │   └── Converters.kt              (12 lines)
+│   │   ├── ml/
+│   │   │   ├── FoodAnalyzer.kt            
+│   │   │   └── FoodNutritionDatabase.kt   (135+ foods)
+│   │   └── repository/
+│   │       ├── MealRepository.kt          (114 lines)
+│   │       ├── WaterRepository.kt         (72 lines)
+│   │       ├── WeightRepository.kt        (228 lines)
+│   │       ├── HealthMetricsRepository.kt (33 lines)
+│   │       └── CustomFoodRepository.kt    (132 lines)
+│   ├── model/
+│   │   ├── DataClasses.kt                 (36 lines)
+│   │   ├── HealthMetrics.kt               (131 lines)
+│   │   ├── WaterEntry.kt                  (125 lines)
+│   │   ├── ReminderSettings.kt            (160 lines) ✓ Ready
+│   │   └── ExportSettings.kt              (159 lines) ✓ Ready
+│   ├── ui/
+│   │   ├── screens/
+│   │   │   ├── dashboard/DashboardScreen.kt       (474 lines)
+│   │   │   ├── explore/ExploreScreen.kt           (561 lines)
+│   │   │   ├── statistics/StatisticsScreen.kt     (427 lines) ⚠️ Incomplete
+│   │   │   ├── profile/ProfileScreen.kt           (332 lines)
+│   │   │   ├── camera/CameraScannerScreen.kt      (908 lines)
+│   │   │   ├── health/HealthMetricsScreen.kt      (1113 lines)
+│   │   │   ├── detail/FoodDetailScreen.kt         
+│   │   │   └── onboarding/OnboardingScreen.kt     
+│   │   ├── components/
+│   │   │   ├── GlassCard.kt               (87 lines)
+│   │   │   ├── GlassButton.kt             (102 lines)
+│   │   │   ├── AppleRing.kt               (118 lines)
+│   │   │   ├── CameraPreview.kt           (403 lines)
+│   │   │   ├── WaterTrackingWidget.kt     (351 lines)
+│   │   │   ├── HydrationComponents.kt     (394 lines)
+│   │   │   ├── WeightComponents.kt        (304 lines)
+│   │   │   ├── MacroProgressBar.kt        (80 lines)
+│   │   │   ├── EmptyStateCard.kt          (105 lines)
+│   │   │   ├── SkeletonLoader.kt          (114 lines)
+│   │   │   ├── SkeletonLoading.kt         (197 lines)
+│   │   │   ├── CelebrationOverlay.kt      (62 lines)
+│   │   │   ├── MeshBackground.kt          (95 lines)
+│   │   │   ├── AnimatedNumber.kt          (39 lines)
+│   │   │   ├── AnimationUtils.kt          (264 lines)
+│   │   │   ├── AddCustomFoodDialog.kt     (255 lines)
+│   │   │   └── charts/
+│   │   │       └── Charts.kt              
+│   │   ├── navigation/
+│   │   │   ├── Screen.kt                  
+│   │   │   └── NavHost.kt                 
+│   │   └── theme/
+│   │       ├── Color.kt                   ⚠️ Needs dark mode variants
+│   │       ├── Theme.kt                   
+│   │       └── Type.kt                    
+│   ├── util/
+│   │   ├── NotificationHelper.kt          (386 lines) ✓ Complete
+│   │   ├── ReminderScheduler.kt           (79 lines) ✓ Complete
+│   │   ├── DataExporter.kt                (277 lines) ✓ Complete
+│   │   ├── DataImporter.kt                (305 lines) ✓ Complete
+│   │   ├── ValidationUtils.kt             (245 lines)
+│   │   ├── AppPreferences.kt              (47 lines)
+│   │   ├── OnboardingPrefs.kt             (28 lines)
+│   │   ├── MealTypeDetector.kt            (84 lines)
+│   │   ├── ImageLoaderFactory.kt          (60 lines)
+│   │   ├── MealReminderWorker.kt          (17 lines)
+│   │   └── DailySummaryWorker.kt          (40 lines)
+│   └── viewmodel/
+│       └── MainViewModel.kt               (412 lines)
+└── res/
+    ├── values/strings.xml                 
+    └── values-id/strings.xml              
+
+================================================================================
+                                   END OF ROADMAP
+================================================================================
+
+Document Version: 1.3.0
+Created: 2026-01-09
+Author: AI Assistant (Claude/Gemini)
+Project: LuminaCal Beta V1.3
+
+Catatan:
+• Dokumen ini hasil analisis otomatis seluruh codebase
+• Priority dapat disesuaikan berdasarkan kebutuhan tim
+• Estimasi waktu berdasarkan single developer
+
+================================================================================

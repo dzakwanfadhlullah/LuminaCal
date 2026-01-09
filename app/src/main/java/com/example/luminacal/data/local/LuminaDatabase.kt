@@ -30,7 +30,11 @@ abstract class LuminaDatabase : RoomDatabase() {
                     LuminaDatabase::class.java,
                     "lumina_database"
                 )
-                    .fallbackToDestructiveMigration() // TODO: Remove for production. WARNING: Wipes data on schema change.
+                    // Use proper migrations to preserve user data during schema upgrades
+                    .addMigrations(*DatabaseMigrations.COMPLETE_MIGRATION_CHAIN)
+                    // Fallback only if migration path is missing (e.g., downgrade or corrupted version)
+                    // This should rarely happen in production
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

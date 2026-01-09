@@ -1,10 +1,9 @@
 ### 🍚 INDONESIAN RICE DISHES
 | Menu | Kalori (kcal) | Protein (g) | Carbs (g) | Fat (g) | Takaran |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| Nasi Goreng | 575 | 18 | 72 | 24 | 1 piring |
+| Nasi Goreng | 575 | 18 | 72 | 24 | 1 piring | 
 | Nasi Putih | 200 | 4 | 44 | 1 | 1 piring |
 | Nasi Uduk | 490 | 12 | 70 | 19 | 1 piring |
-| Nasi Kuning | 450 | 11 | 65 | 17 | 1 piring |
 | Nasi Padang | 750 | 40 | 77 | 35 | 1 porsi |
 | Bubur Ayam | 370 | 18 | 47 | 12 | 1 mangkok |
 | Lontong Sayur | 460 | 16 | 60 | 21 | 1 porsi |
