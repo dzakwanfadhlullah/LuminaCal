@@ -177,6 +177,29 @@
     <string name="weight_chart">Progres Berat</string>
     <string name="avg_daily_calories">Rata-rata Kalori Harian</string>
     <string name="goal_achievement">Pencapaian Target</string>
+    <string name="stats_week_comparison">Perbandingan Minggu</string>
+    <string name="stats_this_week">Minggu Ini</string>
+    <string name="stats_last_week">Minggu Lalu</string>
+    
+    <!-- Health Metrics - Additional -->
+    <string name="health_gender">Jenis Kelamin</string>
+    <string name="health_body_mass_index">Indeks Massa Tubuh</string>
+    <string name="health_goal_timeline">Timeline Target</string>
+    <string name="health_current">Saat Ini</string>
+    <string name="health_target">Target</string>
+    <string name="health_weight_statistics">Statistik Berat</string>
+    <string name="health_weekly_avg">Rata-rata Minggu</string>
+    <string name="health_monthly_avg">Rata-rata Bulan</string>
+    <string name="health_lowest">Terendah</string>
+    <string name="health_highest">Tertinggi</string>
+    <string name="health_total_change">Total Perubahan</string>
+    <string name="coming_soon">Segera Hadir</string>
+    
+    <!-- Dashboard Status Messages -->
+    <string name="status_over_budget">Melebihi Batas</string>
+    <string name="status_getting_started">Mulai Perlahan</string>
+    <string name="status_start_logging">Mulai Catat</string>
+    <string name="status_on_track">Sesuai Target</string>
     
     <!-- Profile -->
     <string name="profile_title">Profil</string>

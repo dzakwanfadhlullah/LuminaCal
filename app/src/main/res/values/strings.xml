@@ -185,6 +185,29 @@
     <string name="weight_chart">Weight Progress</string>
     <string name="avg_daily_calories">Avg. Daily Calories</string>
     <string name="goal_achievement">Goal Achievement</string>
+    <string name="stats_week_comparison">Week Comparison</string>
+    <string name="stats_this_week">This Week</string>
+    <string name="stats_last_week">Last Week</string>
+    
+    <!-- Health Metrics - Additional -->
+    <string name="health_gender">Gender</string>
+    <string name="health_body_mass_index">Body Mass Index</string>
+    <string name="health_goal_timeline">Goal Timeline</string>
+    <string name="health_current">Current</string>
+    <string name="health_target">Target</string>
+    <string name="health_weight_statistics">Weight Statistics</string>
+    <string name="health_weekly_avg">Weekly Avg</string>
+    <string name="health_monthly_avg">Monthly Avg</string>
+    <string name="health_lowest">Lowest</string>
+    <string name="health_highest">Highest</string>
+    <string name="health_total_change">Total Change</string>
+    <string name="coming_soon">Coming Soon</string>
+    
+    <!-- Dashboard Status Messages -->
+    <string name="status_over_budget">Over Budget</string>
+    <string name="status_getting_started">Getting Started</string>
+    <string name="status_start_logging">Start Logging</string>
+    <string name="status_on_track">On Track</string>
     
     <!-- Profile -->
     <string name="profile_title">Profile</string>
