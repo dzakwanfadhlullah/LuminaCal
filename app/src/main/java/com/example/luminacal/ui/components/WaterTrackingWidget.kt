@@ -124,7 +124,7 @@ fun WaterTrackingWidget(
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             showSettingsDialog = true
                         },
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(44.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,

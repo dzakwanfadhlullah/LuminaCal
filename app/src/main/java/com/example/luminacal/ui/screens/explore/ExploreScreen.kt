@@ -543,13 +543,13 @@ fun RecipeCard(
                         Text(recipe.calories, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                         IconButton(
                             onClick = onQuickAdd,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(
                                 Icons.Default.Add, 
                                 contentDescription = "Quick add", 
                                 tint = Blue500, 
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
