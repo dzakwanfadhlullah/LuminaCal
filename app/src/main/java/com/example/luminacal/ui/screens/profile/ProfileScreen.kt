@@ -29,9 +29,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.luminacal.R
 import com.example.luminacal.model.HealthMetrics
 import com.example.luminacal.ui.components.GlassCard
-import com.example.luminacal.ui.theme.Blue500
-import com.example.luminacal.ui.theme.Peach400
-import com.example.luminacal.ui.theme.Pink500
+import com.example.luminacal.ui.theme.*
 
 @Composable
 fun ProfileScreen(
@@ -133,7 +131,7 @@ fun ProfileScreen(
                     icon = Icons.Default.MonitorHeart, 
                     title = stringResource(R.string.health_metrics_title), 
                     trailing = stringResource(R.string.tdee_calculator),
-                    tint = Color(0xFFEF4444),
+                    tint = StatusError,
                     onClick = { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onHealthClick()
@@ -143,7 +141,7 @@ fun ProfileScreen(
                 ProfileItemRow(
                     icon = Icons.Default.TrackChanges, 
                     title = stringResource(R.string.goals_title), 
-                    tint = Color(0xFFFB923C),
+                    tint = Peach400,
                     onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
                 )
             }
@@ -163,7 +161,7 @@ fun ProfileScreen(
                     ProfileItemRow(
                         icon = Icons.Default.FileDownload, 
                         title = stringResource(R.string.profile_export_csv), 
-                        tint = Color(0xFF3B82F6),
+                        tint = StatusInfo,
                         onClick = { 
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             onExportCSV()
@@ -173,7 +171,7 @@ fun ProfileScreen(
                     ProfileItemRow(
                         icon = Icons.Default.Backup, 
                         title = stringResource(R.string.profile_export_json), 
-                        tint = Color(0xFF8B5CF6),
+                        tint = GoalMaintainSecondary,
                         onClick = { 
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             onExportJSON()
@@ -193,7 +191,7 @@ fun ProfileScreen(
                     modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
                 )
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
-                    ProfileItemRow(Icons.Default.Person, stringResource(R.string.profile_dietary_needs), tint = Color(0xFFA855F7))
+                    ProfileItemRow(Icons.Default.Person, stringResource(R.string.profile_dietary_needs), tint = Indigo500)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -204,9 +202,9 @@ fun ProfileScreen(
                             Surface(
                                 modifier = Modifier.size(32.dp),
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFF64748B).copy(alpha = 0.1f)
+                                color = NeutralGray500.copy(alpha = 0.1f)
                             ) {
-                                Icon(Icons.Default.FlashOn, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.padding(6.dp))
+                                Icon(Icons.Default.FlashOn, contentDescription = null, tint = NeutralGray500, modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(stringResource(R.string.profile_dark_mode), fontWeight = FontWeight.Medium)
@@ -231,14 +229,14 @@ fun ProfileScreen(
                             Surface(
                                 modifier = Modifier.size(32.dp),
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFF3B82F6).copy(alpha = 0.1f)
+                                color = StatusInfo.copy(alpha = 0.1f)
                             ) {
-                                Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color(0xFF3B82F6), modifier = Modifier.padding(6.dp))
+                                Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = StatusInfo, modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(stringResource(R.string.profile_meal_reminders), fontWeight = FontWeight.Medium)
-                                Text("Coming Soon", fontSize = 10.sp, color = Color(0xFF6B7280))
+                                Text("Coming Soon", fontSize = 10.sp, color = NeutralGray)
                             }
                         }
                     }
@@ -305,7 +303,7 @@ fun ProfileItemRow(
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (trailing != null) {
-                Text(trailing, fontSize = 12.sp, color = Color(0xFF22C55E), modifier = Modifier.padding(end = 8.dp))
+                Text(trailing, fontSize = 12.sp, color = StatusSuccess, modifier = Modifier.padding(end = 8.dp))
             }
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.LightGray, modifier = Modifier.size(20.dp))
         }

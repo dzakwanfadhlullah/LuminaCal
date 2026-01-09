@@ -504,7 +504,7 @@ fun RecipeCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .background(Color(0xFFE2E8F0).copy(alpha = 0.5f))
+                        .background(SurfaceVariantLight.copy(alpha = 0.5f))
                 ) {
                     AsyncImage(
                         model = recipe.imageUrl,

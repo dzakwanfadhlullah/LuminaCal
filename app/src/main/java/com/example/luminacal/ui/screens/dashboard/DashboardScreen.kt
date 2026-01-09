@@ -109,7 +109,7 @@ fun DashboardScreen(
                         if (loggingStreak > 0) {
                             Spacer(modifier = Modifier.width(12.dp))
                             Surface(
-                                color = Color(0xFFFEF3C7),
+                                color = WarningBgLight,
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Row(
@@ -119,14 +119,14 @@ fun DashboardScreen(
                                     Icon(
                                         Icons.Default.Whatshot,
                                         contentDescription = "Streak",
-                                        tint = Color(0xFFD97706),
+                                        tint = WarningAmber,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = "$loggingStreak",
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = Color(0xFFD97706),
+                                        color = WarningAmber,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -161,10 +161,10 @@ fun DashboardScreen(
                     } else 0f
                     
                     val (statusText, statusColor, statusIcon) = when {
-                        consumedPercent > 1.1f -> Triple("Over Budget", Color(0xFFEF4444), Icons.AutoMirrored.Filled.TrendingUp)
-                        consumedPercent < 0.3f && calorieState.consumed > 0 -> Triple("Getting Started", Color(0xFFF59E0B), Icons.AutoMirrored.Filled.TrendingUp)
-                        consumedPercent < 0.1f -> Triple("Start Logging", Color(0xFF6B7280), Icons.AutoMirrored.Filled.TrendingUp)
-                        else -> Triple("On Track", Color(0xFF22C55E), Icons.AutoMirrored.Filled.TrendingUp)
+                        consumedPercent > 1.1f -> Triple("Over Budget", StatusError, Icons.AutoMirrored.Filled.TrendingUp)
+                        consumedPercent < 0.3f && calorieState.consumed > 0 -> Triple("Getting Started", StatusWarning, Icons.AutoMirrored.Filled.TrendingUp)
+                        consumedPercent < 0.1f -> Triple("Start Logging", NeutralGray, Icons.AutoMirrored.Filled.TrendingUp)
+                        else -> Triple("On Track", StatusSuccess, Icons.AutoMirrored.Filled.TrendingUp)
                     }
                     
                     // Status Badge
@@ -207,7 +207,7 @@ fun DashboardScreen(
                         },
                         subLabel = stringResource(R.string.dashboard_remaining),
                         icon = Icons.Default.Whatshot,
-                        color = Color(0xFFFFB88C)
+                        color = HighlightPeach
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
@@ -218,9 +218,9 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         listOf(
-                            Triple(stringResource(R.string.macro_protein), macros.protein, Color(0xFF3B82F6)),
-                            Triple(stringResource(R.string.macro_carbs), macros.carbs, Color(0xFF22C55E)),
-                            Triple(stringResource(R.string.macro_fat), macros.fat, Color(0xFFFB923C))
+                            Triple(stringResource(R.string.macro_protein), macros.protein, MacroProtein),
+                            Triple(stringResource(R.string.macro_carbs), macros.carbs, MacroCarbs),
+                            Triple(stringResource(R.string.macro_fat), macros.fat, MacroFat)
                         ).forEach { (label, value, color) ->
                             MacroProgressBar(
                                 label = label,
@@ -346,7 +346,7 @@ fun DashboardScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color(0xFFEF4444))
+                                .background(DeleteRed)
                                 .padding(horizontal = 20.dp),
                             contentAlignment = Alignment.CenterEnd
                         ) {
@@ -391,10 +391,10 @@ fun DashboardScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(
                                     when (entry.type) {
-                                        MealType.BREAKFAST -> Color(0xFFDBEAFE)
-                                        MealType.LUNCH -> Color(0xFFDCFCE7)
-                                        MealType.SNACK -> Color(0xFFFEE2E2)
-                                        else -> Color(0xFFF3F4F6)
+                                        MealType.BREAKFAST -> MealBreakfastBgLight
+                                        MealType.LUNCH -> MealLunchBgLight
+                                        MealType.SNACK -> MealSnackBgLight
+                                        else -> MealDinnerBgLight
                                     }
                                 ),
                             contentAlignment = Alignment.Center
