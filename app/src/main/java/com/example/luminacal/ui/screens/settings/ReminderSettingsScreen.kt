@@ -68,6 +68,22 @@ fun ReminderSettingsScreen(
         },
         containerColor = Color.Transparent
     ) { padding ->
+        // Permission state
+        var showPermissionDialog by remember { mutableStateOf(false) }
+        val hasNotificationPermission = remember { 
+            mutableStateOf(com.example.luminacal.util.NotificationPermissionHelper.isNotificationPermissionGranted(context))
+        }
+        
+        // Permission Dialog
+        if (showPermissionDialog) {
+            com.example.luminacal.ui.components.permission.NotificationPermissionDialog(
+                onDismiss = { showPermissionDialog = false },
+                onPermissionResult = { granted ->
+                    hasNotificationPermission.value = granted
+                }
+            )
+        }
+        
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -75,6 +91,14 @@ fun ReminderSettingsScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Permission Status
+            item {
+                com.example.luminacal.ui.components.permission.NotificationPermissionStatus(
+                    isGranted = hasNotificationPermission.value,
+                    onRequestPermission = { showPermissionDialog = true }
+                )
+            }
+            
             // Meal Reminders Section
             item {
                 Text(
