@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocalCafe
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,6 +37,9 @@ fun WaterTrackingWidget(
     waterState: WaterState,
     onAddWater: (Int) -> Unit,
     onAddWaterWithType: (Int, BeverageType) -> Unit = { ml, _ -> onAddWater(ml) },
+    onUpdateTarget: (Int) -> Unit = {},
+    customCupSizes: List<CustomCupSize> = defaultCupSizes,
+    onUpdateCupSizes: (List<CustomCupSize>) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -43,6 +47,9 @@ fun WaterTrackingWidget(
     
     // Selected beverage type state
     var selectedBeverageType by remember { mutableStateOf(BeverageType.WATER) }
+    
+    // Settings dialog state
+    var showSettingsDialog by remember { mutableStateOf(false) }
     
     // Animated progress
     val animatedProgress by animateFloatAsState(
@@ -53,6 +60,19 @@ fun WaterTrackingWidget(
         ),
         label = "water_progress"
     )
+    
+    // Settings Dialog
+    if (showSettingsDialog) {
+        WaterSettingsDialog(
+            currentTarget = waterState.target,
+            customSizes = customCupSizes,
+            onDismiss = { showSettingsDialog = false },
+            onSave = { newTarget, newSizes ->
+                onUpdateTarget(newTarget)
+                onUpdateCupSizes(newSizes)
+            }
+        )
+    }
 
     GlassCard(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -80,19 +100,37 @@ fun WaterTrackingWidget(
                     )
                 }
                 
-                // Cups display with goal indicator
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "${String.format("%.1f", waterState.cupsConsumed)} / ${waterState.cupsTarget.toInt()} cups",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = if (waterState.goalReached) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    if (waterState.goalReached) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Cups display with goal indicator
+                    Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "🎉 Goal reached!",
-                            fontSize = 10.sp,
-                            color = Color(0xFF22C55E)
+                            text = "${String.format("%.1f", waterState.cupsConsumed)} / ${waterState.cupsTarget.toInt()} cups",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = if (waterState.goalReached) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        if (waterState.goalReached) {
+                            Text(
+                                text = "🎉 Goal reached!",
+                                fontSize = 10.sp,
+                                color = Color(0xFF22C55E)
+                            )
+                        }
+                    }
+                    
+                    // Settings button
+                    IconButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            showSettingsDialog = true
+                        },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Water Settings",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
