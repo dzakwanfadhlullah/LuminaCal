@@ -250,6 +250,7 @@ fun MainContent(
                                 darkMode = state.darkMode,
                                 onToggleDarkMode = { viewModel.toggleDarkMode() },
                                 onHealthClick = { navController.navigate(Screen.HealthMetrics.route) },
+                                onRemindersClick = { navController.navigate(Screen.ReminderSettings.route) },
                                 onExportCSV = {
                                     val mealsToExport = state.history.map { entry ->
                                         com.example.luminacal.data.local.MealEntity(
@@ -350,6 +351,19 @@ fun MainContent(
                                 weightTrend = state.weightTrend,
                                 onAddWeight = { weight, note -> viewModel.addWeight(weight, note) },
                                 onDeleteWeight = { entry -> viewModel.deleteWeight(entry) }
+                            )
+                        }
+                        composable(Screen.ReminderSettings.route) {
+                            com.example.luminacal.ui.screens.settings.ReminderSettingsScreen(
+                                reminderSettings = com.example.luminacal.model.ReminderSettings(),
+                                onSettingsChange = { /* Handle changes */ },
+                                onBack = { navController.popBackStack() },
+                                onSave = { settings ->
+                                    // Save to preferences and reschedule notifications
+                                    com.example.luminacal.util.ReminderScheduler.scheduleMealReminders(
+                                        navController.context
+                                    )
+                                }
                             )
                         }
                     }

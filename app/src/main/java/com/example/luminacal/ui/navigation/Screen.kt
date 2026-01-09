@@ -33,6 +33,7 @@ sealed class Screen(val route: String, val labelRes: Int, val icon: ImageVector)
         }
     }
     object HealthMetrics : Screen("health_metrics", R.string.nav_health, Icons.Default.ShowChart)
+    object ReminderSettings : Screen("reminder_settings", R.string.nav_reminders, Icons.Default.Settings)
     object Onboarding : Screen("onboarding", R.string.nav_home, Icons.Default.CompassCalibration)
 }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,6 +38,7 @@ fun ProfileScreen(
     darkMode: Boolean,
     onToggleDarkMode: () -> Unit,
     onHealthClick: () -> Unit = {},
+    onRemindersClick: () -> Unit = {},
     onExportCSV: () -> Unit = {},
     onExportJSON: () -> Unit = {},
     onClearData: () -> Unit = {}
@@ -219,9 +221,14 @@ fun ProfileScreen(
                         )
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
-                    // Notification Setting - Coming Soon
+                    // Meal Reminders - Now Clickable
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onRemindersClick()
+                            },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -236,9 +243,14 @@ fun ProfileScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(stringResource(R.string.profile_meal_reminders), fontWeight = FontWeight.Medium)
-                                Text("Coming Soon", fontSize = 10.sp, color = NeutralGray)
+                                Text("Tap to configure", fontSize = 10.sp, color = Blue500)
                             }
                         }
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        )
                     }
                 }
             }

@@ -10,7 +10,19 @@
     <string name="nav_profile">Profile</string>
     <string name="nav_health">Health</string>
     <string name="nav_detail">Detail</string>
+    <string name="nav_reminders">Reminders</string>
     
+    <!-- Reminder Settings -->
+    <string name="reminder_settings_title">Meal Reminders</string>
+    <string name="reminder_breakfast">Breakfast</string>
+    <string name="reminder_lunch">Lunch</string>
+    <string name="reminder_dinner">Dinner</string>
+    <string name="reminder_forgot_to_log">Forgot to Log</string>
+    <string name="reminder_daily_summary">Daily Summary</string>
+    <string name="reminder_time_format">%02d:%02d</string>
+    <string name="reminder_enabled">Enabled</string>
+    <string name="reminder_days">Active Days</string>
+    <string name="reminder_save">Save Settings</string>
     <!-- Dashboard -->
     <string name="dashboard_title">Dashboard</string>
     <string name="dashboard_today">TODAY</string>
