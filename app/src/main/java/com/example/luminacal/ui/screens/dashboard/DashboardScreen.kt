@@ -179,7 +179,7 @@ fun DashboardScreen(
                     ) {
                         Icon(
                             imageVector = statusIcon,
-                            contentDescription = null,
+                            contentDescription = statusText,
                             tint = statusColor,
                             modifier = Modifier.size(12.dp)
                         )

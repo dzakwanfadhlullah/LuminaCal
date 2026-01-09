@@ -255,7 +255,7 @@ private fun CameraPermissionDeniedUI(
                     colors = ButtonDefaults.buttonColors(containerColor = Green500),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = null)
+                    Icon(Icons.Default.CameraAlt, contentDescription = "Camera")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.grant_permission))
                 }
@@ -372,7 +372,7 @@ private fun CameraErrorUI(
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
+                Icon(Icons.Default.Refresh, contentDescription = "Retry")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     stringResource(R.string.try_again),

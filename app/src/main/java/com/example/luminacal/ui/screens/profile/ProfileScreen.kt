@@ -80,7 +80,7 @@ fun ProfileScreen(
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Icon(Icons.Default.Settings, contentDescription = "Profile settings", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
 
@@ -206,7 +206,7 @@ fun ProfileScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 color = NeutralGray500.copy(alpha = 0.1f)
                             ) {
-                                Icon(Icons.Default.FlashOn, contentDescription = null, tint = NeutralGray500, modifier = Modifier.padding(6.dp))
+                                Icon(Icons.Default.FlashOn, contentDescription = "Dark mode", tint = NeutralGray500, modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(stringResource(R.string.profile_dark_mode), fontWeight = FontWeight.Medium)
@@ -238,7 +238,7 @@ fun ProfileScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 color = StatusInfo.copy(alpha = 0.1f)
                             ) {
-                                Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = StatusInfo, modifier = Modifier.padding(6.dp))
+                                Icon(Icons.Default.NotificationsActive, contentDescription = "Notification settings", tint = StatusInfo, modifier = Modifier.padding(6.dp))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
@@ -278,7 +278,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
-                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Delete, contentDescription = "Clear data", modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(stringResource(R.string.clear_data), fontWeight = FontWeight.Bold)
             }

@@ -163,7 +163,7 @@ fun ExploreScreen(
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Search, 
-                                    contentDescription = null, 
+                                    contentDescription = "Search foods", 
                                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                                 )
                             },
